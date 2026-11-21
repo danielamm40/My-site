@@ -1457,9 +1457,12 @@ function renderTrips(){
 }
 
 /* ---------- itinerary ---------- */
-function plan(d,days,styles,walk){
-  const n=Math.max(2,days*2-2);
-  let s=d.st.map((x,i)=>({x,i,p:x[3].split(',').filter(t=>styles.has(t)).length*2-(walk===0&&x[4]===3?3:0)-(walk===0&&x[4]===2?.5:0)}));
+const seasonOf=(d,m)=>{if(!m)return null;const T=temp(d,m);return {T,cold:T<17,hot:T>=25,xm:(m===11||m===12)&&d.s.xmas>=2}};
+function plan(d,days,styles,walk,m=0){
+  const n=Math.max(2,days*2-2),se=seasonOf(d,m);
+  const sb=t=>!se?0:(t.includes('beach')?(se.hot?2.5:se.cold?-6:0):0)+(t.includes('xmas')?(se.xm?3:-6):0)+(se.cold&&(t.includes('shop')||t.includes('city'))?1:0)+(se.hot&&t.includes('views')?.5:0);
+  let s=d.st.map((x,i)=>({x,i,p:x[3].split(',').filter(t=>styles.has(t)).length*2-(walk===0&&x[4]===3?3:0)-(walk===0&&x[4]===2?.5:0)+sb(x[3].split(','))}));
+  if(se)s=s.filter(o=>{const t=o.x[3].split(',')[0];return !(se.cold&&t==='beach')&&!(!se.xm&&t==='xmas')});
   if(s.length>n)s=s.sort((a,b)=>b.p-a.p||a.i-b.i).slice(0,n).sort((a,b)=>a.i-b.i);
   const q=s.map(o=>o.x),out=Array.from({length:days},()=>[]),cap=out.map(()=>0);
   if(q.length<=days)q.forEach((_,j)=>cap[Math.floor(j*days/q.length)]++);
@@ -1561,8 +1564,9 @@ function openDest(id,o={}){
   drawDlg();const g=$('#dlg');if(!g.open)g.showModal();g.scrollTop=0;
 }
 function drawDlg(){
-  const d=D.find(x=>x.id===cur.id),c=cost(d,cur.days,cur.tier,cur.month),days=plan(d,cur.days,cur.styles,cur.walk),g=$('#dlg'),y=g.scrollTop;
-  const fillKey=['beach','shop','xmas','views'].find(k=>cur.styles.has(k)&&d.s[k]>=2)||'views';
+  const d=D.find(x=>x.id===cur.id),c=cost(d,cur.days,cur.tier,cur.month),days=plan(d,cur.days,cur.styles,cur.walk,cur.month),g=$('#dlg'),y=g.scrollTop;
+  const se=seasonOf(d,cur.month),fillKey=['beach','shop','xmas','views'].find(k=>cur.styles.has(k)&&d.s[k]>=2&&!(k==='beach'&&se&&se.cold)&&!(k==='xmas'&&se&&!se.xm))||(se&&se.hot&&d.s.beach>=2?'beach':se&&se.cold&&d.s.shop>=2?'shop':'views');
+  const seNote=!se?'':se.xm?'שווקי חג המולד קיבלו עדיפות במסלול.':se.cold&&d.st.some(x=>x[3].startsWith('beach'))?'בחודש הזה קר לים, אז החופים ירדו מהמסלול ונשארו עיר, קניות ונופים.':!se.xm&&d.st.some(x=>x[3].startsWith('xmas'))?'שווקי חג המולד פועלים רק בנובמבר ובדצמבר, אז הם ירדו מהמסלול.':se.hot&&d.s.beach>=2?'בחודש הזה חם, אז החופים והים קיבלו עדיפות במסלול.':se.cold?'בחודש הזה קר, אז ניתנה עדיפות למקומות בעיר ולקניות.':'';
   const xm=cur.styles.has('xmas')&&d.s.xmas>=2&&cur.month&&cur.month<11?'<p class="warn">שווקי חג המולד פועלים רק מסוף נובמבר ועד סוף דצמבר.</p>':'';
   const seasW=cur.month&&!d.m.includes(cur.month)?`<p class="warn">${MONTHS[cur.month]} אינו העונה המומלצת ליעד הזה.</p>`:'';
   g.innerHTML=`<div class="d-pic">${gallery(d)}<button class="round d-close" data-close aria-label="סגירה">${ic('close')}</button></div>
@@ -1582,7 +1586,7 @@ function drawDlg(){
    ${COMBO[d.id]?`<div><h3>משתלב טוב עם</h3><div class="chipsrow">${COMBO[d.id].map(i=>D.find(x=>x.id===i)).filter(Boolean).map(x=>`<button type="button" data-open="${x.id}" aria-pressed="false">${x.n}</button>`).join('')}</div><p class="note">יעדים קרובים שקל לחבר לאותה נסיעה, ברכב, ברכבת או בטיסה קצרה.</p></div>`:''}
    <div><h3>המסלול שלכם</h3><div class="opts" style="margin-bottom:20px">
      <span class="stepper"><button data-step="-1" aria-label="יום פחות">−</button><span>${cur.days} ימים</span><button data-step="1" aria-label="יום נוסף">+</button></span>
-     <span class="seg">${TIERS.map((t,i)=>`<button data-dtier="${i}" aria-pressed="${i===cur.tier}">${t[0]}</button>`).join('')}</span></div>${seasW}${xm}
+     <span class="seg">${TIERS.map((t,i)=>`<button data-dtier="${i}" aria-pressed="${i===cur.tier}">${t[0]}</button>`).join('')}</span></div>${seNote?`<p class="warn" style="margin-bottom:14px">המסלול מותאם ל${MONTHS[cur.month]}: ${seNote}</p>`:''}${seasW}${xm}
    ${days.map((list,i)=>`<div class="day"><span class="num">${i+1}</span><h4>${i===0?'נחיתה והתמקמות':i===days.length-1?'יום אחרון וטיסה הביתה':list.length?list.map(s=>s[0].split(',')[0]).join(' ו'):FILL[fillKey][0]}</h4><span class="rail"></span>
      <div class="stops">${list.length?list.map(s=>`<div class="stop"><b>${s[0]}</b><address>${s[1]}</address><p>${s[2]}</p><div class="row"><span>${ic(WALKLBL[s[4]][0])}${WALKLBL[s[4]][1]}</span>${s[3].split(',').slice(0,2).map(t=>`<span>${ic(t)}${STYLES[t]}</span>`).join('')}<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s[1])}" target="_blank" rel="noopener">פתיחה במפות</a></div></div>`).join(''):`<div class="stop"><p>${i===days.length-1?'אריזה רגועה, קפה אחרון ונסיעה לשדה.':FILL[fillKey][1]}</p></div>`}</div></div>`).join('')}</div>
    <div><h3>כמה זה יעלה</h3><div class="costs">${Object.entries(c).filter(e=>e[0]!=='total').map(([k,v])=>`<div><span>${k}</span><b>${nis(v)}</b></div>`).join('')}<div class="tot"><span>סה״כ לזוג</span><b>${nis(c.total)}</b></div></div><p class="note">הערכה לפי מחירים ממוצעים. לא כולל קניות.</p></div>
@@ -1715,7 +1719,7 @@ function renderHotels(){
 }
 function dayItems(i,n,d,d0){
   const name=d?d.n:(pl.name||'היעד'),car=d&&d.c[3]>0,arr=toMin(pl.o.t2),dep=toMin(pl.b.t1),H=hotelAt(i,d0),Hp=i?hotelAt(i-1,d0):H;
-  const stops=d&&n>1?plan(d,Math.min(Math.max(n,2),14),st.styles,st.walk):[],ds=(stops[Math.min(i,stops.length-1)]||[]).slice();
+  const stops=d&&n>1?plan(d,Math.min(Math.max(n,2),14),st.styles,st.walk,d0.getMonth()+1):[],ds=(stops[Math.min(i,stops.length-1)]||[]).slice();
   const S=(m,x)=>({m,t:x[0],s:x[2],a:x[1],sg:1,k:'stop'}),M=(m,t,s)=>({m,t,s,sg:1,k:'meal'}),first=i===0,last=i===n-1&&n>1;let it=[];
   if(first){
     if(pl.o.t1)it.push({m:toMin(pl.o.t1),t:'המראה מישראל',s:'להגיע לנתב״ג שלוש שעות לפני'});
