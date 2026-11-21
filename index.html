@@ -267,7 +267,7 @@ footer{padding-block:40px 110px;color:var(--muted);font-size:.85rem;border-top:1
 <script>
 document.documentElement.lang='he';document.documentElement.dir='rtl';
 const $=s=>document.querySelector(s), nis=n=>Math.round(n).toLocaleString('he-IL')+' ₪';
-const STYLES={views:'נופים',drive:'טיול ברכב',shop:'שופינג',beach:'בטן־גב',xmas:'כריסמס',romance:'רומנטי',city:'עיר'};
+const STYLES={views:'נופים',drive:'טיול ברכב',shop:'שופינג',beach:'בטן־גב',xmas:'כריסמס',romance:'רומנטי',city:'עיר',hidden:'פחות מוכרים'};
 const MONTHS=['גמיש','ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
 const TIERS=[['חסכוני',.7,.8],['נוח',1,1],['מפנק',1.7,1.4]];
 const WALKS=['כמה שפחות','הליכה קלה','לא משנה'];
@@ -297,6 +297,7 @@ const IC={
  sail:['c5','<path d="M15 4v18.5H5.5z"/><path class="f" d="M17.5 8.5v14H26z"/><path d="M4 25.5h24l-3.5 3.5h-17z"/>']
 };
 Object.assign(IC,{
+ hidden:['','<path d="M5 13l5.500-7h11L27 13 16 27zM5 13h22M10.500 6l5.500 7 5.500-7M16 13v14"/>'],
  star:['','<path class="f" d="M16 3l3.9 8.3 9.1 1.2-6.7 6.3 1.7 9L16 23.4 8 27.8l1.7-9L3 12.5l9.1-1.2z"/>'],
  sliders:['','<path d="M5 10h13M24 10h3M5 22h3M14 22h13"/><circle cx="21" cy="10" r="3"/><circle cx="11" cy="22" r="3"/>'],
  sun:['','<circle cx="16" cy="16" r="5.5"/><path d="M16 4v3M16 25v3M4 16h3M25 16h3M7.5 7.5l2.1 2.1M22.4 22.4l2.1 2.1M7.5 24.5l2.1-2.1M22.4 9.6l2.1-2.1"/>'],
@@ -390,7 +391,7 @@ const D=[
  ['רחוב פאריז׳סקה','Pařížská, 110 00 Praha 1, Czechia','שדרת מותגי היוקרה של העיר.','shop',1],
  ['שיט על הוולטאבה','Dvořákovo nábřeží, 110 00 Praha 1, Czechia','שיט של שעה עם נוף לטירה.','views,romance',1],
  ['פאשן ארנה אאוטלט','Zamenhofova 440, 108 00 Praha 10, Czechia','כ־25 דקות מהמרכז במטרו ושאטל.','shop',1]]},
-{id:'slovenia',n:'בלד ולובליאנה',w:'סלובניה',sc:'lake',h:3.6,m:[5,6,7,8,9,12],c:[1900,480,330,180],walk:1,s:{views:3,drive:3,romance:3,xmas:2,shop:1,city:1},
+{id:'slovenia',n:'בלד ולובליאנה',w:'סלובניה',sc:'lake',h:3.6,m:[5,6,7,8,9,12],c:[1900,480,330,180],walk:1,s:{hidden:2,views:3,drive:3,romance:3,xmas:2,shop:1,city:1},
  stay:'בלד לשלושה לילות, ולילה או שניים בלובליאנה.',tips:['מדינה קטנה: מהאלפים עד הים בשעתיים נסיעה.','צריך מדבקת אגרה (Vinjeta) לכבישים המהירים.'],
  st:[['אגם בלד, שיט פלטנה','Cesta svobode, 4260 Bled, Slovenia','סירת עץ מסורתית לאי. לטעום קרמשניטה, עוגת הקרם המקומית.','views,romance',1],
  ['טירת בלד','Grajska cesta 61, 4260 Bled, Slovenia','נוסעים עד החניה העליונה. מסעדה עם מרפסת מעל האגם.','views,romance',2],
@@ -398,7 +399,7 @@ const D=[
  ['מערת פוסטוינה','Jamska cesta 30, 6230 Postojna, Slovenia','רכבת חשמלית מסיעה לתוך המערה. להביא סוודר, בפנים 10 מעלות.','views,drive',2],
  ['לובליאנה, כיכר פרשרן','Prešernov trg, 1000 Ljubljana, Slovenia','בדצמבר העיר מוארת כולה, דוכנים לאורך הנהר.','city,xmas,shop,romance',1],
  ['פיראן','Tartinijev trg, 6330 Piran, Slovenia','עיירה ונציאנית על הים האדריאטי, ארוחת דגים על הטיילת.','views,beach,romance',2]]},
-{id:'montenegro',n:'מפרץ קוטור',w:'מונטנגרו',sc:'sea',h:3,m:[5,6,7,8,9],c:[1500,400,280,160],walk:2,s:{views:3,drive:3,beach:2,romance:2,shop:1},
+{id:'montenegro',n:'מפרץ קוטור',w:'מונטנגרו',sc:'sea',h:3,m:[5,6,7,8,9],c:[1500,400,280,160],walk:2,s:{hidden:2,views:3,drive:3,beach:2,romance:2,shop:1},
  stay:'קוטור או פראסט לנוף, בודווה למי שרוצה יותר חוף.',tips:['יעד זול עם נופים של פיורד. המטבע הוא אירו.','טיסות ישירות לטיווט בעיקר בקיץ.'],
  st:[['העיר העתיקה של קוטור','Stari Grad, 85330 Kotor, Montenegro','סמטאות אבן וחתולים. אין צורך לטפס לחומות, הנוף יפה גם מלמטה.','city,views',1],
  ['פראסט וגבירתנו של הסלעים','Obala Marka Martinovića, 85336 Perast, Montenegro','סירה קטנה לאי הכנסייה, חמישה אירו לאדם.','views,romance',1],
@@ -504,6 +505,135 @@ const D=[
  ['רחוב ארמו','Ermou, Athens 105 63, Greece','מדרחוב הקניות הראשי, מכיכר סינטגמה עד מונסטירקי.','shop,city',1],
  ['גבעת ליקבטוס','Aristippou 1, Athens 106 76, Greece','פוניקולר עולה לפסגה. השקיעה מול האקרופוליס שווה את זה.','views,romance',1],
  ['השוק המרכזי','Athinas 42, Athens 105 51, Greece','שוק אוכל אמיתי: זיתים, תבלינים וגבינות.','city,shop',1]]},
+{id:'madrid',n:'מדריד',w:'ספרד',sc:'city',h:5,m:[4,5,6,9,10,12],c:[1700,600,400,0],walk:2,s:{city:3,shop:3,romance:2,xmas:2,views:1},
+ stay:'גראן ויה או רובע סלמנקה: מרכזי, אלגנטי וקרוב לחנויות.',tips:['ארוחת ערב מתחילה כאן אחרי 21:00, מסעדות ריקות לפני כן.','טולדו נמצאת חצי שעה ברכבת מהירה, מושלם לחצי יום.'],
+ st:[['פלאסה מאיור ושוק סן מיגל','Plaza de San Miguel, 28005 Madrid, Spain','שוק טאפאס מקורה ליד הכיכר הראשית. לטעום חמון וקרוקטס.','city,shop',1],
+ ['גראן ויה','Gran Vía 32, 28013 Madrid, Spain','שדרת הקניות והתיאטראות. בערב החזיתות מוארות.','shop,city,xmas',1],
+ ['מוזיאון הפראדו','C. de Ruiz de Alarcón 23, 28014 Madrid, Spain','כניסה חופשית בשעתיים האחרונות של היום.','city',1],
+ ['פארק רטירו','Plaza de la Independencia 7, 28001 Madrid, Spain','סירות משוטים באגם וארמון הבדולח.','romance,views',1],
+ ['הארמון המלכותי','C. de Bailén, 28071 Madrid, Spain','שקיעה יפה מהגנים שמול הארמון.','city,views',1],
+ ['רחוב סראנו','Calle de Serrano 47, 28001 Madrid, Spain','רחוב המותגים של רובע סלמנקה.','shop',1],
+ ['לאס רוסאס וילג׳','C. Juan Ramón Jiménez 3, 28232 Las Rozas de Madrid, Spain','כפר אאוטלט, 30 דקות מהמרכז בשאטל.','shop',1]]},
+{id:'lisbon',n:'ליסבון',w:'פורטוגל',sc:'city',h:5.8,m:[4,5,6,9,10],c:[1900,550,350,0],walk:2,s:{city:3,views:3,romance:3,shop:2,beach:1},
+ stay:'שיאדו או באישה: האזור השטוח של העיר, קרוב לכול.',tips:['העיר בנויה על גבעות. חשמליות, מעליות וטוקטוק חוסכים את העליות.','אפליקציות מוניות זולות מאוד כאן.'],
+ st:[['מגדל בלם','Av. Brasília, 1400-038 Lisboa, Portugal','טיילת מישורית על הנהר. יפה מבחוץ, אין חובה להיכנס.','views,city',1],
+ ['פסטייש דה בלם','R. de Belém 84-92, 1300-085 Lisboa, Portugal','המאפייה המקורית של טארט הקרם. יש מקום ישיבה בפנים, בלי תור.','city,romance',1],
+ ['תצפית סניורה דו מונטה','Largo Monte, 1170-107 Lisboa, Portugal','התצפית הגבוהה בעיר. להגיע במונית לשקיעה.','views,romance',1],
+ ['חשמלית 28 ואלפמה','Praça Martim Moniz, 1100-341 Lisboa, Portugal','לעלות בתחנה הראשונה כדי לשבת. מוקדם בבוקר פחות עמוס.','city,views',1],
+ ['שיאדו ושדרת ליברדדה','Rua Garrett 73, 1200-203 Lisboa, Portugal','חנויות, בתי קפה ישנים ושדרת המותגים.','shop,city',2],
+ ['ארמון פנה, סינטרה','Estrada da Pena, 2710-609 Sintra, Portugal','ארמון צבעוני על הר. אוטובוס 434 עולה עד השער.','views,romance',2]]},
+{id:'andalusia',n:'סביליה ואנדלוסיה',w:'דרום ספרד',sc:'mount',h:5.3,m:[3,4,5,10,11],c:[1800,500,350,180],walk:2,s:{views:3,drive:3,romance:3,city:2,shop:1},
+ stay:'שני לילות בסביליה, לילה ברונדה ולילה בגרנדה.',tips:['טסים למלגה ואוספים רכב. הכבישים מצוינים וריקים.','ביולי ואוגוסט חם מאוד, האביב והסתיו מושלמים.'],
+ st:[['פלאסה דה אספניה, סביליה','Av. Isabel la Católica, 41004 Sevilla, Spain','כיכר ענקית עם תעלה וגשרי קרמיקה. הכי יפה לקראת ערב.','city,romance,views',1],
+ ['האלקסר של סביליה','Patio de Banderas, 41004 Sevilla, Spain','ארמון וגנים בסגנון מורי. להזמין שעת כניסה מראש.','city,romance',2],
+ ['הגשר החדש, רונדה','C. Armiñán, 29400 Ronda, Málaga, Spain','גשר מעל קניון של 100 מטר. התצפית ממש ליד החניון.','views,drive',1],
+ ['סטניל דה לאס בודגאס','Calle Cuevas del Sol, 11692 Setenil de las Bodegas, Cádiz, Spain','כפר לבן שבתיו בנויים מתחת לסלע.','views,drive',2],
+ ['האלהמברה, גרנדה','C. Real de la Alhambra, 18009 Granada, Spain','כרטיסים נגמרים שבועות מראש. האתר גדול, יש בו לא מעט הליכה.','views,city,romance',3],
+ ['מרפסת אירופה, נרחה','Paseo Balcón de Europa, 29780 Nerja, Málaga, Spain','טיילת על צוק מעל הים, עצירה נוחה בדרך חזרה למלגה.','views,beach',1]]},
+{id:'dubrovnik',n:'דוברובניק',w:'קרואטיה',sc:'sea',h:3,m:[5,6,9,10],c:[1700,700,400,170],walk:2,s:{views:3,romance:3,beach:2,city:2,drive:2},
+ stay:'לפאד או פלוצ׳ה: מחוץ לחומות, עם חניה ונוף לים.',tips:['בעיר העתיקה יש הרבה מדרגות. הרחוב הראשי עצמו שטוח לגמרי.','כשאוניות הקרוזים עוגנות עמוס מאוד. מוקדם בבוקר או בערב נעים יותר.'],
+ st:[['הסטרדון והעיר העתיקה','Stradun, 20000 Dubrovnik, Croatia','רחוב שיש מבריק בין החומות. גלידה ליד מזרקת אונופריו.','city,romance',1],
+ ['רכבל הר סרג׳','Ul. kralja Petra Krešimira IV, 20000 Dubrovnik, Croatia','ארבע דקות לתצפית על כל העיר והאיים.','views,romance',1],
+ ['חוף באניה','Frana Supila 10/B, 20000 Dubrovnik, Croatia','חוף עם נוף לחומות, מיטות שיזוף ומסעדה.','beach,views',1],
+ ['שיט לאי לוקרום','Gradska luka, 20000 Dubrovnik, Croatia','רבע שעה מהנמל הישן. גן בוטני וטווסים.','views,beach',2],
+ ['צאבטט','Obala dr. Ante Starčevića, 20210 Cavtat, Croatia','עיירת נמל שקטה עם טיילת דקלים, 20 דקות נסיעה.','drive,romance,views',1],
+ ['סטון','Ston, 20230 Croatia','חומות ארוכות וצדפות טריות מהמפרץ, שעה נסיעה לאורך החוף.','drive,views',1]]},
+{id:'sicily',n:'סיציליה המזרחית',w:'איטליה',sc:'sea',h:3.2,m:[4,5,6,9,10],c:[1600,500,350,170],walk:2,s:{views:3,drive:3,beach:2,romance:2,shop:1,city:1},
+ stay:'טאורמינה לנוף, או סירקוזה למי שמעדיף עיר שטוחה על הים.',tips:['טסים לקטניה ואוספים רכב.','לנסות גרניטה עם בריוש לארוחת בוקר, כמו המקומיים.'],
+ st:[['התיאטרון היווני, טאורמינה','Via del Teatro Greco 1, 98039 Taormina ME, Italy','תיאטרון עתיק עם נוף לאתנה ולים.','views,romance',2],
+ ['קורסו אומברטו','Corso Umberto, 98039 Taormina ME, Italy','מדרחוב של בוטיקים, קרמיקה וקנולי.','shop,city',1],
+ ['איזולה בלה','Via Nazionale, 98039 Taormina ME, Italy','מפרץ קטן מתחת לטאורמינה. רכבל יורד מהעיר.','beach,views',2],
+ ['הר אתנה, ריפוג׳ו ספיינצה','Piazzale Rifugio Sapienza, 95030 Nicolosi CT, Italy','נוסעים ברכב עד 1,900 מ׳ וממשיכים ברכבל.','views,drive',1],
+ ['אורטיג׳יה, סירקוזה','Piazza Duomo, 96100 Siracusa SR, Italy','אי קטן ושטוח עם כיכר בארוקית ושוק דגים.','city,romance',1],
+ ['נוטו','Corso Vittorio Emanuele, 96017 Noto SR, Italy','עיר בארוק בצבע דבש. הכי יפה באור של אחר הצהריים.','views,drive',1]]},
+{id:'malta',n:'מלטה וגוזו',w:'מלטה',sc:'sea',h:3,m:[4,5,6,9,10,11],c:[1500,450,330,130],walk:2,s:{views:2,drive:2,beach:2,city:2,romance:2,shop:1},
+ stay:'סליימה או סנט ג׳וליאנס, עם מעבורת קצרה לוולטה.',tips:['נוהגים בצד שמאל. האי קטן, כל נסיעה קצרה.','כולם מדברים אנגלית.'],
+ st:[['גני בראקה העליונים, ולטה','Upper Barrakka Gardens, Valletta VLT 1114, Malta','תצפית על הנמל הגדול. ירי תותחים כל יום ב־12:00.','views,city',1],
+ ['מדינה','Mdina Gate, Mdina MDN 1010, Malta','העיר השקטה: סמטאות אבן בתוך חומות, בלי מכוניות.','city,romance',1],
+ ['מרסשלוק','Xatt is-Sajjieda, Marsaxlokk, Malta','כפר דייגים עם סירות צבעוניות. שוק דגים בימי ראשון.','views,romance',1],
+ ['המערה הכחולה','Wied iż-Żurrieq, Qrendi, Malta','סירות קטנות יוצאות למערות כשהים שקט.','views,drive',1],
+ ['הלגונה הכחולה, קומינו','Ċirkewwa Ferry Terminal, Mellieħa, Malta','שיט מצ׳ירקווה. בבוקר המים שקטים ויש פחות אנשים.','beach,views',2],
+ ['המצודה של ויקטוריה, גוזו','Triq Bieb l-Imdina, Victoria, Gozo, Malta','מעבורת רכבים לגוזו ותצפית על כל האי.','views,drive',2]]},
+{id:'puglia',n:'פוליה',w:'עקב המגף, איטליה',sc:'sea',h:3,m:[5,6,9,10],c:[1500,480,350,170],walk:1,s:{hidden:3,views:3,drive:3,romance:3,beach:2,shop:1},
+ stay:'מסרייה (חווה משופצת) באזור מונופולי או אוסטוני.',tips:['טסים לבארי ואוספים רכב. המרחקים בין העיירות קצרים.','האוכל כאן מהטובים באיטליה: בוראטה, אורקייטה ושמן זית.'],
+ st:[['אלברובלו','Via Monte San Michele, 70011 Alberobello BA, Italy','רובע שלם של בתי טרולי עם גגות חרוט. להגיע לפני 10:00.','views,romance',2],
+ ['פוליניאנו א מארה','Via S. Vito, 70044 Polignano a Mare BA, Italy','עיירה לבנה על צוק מעל מפרצון. התצפית מהגשר.','views,beach,romance',1],
+ ['מונופולי, הנמל הישן','Porto Antico, 70043 Monopoli BA, Italy','סירות דייגים כחולות וארוחת דגים על המים.','romance,views',1],
+ ['אוסטוני','Piazza della Libertà, 72017 Ostuni BR, Italy','העיר הלבנה על הגבעה, מוקפת מטעי זיתים.','views,drive,shop',2],
+ ['לוקורוטונדו','Via Nardelli, 70010 Locorotondo BA, Italy','כפר עגול ולבן עם מרפסות פרחים, כמעט בלי תיירים.','views,romance',1],
+ ['מטרה','Piazza Vittorio Veneto, 75100 Matera MT, Italy','עיר המערות. התצפית נמצאת בכיכר עצמה, בלי לרדת במדרגות.','views,drive',1]]},
+{id:'istria',n:'איסטריה',w:'קרואטיה',sc:'sea',h:3.3,m:[5,6,9,10],c:[1800,450,330,170],walk:2,s:{hidden:3,views:3,drive:3,romance:3,beach:2},
+ stay:'רוביני, עם ימי טיול קצרים לכפרי הגבעות.',tips:['טוסקנה של קרואטיה: כמהין, יין ושמן זית במחירים נוחים.','לבדוק טיסות לפולה, ללובליאנה או לזאגרב ולהמשיך ברכב.'],
+ st:[['רוביני','Trg Maršala Tita, 52210 Rovinj, Croatia','עיר דייגים צבעונית על לשון יבשה. שקיעה מהמזח.','views,romance',2],
+ ['מוטובון','Trg Andrea Antico, 52424 Motovun, Croatia','כפר על ראש גבעה מעל יער הכמהין. פסטה כמהין במרפסת.','views,drive,romance',2],
+ ['האמפיתיאטרון של פולה','Flavijevska ul., 52100 Pula, Croatia','זירה רומית שלמה כמעט, ליד הים.','city,views',1],
+ ['גרוז׳ניאן','Grožnjan 52429, Croatia','כפר אמנים קטן עם גלריות ונוף עד הים.','views,romance',1],
+ ['פיורד לים','Limski kanal, 52448 Sveti Lovreč, Croatia','תצפית מהכביש וצדפות טריות במסעדה שעל המים.','drive,views',1],
+ ['פורץ׳','Eufrazijeva ul. 22, 52440 Poreč, Croatia','בזיליקה ביזנטית עם מוזאיקות זהב וטיילת נעימה.','city,beach',1]]},
+{id:'albania',n:'הריביירה האלבנית',w:'אלבניה',sc:'sea',h:2.6,m:[5,6,9,10],c:[900,300,220,130],walk:1,s:{hidden:3,beach:3,views:3,drive:3,romance:1},
+ stay:'סרנדה או קסאמיל בדרום, מול קורפו.',tips:['המחירים נמוכים מאוד ביחס ליוון השכנה.','טסים לטירנה ונוסעים דרומה לאורך החוף, כ־4 שעות עם עצירות.'],
+ st:[['מעבר לוגרה','Llogara Pass, SH8, Vlorë, Albania','כביש שיורד מ־1,000 מ׳ אל הים. לעצור בתצפית שבראש המעבר.','drive,views',1],
+ ['חוף דהרמי','Dhërmi Beach, Himarë, Albania','חוף חלוקים לבן עם מים צלולים ומועדוני חוף.','beach',1],
+ ['קסאמיל','Ksamil Beach, Ksamil 9706, Albania','מים בצבע טורקיז ואיים קטנים שאפשר לשחות אליהם.','beach,views',1],
+ ['העין הכחולה','Syri i Kaltër, Muzinë, Albania','מעיין כחול עמוק. מהחניון יש כ־20 דקות הליכה מישורית.','views',2],
+ ['ג׳ירוקסטרה','Gjirokastër Castle, Gjirokastër 6001, Albania','עיר האבן: בתים עות׳מאניים ומצודה מעל העמק.','views,drive,city',2],
+ ['בוטרינט','Butrint National Park, SH81, Butrint, Albania','עיר עתיקה בתוך יער על אגם, אתר מורשת עולמית.','views',2]]},
+{id:'georgia',n:'טביליסי והקווקז',w:'גאורגיה',sc:'mount',h:2.5,m:[5,6,9,10],c:[1100,300,200,150],walk:2,s:{hidden:3,views:3,drive:3,city:2,romance:1},
+ stay:'העיר העתיקה של טביליסי, ולילה אחד בקזבגי מול ההר.',tips:['האוכל זול ומצוין: חצ׳פורי, חינקלי ויין מקומי.','נהג פרטי ליום עולה מעט, ונוח יותר מנהיגה עצמית בדרך הצבאית.'],
+ st:[['רכבל למבצר נריקלה','Rike Park, Tbilisi, Georgia','רכבל מפארק ריקה עולה מעל העיר העתיקה.','views,city',1],
+ ['מרחצאות הגופרית','Abano St, Tbilisi, Georgia','חדר פרטי עם בריכה חמה. להזמין שעה מראש.','city,romance',1],
+ ['שדרות רוסתוולי','Shota Rustaveli Ave, Tbilisi, Georgia','השדרה הראשית: חנויות, בתי קפה ושוק הגשר היבש בקרבת מקום.','shop,city',1],
+ ['מנזר ג׳ווארי, מצחתה','Jvari Monastery, Mtskheta, Georgia','תצפית על מפגש שני נהרות. נוסעים עד המנזר.','views,drive',1],
+ ['מבצר אנאנורי','Ananuri Fortress, Georgian Military Rd, Georgia','מבצר על אגם טורקיז, עצירה בדרך לקזבגי.','views,drive',1],
+ ['כנסיית גרגטי, קזבגי','Gergeti Trinity Church, Stepantsminda, Georgia','ג׳יפים מהכפר עולים עד הכנסייה, מול פסגה של 5,000 מ׳.','views,drive',1]]},
+{id:'transylvania',n:'טרנסילבניה',w:'רומניה',sc:'mount',h:2.8,m:[5,6,9,10,12],c:[900,300,220,130],walk:2,s:{hidden:3,views:3,drive:3,romance:2,xmas:2,city:1},
+ stay:'ברשוב כבסיס, ולילה בסיביו.',tips:['טסים לבוקרשט ונוסעים צפונה, כשעתיים וחצי עד ברשוב.','כביש הטרנספגרשן פתוח רק מיולי עד אוקטובר.'],
+ st:[['ארמון פלש','Aleea Peleșului 2, Sinaia 106100, Romania','ארמון אגדות ביער. מהחניון יש עלייה קצרה.','views,romance',2],
+ ['כיכר המועצה, ברשוב','Piața Sfatului, Brașov 500025, Romania','כיכר צבעונית מוקפת הרים. בדצמבר יש בה שוק חג.','city,xmas,shop',1],
+ ['טירת בראן','Str. General Traian Moșoiu 24, Bran 507025, Romania','הטירה של דרקולה. בפנים מדרגות צרות, יפה גם מבחוץ.','views,drive',2],
+ ['כביש הטרנספגרשן','DN7C, Bâlea Lac, Romania','אחד מכבישי ההרים היפים בעולם, עד אגם קרחוני.','drive,views',1],
+ ['סיביו','Piața Mare, Sibiu 550163, Romania','עיר סקסונית עם גגות שנראים כמו עיניים. שוק חג מהיפים באירופה.','city,xmas,romance',1],
+ ['סיגישוארה','Piața Cetății, Sighișoara 545400, Romania','מצודה מימי הביניים שעדיין גרים בה.','views,romance',2]]},
+{id:'krakow',n:'קרקוב',w:'פולין',sc:'city',h:3.7,m:[5,6,9,12],c:[1200,350,250,0],walk:2,s:{xmas:3,city:3,shop:2,romance:2,views:1},
+ stay:'העיר העתיקה או קז׳ימייז׳. הכול במרחק הליכה שטוחה.',tips:['מהערים הזולות באירופה, כולל מסעדות טובות.','שוק חג המולד פועל מסוף נובמבר עד תחילת ינואר.'],
+ st:[['כיכר השוק','Rynek Główny, 31-042 Kraków, Poland','הכיכר הגדולה באירופה, עם שוק חג ודוכני פירוגי בדצמבר.','xmas,city,shop',1],
+ ['טירת ואוול','Wawel 5, 31-001 Kraków, Poland','החצר והקתדרלה בכניסה חופשית. עלייה מתונה מהנהר.','city,views',2],
+ ['קז׳ימייז׳','Szeroka, 31-053 Kraków, Poland','הרובע היהודי הישן: בתי כנסת, בתי קפה וגלריות.','city,romance',1],
+ ['גלריה קרקובסקה','Pawia 5, 31-154 Kraków, Poland','קניון גדול צמוד לתחנת הרכבת, במחירים נוחים.','shop',1],
+ ['מכרה המלח ויליצ׳קה','Daniłowicza 10, 32-020 Wieliczka, Poland','יורדים 380 מדרגות ועולים במעלית. מרשים, אבל דורש הליכה.','views',3],
+ ['זקופנה','Krupówki, 34-500 Zakopane, Poland','עיירת הרים בטטרה, שעתיים נסיעה. פוניקולר לתצפית גובלובקה.','views,xmas',1]]},
+{id:'tallinn',n:'טאלין',w:'אסטוניה',sc:'city',h:4.6,m:[6,7,8,12],c:[1700,450,350,0],walk:2,s:{hidden:3,xmas:3,romance:3,city:2,views:2,shop:1},
+ stay:'העיר העתיקה, בתוך החומות.',tips:['לבדוק טיסות ישירות. לעיתים יש עצירה בדרך.','בדצמבר מחשיך מוקדם וקר מאוד, אבל האווירה קסומה.'],
+ st:[['כיכר העירייה','Raekoja plats, 10146 Tallinn, Estonia','שוק חג המולד סביב עץ שמוצב כאן מאז המאה ה־15.','xmas,city,romance',1],
+ ['תצפית קוהטואוצה','Kohtu 12, 10130 Tallinn, Estonia','גגות אדומים וצריחים. מונית עולה עד העיר העליונה.','views,romance',1],
+ ['מעבר קתרינה הקדושה','Katariina käik, Vene 12, 10123 Tallinn, Estonia','סמטה מימי הביניים עם סדנאות זכוכית וקרמיקה.','shop,romance',1],
+ ['טליסקיווי','Telliskivi 60a, 10412 Tallinn, Estonia','מתחם מפעלים שהפך לחנויות מעצבים ומסעדות.','shop,city',1],
+ ['ארמון קדריורג','A. Weizenbergi 37, 10127 Tallinn, Estonia','ארמון ורוד בפארק. חשמלית ישירה מהמרכז.','views,romance',1],
+ ['וירו קסקוס','Viru väljak 4, 10111 Tallinn, Estonia','הקניון המרכזי, צמוד לשער העיר העתיקה.','shop',1]]},
+{id:'kefalonia',n:'קפלוניה',w:'יוון',sc:'sea',h:2.5,m:[5,6,7,9],c:[1600,480,300,150],walk:1,s:{hidden:3,beach:3,views:3,drive:3,romance:2},
+ stay:'אזור ארגוסטולי או לאסי, קרוב לשדה התעופה ולחופים.',tips:['אי ירוק והררי, רגוע בהרבה מסנטוריני וממיקונוס.','לבדוק טיסות ישירות בעונה. הכבישים מפותלים, לנסוע בנחת.'],
+ st:[['חוף מירטוס','Myrtos Beach, Pylaros 280 81, Greece','אחד החופים המצולמים ביוון. לעצור גם בתצפית שמעל.','beach,views,drive',1],
+ ['אסוס','Assos 280 84, Kefalonia, Greece','כפר ורוד וזעיר במפרץ, עם טברנות על המים.','views,romance',1],
+ ['פיסקרדו','Fiskardo 280 84, Kefalonia, Greece','נמל יאכטות ונציאני בקצה הצפוני של האי.','romance,views',1],
+ ['מערת מליסאני','Melissani Cave, Karavomilos 280 80, Greece','שיט קצר באגם תת־קרקעי. בצהריים האור כחול זוהר.','views',2],
+ ['חוף אנטיסמוס','Antisamos Beach, Sami 280 80, Greece','מפרץ ירוק עם מים צלולים ומיטות שיזוף.','beach',1],
+ ['ארגוסטולי','Ioannou Metaxa, Argostoli 281 00, Greece','בבוקר צבי ים שוחים ליד סירות הדייגים בטיילת.','city,views',1]]},
+{id:'madeira',n:'מדיירה',w:'פורטוגל',sc:'mount',h:6.5,m:[4,5,6,9,10,12],c:[2600,500,330,160],walk:1,s:{hidden:3,views:3,drive:3,romance:2,xmas:1},
+ stay:'פונשל, עם ימי טיול ברכב לכל כיוון.',tips:['אין טיסה ישירה, עוצרים בדרך כלל בליסבון.','אי האביב הנצחי: 20 עד 25 מעלות כל השנה.'],
+ st:[['קאבו ז׳יראו','Estrada do Cabo Girão, 9300-351 Câmara de Lobos, Portugal','מרפסת זכוכית מעל צוק של 580 מטר, צמודה לחניון.','views,drive',1],
+ ['פיקו דו אריירו','Pico do Arieiro, 9230 Santana, Portugal','נוסעים ברכב עד הפסגה, מעל העננים. זריחה מרהיבה.','views,drive',1],
+ ['רכבל מונטה','Av. do Mar e das Comunidades Madeirenses, 9060-190 Funchal, Portugal','רכבל מהטיילת לגנים הטרופיים של מונטה.','views,romance',1],
+ ['שוק האיכרים','Largo dos Lavradores, 9060-158 Funchal, Portugal','פירות טרופיים ופרחים. לטעום לפני שקונים.','city,shop',1],
+ ['הבריכות של פורטו מוניז','Rotunda das Piscinas 3, 9270-156 Porto Moniz, Portugal','בריכות טבעיות בסלע הלבה, עם מדרגות ומלתחות.','beach,views,drive',1],
+ ['הבתים של סנטנה','Casas Típicas de Santana, 9230-116 Santana, Portugal','בתים משולשים עם גגות קש, עצירה קצרה בצפון האי.','views,drive',1]]},
+{id:'peloponnese',n:'נאפפליו והפלופונס',w:'יוון',sc:'sea',h:2,m:[4,5,6,9,10],c:[1000,400,300,150],walk:2,s:{hidden:3,views:3,drive:3,romance:3,beach:2},
+ stay:'נאפפליו, העיר הרומנטית ביותר ביוון היבשתית.',tips:['טסים לאתונה ואוספים רכב, שעתיים נסיעה בכביש מהיר.','כמעט בלי תיירים זרים, מחירים של יוונים.'],
+ st:[['תעלת קורינתוס','Corinth Canal, Isthmia 200 10, Greece','עצירה של רבע שעה על הגשר, בדרך מאתונה.','views,drive',1],
+ ['נאפפליו, כיכר סינטגמה','Syntagma Square, Nafplio 211 00, Greece','כיכר שיש, סמטאות בוגנוויליה וגלידריות.','city,romance',1],
+ ['מבצר פלמידי','Palamidi Fortress, Nafplio 211 00, Greece','כביש עולה עד השער, אין צורך לטפס 999 מדרגות.','views',1],
+ ['חוף קרתונה','Karathona Beach, Nafplio 211 00, Greece','מפרץ רדוד וחולי עם טברנות, עשר דקות מהעיר.','beach',1],
+ ['התיאטרון של אפידאורוס','Epidaurus Theatre, Epidavros 210 52, Greece','תיאטרון עתיק עם אקוסטיקה מושלמת. לעמוד במרכז ולנסות.','views,drive',2],
+ ['מונמווסיה','Monemvasia 230 70, Greece','עיר מבוצרת על סלע בים, בלי מכוניות. שווה לינת לילה.','views,romance,drive',2]]},
 {id:'nyc',n:'ניו יורק',w:'ארצות הברית',sc:'city',h:11.5,m:[5,9,10,12],c:[6500,1300,650,0],walk:2,s:{shop:3,xmas:3,city:3,views:2,romance:2},
  stay:'מידטאון, קרוב לשדרה החמישית ולרוקפלר.',tips:['בדצמבר קר מאוד, להתלבש בשכבות.','העץ ברוקפלר מואר מתחילת דצמבר ועד תחילת ינואר.'],
  st:[['העץ ברוקפלר סנטר','45 Rockefeller Plaza, New York, NY 10111, USA','הכי שקט מוקדם בבוקר או אחרי 22:00.','xmas,city,romance',1],
@@ -688,8 +818,11 @@ function scene(id){
      +`<g transform="translate(150 312)"><path d="M-110-4Q-30 22 80 6L134-34 104 0Q-20 14-104-16z" fill="#7a4428"/><path d="M-104-12Q-20 12 104-4" stroke="#f3d24a" stroke-width="3" fill="none"/><path d="M-50-8v-22h70v24" stroke="#5a3a24" stroke-width="2.4" fill="none"/><path d="M-58-30h86l-6-8h-74z" fill="#2f8fd0"/><path d="M126-28q-8 22-2 40" stroke="#e8455a" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M130-30q-2 24 6 38" stroke="#ffd24a" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M122-26q-12 18-10 34" stroke="#3fb86a" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M-104-14l-46-26" stroke="#3a2a22" stroke-width="2.4"/></g>`
      +P('M-20 400v-40q150-40 440 12v28z','#fff',.7)+P('M-20 400v-34q150-38 440 14v20z',F('sd'))+`<g transform="translate(420 -6) rotate(160)" fill="#0c2f2c" filter="${F('b1')}">${[-30,0,30,60].map(a=>`<path d="M0 0q70-50 160-12-86-8-160 12z" transform="rotate(${a})"/>`).join('')}</g>`}
   };
-  S.city=()=>sky(DUSK)+glow(110,250,24,'#ffc27a')+skyline(300,60,150,3,'#6d62a6',0,.7)+haze(250,50,'#ffb0a0',.32)+skyline(318,70,210,id.length,'#0f1433',1)+water(318,['#4a4488','#141a44','#0a0e2a'])+shine(110,320,'#ffc890')+lines(326,5)+bokeh(356,416,['#ffc86b','#ff8fa8','#ffe7b3','#8f7ad8']);
-  const o=(S[id]||S.city)();
+  const sd=[...id].reduce((a,c)=>a+c.charCodeAt(0),0)%13,sx=[90,300,200,320,120][sd%5];
+  S.city=()=>sky(DUSK)+glow(110,250,24,'#ffc27a')+skyline(300,60,150,3,'#6d62a6',0,.7)+haze(250,50,'#ffb0a0',.32)+skyline(318,70,210,sd,'#0f1433',1)+water(318,['#4a4488','#141a44','#0a0e2a'])+shine(110,320,'#ffc890')+lines(326,5)+bokeh(356,416,['#ffc86b','#ff8fa8','#ffe7b3','#8f7ad8']);
+  S.sea=()=>sky(sd%2?DAY:GOLD)+glow(sx,86,20,'#fff')+P(ridge(216,58,sd,.8),'#86b3d6',.75)+haze(190,34)+P(ridge(216,34,sd+3,1.7),'#2f6f86')+water(215,['#2aa3c6','#0f6a9c','#083e6c'])+shine(sx,215,'#fff')+lines(222)+boat(250,286,1.5)+boat(110,246,.8)+bokeh(362,400,PINK);
+  S.mount=()=>sky(sd%2?DAWN:DAY)+glow(sx,150,22,'#ffd08a')+P(ridge(205,150,sd,1.3),'#c2a3c4')+P(ridge(205,150,sd,1.3),F('sn'))+haze(150,50,'#ffd9c0',.32)+P(ridge(240,110,sd+2,1.1),'#8279ad')+P(ridge(285,80,sd+5,.9),'#4b5592')+P(ridge(335,56,sd+8,.6),'#222e5c')+P(ridge(372,44,sd+11,.5),F('gr'))+[[24,392,92],[58,400,70],[352,396,100],[384,402,74]].map(p=>pine(...p)).join('');
+  const o=(S[id]||S[(D.find(x=>x.id===id)||{}).sc]||S.city)();
   return `<svg viewBox="0 0 400 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>${defs}</defs>${o}<rect x="-20" y="-20" width="440" height="440" fill="${F('vg')}"/></svg>`;
 }
 
@@ -772,8 +905,8 @@ function plan(d,days,styles,walk){
   return out;
 }
 const FILL={beach:['יום בטן־גב','בריכה, חוף ומסעדה טובה בערב. בלי שעון.'],shop:['יום שופינג חופשי','חזרה לחנויות שסימנתם, וקפה ארוך באמצע.'],xmas:['ערב שווקים','סיבוב נוסף בשוק החג אחרי החשכה, כשהאורות דולקים.'],views:['נסיעת נוף רגועה','בוקר איטי במלון ונסיעה בלי יעד מוגדר, עוצרים איפה שיפה.']};
-const AIR={dolomites:'VCE',amalfi:'NAP',como:'MXP',garda:'VRN',swiss:'ZRH',salzburg:'SZG',alsace:'BSL',vienna:'VIE',budapest:'BUD',prague:'PRG',slovenia:'LJU',montenegro:'TIV',riviera:'NCE',crete:'CHQ',rhodes:'RHO',cyprus:'PFO',santorini:'JTR',dubai:'DXB',nyc:'NYC',phuket:'HKT',rome:'FCO',paris:'PAR',barcelona:'BCN',london:'LON',amsterdam:'AMS',athens:'ATH'};
-const PLACE={dolomites:'Ortisei, Italy',amalfi:'Sorrento, Italy',como:'Bellagio, Italy',garda:'Bardolino, Italy',swiss:'Lucerne, Switzerland',salzburg:'Salzburg, Austria',alsace:'Colmar, France',vienna:'Vienna, Austria',budapest:'Budapest, Hungary',prague:'Prague, Czechia',slovenia:'Bled, Slovenia',montenegro:'Kotor, Montenegro',riviera:'Nice, France',crete:'Chania, Greece',rhodes:'Rhodes, Greece',cyprus:'Paphos, Cyprus',santorini:'Santorini, Greece',dubai:'Dubai',nyc:'New York',phuket:'Phuket, Thailand',rome:'Rome, Italy',paris:'Paris, France',barcelona:'Barcelona, Spain',london:'London, UK',amsterdam:'Amsterdam, Netherlands',athens:'Athens, Greece'};
+const AIR={dolomites:'VCE',amalfi:'NAP',como:'MXP',garda:'VRN',swiss:'ZRH',salzburg:'SZG',alsace:'BSL',vienna:'VIE',budapest:'BUD',prague:'PRG',slovenia:'LJU',montenegro:'TIV',riviera:'NCE',crete:'CHQ',rhodes:'RHO',cyprus:'PFO',santorini:'JTR',dubai:'DXB',nyc:'NYC',phuket:'HKT',rome:'FCO',paris:'PAR',barcelona:'BCN',london:'LON',amsterdam:'AMS',athens:'ATH',madrid:'MAD',lisbon:'LIS',andalusia:'AGP',dubrovnik:'DBV',sicily:'CTA',malta:'MLA',puglia:'BRI',istria:'PUY',albania:'TIA',georgia:'TBS',transylvania:'OTP',krakow:'KRK',tallinn:'TLL',kefalonia:'EFL',madeira:'FNC',peloponnese:'ATH'};
+const PLACE={dolomites:'Ortisei, Italy',amalfi:'Sorrento, Italy',como:'Bellagio, Italy',garda:'Bardolino, Italy',swiss:'Lucerne, Switzerland',salzburg:'Salzburg, Austria',alsace:'Colmar, France',vienna:'Vienna, Austria',budapest:'Budapest, Hungary',prague:'Prague, Czechia',slovenia:'Bled, Slovenia',montenegro:'Kotor, Montenegro',riviera:'Nice, France',crete:'Chania, Greece',rhodes:'Rhodes, Greece',cyprus:'Paphos, Cyprus',santorini:'Santorini, Greece',dubai:'Dubai',nyc:'New York',phuket:'Phuket, Thailand',rome:'Rome, Italy',paris:'Paris, France',barcelona:'Barcelona, Spain',london:'London, UK',amsterdam:'Amsterdam, Netherlands',athens:'Athens, Greece',madrid:'Madrid, Spain',lisbon:'Lisbon, Portugal',andalusia:'Seville, Spain',dubrovnik:'Dubrovnik, Croatia',sicily:'Taormina, Italy',malta:'Valletta, Malta',puglia:'Polignano a Mare, Italy',istria:'Rovinj, Croatia',albania:'Sarande, Albania',georgia:'Tbilisi, Georgia',transylvania:'Brasov, Romania',krakow:'Krakow, Poland',tallinn:'Tallinn, Estonia',kefalonia:'Argostoli, Greece',madeira:'Funchal, Portugal',peloponnese:'Nafplio, Greece'};
 function booking(d,c){
   const now=new Date(),a=c.month?new Date(now.getFullYear()+(c.month-1<=now.getMonth()?1:0),c.month-1,10):new Date(now.getTime()+42*864e5),b=new Date(a.getTime()+(c.days-1)*864e5);
   const iso=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`,ymd=x=>iso(x).slice(2).replace(/-/g,''),he=x=>x.toLocaleDateString('he-IL',{day:'numeric',month:'long',year:'numeric'});
