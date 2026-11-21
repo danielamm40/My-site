@@ -386,11 +386,11 @@ b,strong{font-weight:600}
 </div>
 
 <div id="view-trips" hidden><div class="wrap"><section>
-  <div class="head" style="padding-top:20px"><h2 style="font-size:2rem;font-weight:800">נסיעות מתוכננות</h2><p>המסלולים ששמרתם נשמרים בדפדפן הזה.</p></div>
+  <div class="head" style="padding-top:20px"><h2 style="font-size:2rem;font-weight:800">נסיעות מתוכננות</h2><p>המסלולים ששמרתם, עם ההערות שלכם.</p></div>
   <div class="grid" id="tripGrid"></div>
 </section></div></div>
 <div id="view-plan" hidden><div class="wrap"><section>
-  <div class="head" style="padding-top:20px"><h2 style="font-size:2rem">הטיול שלי</h2><p>מלאו את פרטי הטיסות והמלון, והלוח ייבנה סביבם. הכול נשמר בדפדפן הזה.</p></div>
+  <div class="head" style="padding-top:20px"><h2 style="font-size:2rem">הטיול שלי</h2><p>מלאו את פרטי הטיסות והלינה, והלוח ייבנה סביבם. <span id="syncNote">נשמר בדפדפן הזה.</span></p></div>
   <form class="pform" id="pform" autocomplete="off">
     <fieldset><legend>לאן</legend>
       <label>יעד<select id="p-dest" data-pl="dest"></select></label>
@@ -1243,7 +1243,9 @@ function scene(id){
 /* ---------- state ---------- */
 const st={go:new Set(['direct','land','ferry','multi']),dest:'',budget:14000,days:6,flight:5,month:0,tier:1,walk:0,styles:new Set(['views','drive','shop'])};
 let trips=[];try{trips=JSON.parse(localStorage.getItem('mifras.trips'))||[]}catch(e){}
-const persist=()=>{try{localStorage.setItem('mifras.trips',JSON.stringify(trips))}catch(e){}};
+let cloud=null;const cloudT={};
+function push(k,val){if(!cloud)return;clearTimeout(cloudT[k]);cloudT[k]=setTimeout(()=>{cloud.doc(k).set({v:JSON.stringify(val),t:Date.now()}).catch(()=>{})},700)}
+const persist=()=>{try{localStorage.setItem('mifras.trips',JSON.stringify(trips));localStorage.setItem('mifras.trips.t',Date.now())}catch(e){}push('trips',trips)};
 
 function cost(d,days,tier){
   const T=TIERS[tier],[fl,ho,fo,car]=d.c;
@@ -1445,7 +1447,7 @@ $('#credits').innerHTML=D.filter(d=>PHOTO[d.id]).map(d=>`<a href="${PHOTO[d.id][
 /* ---------- my trip schedule ---------- */
 let pl={dest:'',name:'',o:{d:'',t1:'',t2:''},b:{d:'',t1:'',t2:''},h:{n:'',a:''},x:{}};
 try{pl=Object.assign(pl,JSON.parse(localStorage.getItem('mifras.plan'))||{})}catch(e){}
-const savePl=()=>{try{localStorage.setItem('mifras.plan',JSON.stringify(pl))}catch(e){}};
+const savePl=()=>{pl._t=Date.now();try{localStorage.setItem('mifras.plan',JSON.stringify(pl))}catch(e){}push('plan',pl)};
 const toMin=t=>t?+t.slice(0,2)*60+ +t.slice(3,5):null,fm=m=>{m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};
 const pdate=v=>{const[a,b,c]=v.split('-').map(Number);return new Date(a,b-1,c)};
 const esc=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1533,5 +1535,18 @@ $('#pform').addEventListener('input',e=>{const hf=e.target.dataset.hf;if(hf){pl.
 $('#pform').addEventListener('submit',e=>e.preventDefault());
 fillPlanForm();renderHotels();renderPlan();
 show(location.hash.slice(1));render();
+/* keep the trip and saved list in the viewer's own Claude storage when the page runs as an artifact */
+(async()=>{try{
+  if(!window.claude||!window.claude.use)return;
+  const[db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);if(!db||!user)return;
+  const id=await user.id();if(!id)return;
+  const col=db.collection('data/users/'+id),[a,b]=await Promise.all([col.doc('plan').get(),col.doc('trips').get()]);cloud=col;
+  const ca=a.exists?a.data():null,cb=b.exists?b.data():null;let lt=0;try{lt=+localStorage.getItem('mifras.trips.t')||0}catch(e){}
+  if(ca&&(ca.t||0)>(pl._t||0)){pl=Object.assign(pl,JSON.parse(ca.v));pl._t=ca.t;pl.hs=pl.hs||[{n:'',a:'',from:''}];pl.int=pl.int||[];pl.hide=pl.hide||{};pl.x=pl.x||{};try{localStorage.setItem('mifras.plan',JSON.stringify(pl))}catch(e){}fillPlanForm();renderHotels();renderPlan()}
+  else if(pl._t||pl.o.d||pl.dest)push('plan',pl);
+  if(cb&&((cb.t||0)>lt||!trips.length)){trips=JSON.parse(cb.v)||[];try{localStorage.setItem('mifras.trips',JSON.stringify(trips));localStorage.setItem('mifras.trips.t',cb.t)}catch(e){}render()}
+  else if(trips.length)push('trips',trips);
+  $('#syncNote').textContent='נשמר בחשבון Claude שלכם, כך שהוא נשאר גם אחרי שיוצאים.';
+}catch(e){}})();
 </script>
 </html>
