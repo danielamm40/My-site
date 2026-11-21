@@ -239,7 +239,7 @@ footer{padding-block:40px 110px;color:var(--muted);font-size:.85rem;border-top:1
 
   <div class="wrap">
     <section><div class="head"><h2>מתאימים לכם</h2><p id="resSub"></p></div><div class="grid" id="reel"></div></section>
-    <section id="restSec"><div class="head"><h2>מחוץ לתקציב או לזמן הטיסה</h2><p>יעדים שיתאימו אם תשנו את ההגדרות.</p></div><div class="grid" id="allGrid"></div></section>
+    <section id="restSec"><div class="head"><h2>יעדים נוספים</h2><p>פחות מתאימים לסגנון שבחרתם, או מחוץ לתקציב ולזמן הטיסה.</p></div><div class="grid" id="allGrid"></div></section>
   </div>
 </div>
 
@@ -444,6 +444,57 @@ const D=[
  ['סוק מדינת ג׳ומיירה','King Salman Bin Abdulaziz Al Saud St, Dubai, UAE','שוק מעוצב על תעלות מים מול בורג׳ אל ערב.','shop,romance,views',1],
  ['ספארי מדבר','Al Marmoom Desert Conservation Reserve, Dubai, UAE','אוספים מהמלון: דיונות בג׳יפ וארוחת ערב במאהל.','views,drive',1],
  ['דובאי אאוטלט מול','Dubai–Al Ain Rd (E66), Dubai, UAE','מותגים בהנחות של 30 עד 90 אחוז.','shop',1]]},
+{id:'rome',n:'רומא',w:'איטליה',sc:'city',h:3.7,m:[4,5,9,10,12],c:[1500,650,420,0],walk:2,s:{city:3,shop:3,romance:3,views:2,xmas:1},
+ stay:'המרכז ההיסטורי, בין הפנתיאון לפיאצה נבונה. הכול במרחק הליכה קצרה.',tips:['להזמין מראש כרטיסים לקולוסיאום ולוותיקן, התורים ארוכים.','מוניות לבנות במחיר קבוע חוסכות הרבה הליכה בין האתרים.'],
+ st:[['הקולוסיאום','Piazza del Colosseo 1, 00184 Roma RM, Italy','כרטיס עם שעת כניסה חוסך את התור. יפה במיוחד מבחוץ בשעת בין הערביים.','city,views',2],
+ ['מזרקת טרווי','Piazza di Trevi, 00187 Roma RM, Italy','מוקדם בבוקר או מאוחר בערב כמעט אין קהל.','city,romance',1],
+ ['המדרגות הספרדיות וויה קונדוטי','Piazza di Spagna, 00187 Roma RM, Italy','רחוב המותגים של רומא מתחיל ממש למרגלות המדרגות.','shop,city',1],
+ ['כיכר פטרוס הקדוש','Piazza San Pietro, 00120 Città del Vaticano','הכיכר והבזיליקה בכניסה חופשית. לכסות כתפיים וברכיים.','city,views',2],
+ ['תצפית ג׳אניקולו','Piazzale Giuseppe Garibaldi, 00165 Roma RM, Italy','מונית עד למעלה, נוף על כל גגות העיר.','views,romance',1],
+ ['טרסטוורה','Piazza di Santa Maria in Trastevere, 00153 Roma RM, Italy','שכונת הסמטאות לארוחת ערב רומאית.','city,romance',1],
+ ['קסטל רומנו דיזיינר אאוטלט','Via Ponte di Piscina Cupa 64, 00128 Roma RM, Italy','שאטל יוצא מתחנת טרמיני, כ־40 דקות.','shop',1]]},
+{id:'paris',n:'פריז',w:'צרפת',sc:'city',h:4.8,m:[4,5,6,9,10,12],c:[1900,900,500,0],walk:2,s:{city:3,shop:3,romance:3,xmas:2,views:2},
+ stay:'סן ז׳רמן או המארה: שכונות יפות, מרכזיות ומלאות בתי קפה.',tips:['המטרו מהיר, אבל יש בו הרבה מדרגות. אוטובוסים ומוניות נוחים יותר.','בדצמבר השאנז אליזה וחלונות הראווה של גלרי לאפייט מוארים לחג.'],
+ st:[['מגדל אייפל מכיכר טרוקדרו','Place du Trocadéro et du 11 Novembre, 75016 Paris, France','התצפית הטובה ביותר על המגדל, בלי לעלות אליו.','views,romance,city',1],
+ ['שאנז אליזה ושער הניצחון','Avenue des Champs-Élysées, 75008 Paris, France','שדרת הקניות המפורסמת. בחורף מוארת לכל אורכה.','shop,city,xmas',1],
+ ['גלרי לאפייט','40 Boulevard Haussmann, 75009 Paris, France','כיפת הזכוכית מרהיבה, והגג פתוח לתצפית בחינם.','shop,views,xmas',1],
+ ['מונמארטר וסקרה קר','35 Rue du Chevalier de la Barre, 75018 Paris, France','הפוניקולר חוסך את המדרגות. כיכר הציירים נמצאת ממש ליד.','views,romance',2],
+ ['שיט על הסן','Port de la Bourdonnais, 75007 Paris, France','שעה של שיט מול כל האתרים הגדולים. הכי יפה אחרי החשכה.','views,romance',1],
+ ['המארה וכיכר ווז׳','Place des Vosges, 75004 Paris, France','בוטיקים, גלריות ופלאפל ברחוב רוזייה.','shop,city',1],
+ ['לה ואלה וילג׳','3 Cours de la Garonne, 77700 Serris, France','כפר אאוטלט ליד דיסנילנד, 40 דקות ברכבת RER A.','shop',1]]},
+{id:'barcelona',n:'ברצלונה',w:'ספרד',sc:'city',h:4.5,m:[4,5,6,9,10],c:[1600,650,400,0],walk:2,s:{city:3,shop:3,beach:2,views:2,romance:2},
+ stay:'רובע אשמפלה, ליד פסאג׳ דה גרסיה: מרכזי, שטוח ומלא חנויות.',tips:['להזמין כרטיסים לסגרדה פמיליה כמה ימים מראש.','לשמור על התיק ברמבלה ובמטרו.'],
+ st:[['סגרדה פמיליה','Carrer de Mallorca 401, 08013 Barcelona, Spain','הכנסייה של גאודי. האור בפנים הכי יפה אחר הצהריים.','city,views',1],
+ ['פסאג׳ דה גרסיה וקאסה בטיו','Passeig de Gràcia 43, 08007 Barcelona, Spain','שדרת הקניות האלגנטית, עם הבתים של גאודי בין החנויות.','shop,city',1],
+ ['שוק לה בוקריה','La Rambla 91, 08001 Barcelona, Spain','שוק אוכל צבעוני. לשבת על הבר לטאפאס ופירות ים.','city,shop',1],
+ ['רכבל מונז׳ואיק','Avinguda Miramar 30, 08038 Barcelona, Spain','רכבל לטירה עם נוף על העיר והנמל.','views',1],
+ ['חוף ברצלונטה','Passeig Marítim de la Barceloneta, 08003 Barcelona, Spain','טיילת מישורית, מסעדות פאייה ומיטות שיזוף.','beach,romance',1],
+ ['לה רוקה וילג׳','La Roca Village, 08430 La Roca del Vallès, Barcelona, Spain','אוטובוס ישיר מפסאג׳ דה גרסיה, כ־40 דקות.','shop',1]]},
+{id:'london',n:'לונדון',w:'אנגליה',sc:'city',h:5.3,m:[5,6,7,9,12],c:[1900,950,550,0],walk:2,s:{city:3,shop:3,xmas:3,romance:1,views:2},
+ stay:'קובנט גרדן או סוהו, במרחק הליכה מהתיאטראות ומהחנויות.',tips:['משלמים בתחבורה הציבורית בכרטיס אשראי רגיל, בלי לקנות כרטיס.','אורות חג המולד דולקים מאמצע נובמבר עד תחילת ינואר.'],
+ st:[['אוקספורד סטריט וסלפרידג׳ס','400 Oxford St, London W1A 1AB, UK','רחוב הקניות הגדול באירופה. האורות ברחוב ריג׳נט הצמוד מרשימים.','shop,xmas,city',1],
+ ['קובנט גרדן','Covent Garden Piazza, London WC2E 8RF, UK','שוק מקורה, אמני רחוב ועץ חג ענק בדצמבר.','shop,xmas,city',1],
+ ['ביג בן ולונדון איי','Riverside Building, County Hall, London SE1 7PB, UK','סיבוב בגלגל הענק נמשך חצי שעה, עם נוף על כל העיר.','views,city',1],
+ ['בורו מרקט','8 Southwark St, London SE1 1TL, UK','שוק האוכל הטוב בעיר. סגור בימי ראשון ושני.','city,shop',1],
+ ['הרודס','87-135 Brompton Rd, London SW1X 7XL, UK','אולמות האוכל בקומת הקרקע שווים ביקור גם בלי לקנות.','shop',1],
+ ['וינטר וונדרלנד בהייד פארק','Hyde Park, London W2 2UH, UK','יריד חג ענק, פועל מאמצע נובמבר עד תחילת ינואר.','xmas,romance',2],
+ ['ביסטר וילג׳','50 Pingle Dr, Bicester OX26 6WD, UK','כפר אאוטלט יוקרתי, 50 דקות ברכבת מתחנת מרילבון.','shop',1]]},
+{id:'amsterdam',n:'אמסטרדם',w:'הולנד',sc:'city',h:4.8,m:[4,5,6,9,12],c:[1700,800,450,0],walk:2,s:{city:3,shop:2,romance:3,views:2,xmas:2},
+ stay:'טבעת התעלות או שכונת יורדן. הכול קרוב ושטוח לגמרי.',tips:['להיזהר משבילי האופניים, הרוכבים מהירים.','באפריל ובתחילת מאי פורחים שדות הצבעונים וגן קוקנהוף.'],
+ st:[['שיט בתעלות','Prins Hendrikkade 33A, 1012 TM Amsterdam, Netherlands','שעה בסירה מקורה. בערב הגשרים מוארים.','views,romance,city',1],
+ ['תשעת הרחובות','Wolvenstraat, 1016 EP Amsterdam, Netherlands','בוטיקים קטנים, וינטג׳ ובתי קפה בין התעלות.','shop,city',1],
+ ['כיכר המוזיאונים','Museumplein 6, 1071 DJ Amsterdam, Netherlands','מוזיאון ון גוך והרייקסמוזיאום. להזמין שעת כניסה מראש.','city',1],
+ ['שוק הפרחים','Singel, 1012 DH Amsterdam, Netherlands','שוק צף על התעלה, פקעות צבעונים ומזכרות.','shop,romance',1],
+ ['תצפית אדם','Overhoeksplein 5, 1031 KS Amsterdam, Netherlands','מעבורת חינם מהתחנה המרכזית, מעלית לגג עם נוף על העיר.','views',1],
+ ['זאנסה סחאנס','Schansend 7, 1509 AW Zaandam, Netherlands','טחנות רוח ובתי עץ ירוקים, 20 דקות מהעיר.','views,romance',2]]},
+{id:'athens',n:'אתונה',w:'יוון',sc:'city',h:2,m:[4,5,6,9,10,11],c:[1000,450,300,0],walk:2,s:{city:3,shop:2,views:2,romance:1,beach:1},
+ stay:'פלאקה או קולונאקי: קרוב לכל האתרים ולרחובות הקניות.',tips:['טיסה של שעתיים, מתאים גם לסוף שבוע ארוך.','בקיץ חם מאוד. לבקר באתרים בבוקר או לקראת ערב.'],
+ st:[['האקרופוליס','Acropolis, Athens 105 58, Greece','העלייה ברגל משמעותית. אפשר להסתפק בנוף ממסעדות הגג שמסביב.','city,views',3],
+ ['מוזיאון האקרופוליס','Dionysiou Areopagitou 15, Athens 117 42, Greece','ממוזג ונגיש, עם מסעדה מול הפרתנון.','city,views',1],
+ ['פלאקה','Adrianou, Athens 105 58, Greece','סמטאות עם טברנות, תכשיטים וסנדלי עור.','shop,city,romance',1],
+ ['רחוב ארמו','Ermou, Athens 105 63, Greece','מדרחוב הקניות הראשי, מכיכר סינטגמה עד מונסטירקי.','shop,city',1],
+ ['גבעת ליקבטוס','Aristippou 1, Athens 106 76, Greece','פוניקולר עולה לפסגה. השקיעה מול האקרופוליס שווה את זה.','views,romance',1],
+ ['השוק המרכזי','Athinas 42, Athens 105 51, Greece','שוק אוכל אמיתי: זיתים, תבלינים וגבינות.','city,shop',1]]},
 {id:'nyc',n:'ניו יורק',w:'ארצות הברית',sc:'city',h:11.5,m:[5,9,10,12],c:[6500,1300,650,0],walk:2,s:{shop:3,xmas:3,city:3,views:2,romance:2},
  stay:'מידטאון, קרוב לשדרה החמישית ולרוקפלר.',tips:['בדצמבר קר מאוד, להתלבש בשכבות.','העץ ברוקפלר מואר מתחילת דצמבר ועד תחילת ינואר.'],
  st:[['העץ ברוקפלר סנטר','45 Rockefeller Plaza, New York, NY 10111, USA','הכי שקט מוקדם בבוקר או אחרי 22:00.','xmas,city,romance',1],
@@ -628,7 +679,8 @@ function scene(id){
      +`<g transform="translate(150 312)"><path d="M-110-4Q-30 22 80 6L134-34 104 0Q-20 14-104-16z" fill="#7a4428"/><path d="M-104-12Q-20 12 104-4" stroke="#f3d24a" stroke-width="3" fill="none"/><path d="M-50-8v-22h70v24" stroke="#5a3a24" stroke-width="2.4" fill="none"/><path d="M-58-30h86l-6-8h-74z" fill="#2f8fd0"/><path d="M126-28q-8 22-2 40" stroke="#e8455a" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M130-30q-2 24 6 38" stroke="#ffd24a" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M122-26q-12 18-10 34" stroke="#3fb86a" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M-104-14l-46-26" stroke="#3a2a22" stroke-width="2.4"/></g>`
      +P('M-20 400v-40q150-40 440 12v28z','#fff',.7)+P('M-20 400v-34q150-38 440 14v20z',F('sd'))+`<g transform="translate(420 -6) rotate(160)" fill="#0c2f2c" filter="${F('b1')}">${[-30,0,30,60].map(a=>`<path d="M0 0q70-50 160-12-86-8-160 12z" transform="rotate(${a})"/>`).join('')}</g>`}
   };
-  const o=(S[id]||S.riviera)();
+  S.city=()=>sky(DUSK)+glow(110,250,24,'#ffc27a')+skyline(300,60,150,3,'#6d62a6',0,.7)+haze(250,50,'#ffb0a0',.32)+skyline(318,70,210,id.length,'#0f1433',1)+water(318,['#4a4488','#141a44','#0a0e2a'])+shine(110,320,'#ffc890')+lines(326,5)+bokeh(356,416,['#ffc86b','#ff8fa8','#ffe7b3','#8f7ad8']);
+  const o=(S[id]||S.city)();
   return `<svg viewBox="0 0 400 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>${defs}</defs>${o}<rect x="-20" y="-20" width="440" height="440" fill="${F('vg')}"/></svg>`;
 }
 
@@ -651,9 +703,11 @@ function score(d){
   return Math.max(.2,Math.min(.99,s*.85+.14));
 }
 function ranked(){
-  return D.map(d=>({d,total:cost(d,st.days,st.tier).total,sc:score(d)}))
-    .map(r=>({...r,fit:r.d.h<=st.flight&&r.total<=st.budget*1.12,over:r.total>st.budget}))
-    .sort((a,b)=>b.sc-a.sc);
+  const sel=[...st.styles],on=k=>!(k==='xmas'&&st.month&&st.month<11);
+  let r=D.map(d=>{const total=cost(d,st.days,st.tier).total,miss=sel.filter(k=>(d.s[k]||0)<2||!on(k)).length;
+    return {d,total,sc:score(d),miss,ok:d.h<=st.flight&&total<=st.budget*1.12,over:total>st.budget}}).sort((a,b)=>a.miss-b.miss||b.sc-a.sc);
+  const allow=r.filter(x=>x.ok&&!x.miss).length>=3?0:1;
+  return r.map(x=>({...x,fit:x.ok&&x.miss<=allow,partial:x.miss>0}));
 }
 const isSaved=id=>trips.some(t=>t.id===id);
 const fmtH=h=>{const m=Math.round(h*60),hh=Math.floor(m/60),mm=m%60;return mm?`${hh}:${String(mm).padStart(2,'0')} שע׳`:`${hh} שע׳`};
@@ -666,10 +720,10 @@ const heart=d=>`<button class="heart" data-save="${d.id}" aria-pressed="${isSave
 
 function card(r,i,fit){
   const d=r.d,top=Object.entries(d.s).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k])=>STYLES[k]).join(' · ');
-  return `<article class="card" data-open="${d.id}" tabindex="0" role="button" aria-label="${d.n}, לפתיחת המסלול">${ph(d,(fit&&i<3?'<span class="badge">הכי מתאים לכם</span>':'')+heart(d))}
+  return `<article class="card" data-open="${d.id}" tabindex="0" role="button" aria-label="${d.n}, לפתיחת המסלול">${ph(d,(fit&&i<3&&!r.partial?'<span class="badge">הכי מתאים לכם</span>':'')+heart(d))}
   <div class="info"><div class="r1"><h3>${d.n}, ${d.w}</h3><span class="rate">${ic('star')}${Math.round(r.sc*100)}%</span></div>
   <div class="muted">טיסה של ${fmtH(d.h)} · ${d.c[3]?'עם רכב':'בלי רכב'}</div><div class="muted">${top}</div>
-  <div class="price"><b>${nis(r.total)}</b> לזוג · ${st.days} ימים${fit&&r.over?' <span class="over">(מעט מעל התקציב)</span>':''}</div></div></article>`;
+  <div class="price"><b>${nis(r.total)}</b> לזוג · ${st.days} ימים${fit&&r.over?' <span class="over">(מעט מעל התקציב)</span>':''}${fit&&r.partial?' <span class="over">(התאמה חלקית לסגנון)</span>':''}</div></div></article>`;
 }
 
 function render(){
@@ -678,7 +732,7 @@ function render(){
   $('#flightOut').textContent=$('#vFlight').textContent='עד '+fmtH(st.flight);
   $('#vMonth').textContent=MONTHS[st.month];
   const all=ranked(),fit=all.filter(r=>r.fit),rest=all.filter(r=>!r.fit);
-  $('#resSub').textContent=fit.length?`${fit.length} יעדים, מסודרים לפי התאמה לסגנון שבחרתם.`:'';
+  $('#resSub').textContent=fit.length?`${fit.length} יעדים שמתאימים לכל מה שבחרתם${st.styles.size?': '+[...st.styles].map(k=>STYLES[k]).join(', '):''}.`:'';
   $('#reel').innerHTML=fit.length?fit.map((r,i)=>card(r,i,1)).join(''):`<div class="empty">אין יעד שעומד בכל התנאים. נסו להעלות מעט את התקציב, לקצר את הטיול או להאריך את זמן הטיסה.</div>`;
   $('#restSec').hidden=!rest.length;$('#allGrid').innerHTML=rest.map((r,i)=>card(r,i,0)).join('');
   renderTrips();
@@ -705,8 +759,8 @@ function plan(d,days,styles,walk){
   return out;
 }
 const FILL={beach:['יום בטן־גב','בריכה, חוף ומסעדה טובה בערב. בלי שעון.'],shop:['יום שופינג חופשי','חזרה לחנויות שסימנתם, וקפה ארוך באמצע.'],xmas:['ערב שווקים','סיבוב נוסף בשוק החג אחרי החשכה, כשהאורות דולקים.'],views:['נסיעת נוף רגועה','בוקר איטי במלון ונסיעה בלי יעד מוגדר, עוצרים איפה שיפה.']};
-const AIR={dolomites:'VCE',amalfi:'NAP',como:'MXP',garda:'VRN',swiss:'ZRH',salzburg:'SZG',alsace:'BSL',vienna:'VIE',budapest:'BUD',prague:'PRG',slovenia:'LJU',montenegro:'TIV',riviera:'NCE',crete:'CHQ',rhodes:'RHO',cyprus:'PFO',santorini:'JTR',dubai:'DXB',nyc:'NYC',phuket:'HKT'};
-const PLACE={dolomites:'Ortisei, Italy',amalfi:'Sorrento, Italy',como:'Bellagio, Italy',garda:'Bardolino, Italy',swiss:'Lucerne, Switzerland',salzburg:'Salzburg, Austria',alsace:'Colmar, France',vienna:'Vienna, Austria',budapest:'Budapest, Hungary',prague:'Prague, Czechia',slovenia:'Bled, Slovenia',montenegro:'Kotor, Montenegro',riviera:'Nice, France',crete:'Chania, Greece',rhodes:'Rhodes, Greece',cyprus:'Paphos, Cyprus',santorini:'Santorini, Greece',dubai:'Dubai',nyc:'New York',phuket:'Phuket, Thailand'};
+const AIR={dolomites:'VCE',amalfi:'NAP',como:'MXP',garda:'VRN',swiss:'ZRH',salzburg:'SZG',alsace:'BSL',vienna:'VIE',budapest:'BUD',prague:'PRG',slovenia:'LJU',montenegro:'TIV',riviera:'NCE',crete:'CHQ',rhodes:'RHO',cyprus:'PFO',santorini:'JTR',dubai:'DXB',nyc:'NYC',phuket:'HKT',rome:'FCO',paris:'PAR',barcelona:'BCN',london:'LON',amsterdam:'AMS',athens:'ATH'};
+const PLACE={dolomites:'Ortisei, Italy',amalfi:'Sorrento, Italy',como:'Bellagio, Italy',garda:'Bardolino, Italy',swiss:'Lucerne, Switzerland',salzburg:'Salzburg, Austria',alsace:'Colmar, France',vienna:'Vienna, Austria',budapest:'Budapest, Hungary',prague:'Prague, Czechia',slovenia:'Bled, Slovenia',montenegro:'Kotor, Montenegro',riviera:'Nice, France',crete:'Chania, Greece',rhodes:'Rhodes, Greece',cyprus:'Paphos, Cyprus',santorini:'Santorini, Greece',dubai:'Dubai',nyc:'New York',phuket:'Phuket, Thailand',rome:'Rome, Italy',paris:'Paris, France',barcelona:'Barcelona, Spain',london:'London, UK',amsterdam:'Amsterdam, Netherlands',athens:'Athens, Greece'};
 function booking(d,c){
   const now=new Date(),a=c.month?new Date(now.getFullYear()+(c.month-1<=now.getMonth()?1:0),c.month-1,10):new Date(now.getTime()+42*864e5),b=new Date(a.getTime()+(c.days-1)*864e5);
   const iso=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`,ymd=x=>iso(x).slice(2).replace(/-/g,''),he=x=>x.toLocaleDateString('he-IL',{day:'numeric',month:'long',year:'numeric'});
@@ -795,9 +849,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.c
 $('#dlg').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.close()});
 document.addEventListener('input',e=>{const id=e.target.dataset.note;if(id){trips.find(t=>t.id===id).note=e.target.value;persist()}});
 
+const seen=new Set();let lastPick='';
 function spin(){
-  let pool=ranked().filter(r=>r.fit);if(!pool.length)pool=ranked();
-  const pick=pool[Math.floor(Math.random()*Math.min(pool.length,8))].d;
+  let pool=ranked().filter(r=>r.fit).map(r=>r.d);if(!pool.length)pool=ranked().filter(r=>r.ok).map(r=>r.d);if(!pool.length)pool=D;
+  let left=pool.filter(d=>!seen.has(d.id));if(!left.length){seen.clear();left=pool.length>1?pool.filter(d=>d.id!==lastPick):pool}
+  const pick=left[Math.floor(Math.random()*left.length)];seen.add(pick.id);lastPick=pick.id;
   if(matchMedia('(prefers-reduced-motion:reduce)').matches)return openDest(pick.id);
   const o=document.createElement('div');o.className='spin';o.innerHTML='<div><span class="muted">בוחרים לכם יעד…</span><b></b></div>';document.body.append(o);
   let i=0;const b=o.querySelector('b'),t=setInterval(()=>{b.textContent=D[(i++*7)%D.length].n},90);
