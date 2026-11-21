@@ -71,6 +71,13 @@ input[type=range]::-moz-range-track{height:3px;background:var(--line);border-rad
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;margin-top:-14px;border-radius:50%;background:var(--bg);border:1px solid var(--muted);box-shadow:var(--sh1);transition:transform .15s}
 input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--bg);border:1px solid var(--muted);box-shadow:var(--sh1)}
 input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.1)}
+#destQ{width:100%;border:1px solid var(--line);border-radius:12px;background:var(--bg);padding:12px 14px}
+#destQ:focus{border-color:var(--ink);outline:0}
+.dlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;max-height:min(46vh,340px);overflow-y:auto;padding:2px}
+.dlist button{text-align:start;border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:grid;transition:.2s}
+.dlist button:hover{border-color:var(--ink);background:var(--soft)}
+.dlist button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);background:var(--soft)}
+.dlist b{font-weight:600}.dlist span{color:var(--muted);font-size:.85rem}
 .wheel{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 8px;scrollbar-width:none}
 .wheel::-webkit-scrollbar{display:none}
 .wheel button{flex:none;scroll-snap-align:center;border:1px solid var(--line);border-radius:14px;padding:12px 18px;font-weight:500;transition:.2s}
@@ -197,7 +204,7 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 footer{padding-block:40px 110px;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);margin-top:50px}
 @media (max-width:700px){
   .tabs{display:none}.saved{margin-inline-start:auto}
-  .pill{border-radius:26px;flex-wrap:wrap}.segb{flex:1 1 40%;padding:8px 14px}.segb::before{display:none}
+  .pill{border-radius:26px;flex-wrap:wrap}.segb.where{flex-basis:100%;padding-inline-end:70px}.segb{flex:1 1 40%;padding:8px 14px}.segb::before{display:none}
   .go{position:absolute;inset-inline-end:10px;top:50%;margin-top:-25px}
   .cats{justify-content:flex-start}.filt span{display:none}
   .grid{gap:28px 16px}
@@ -222,12 +229,14 @@ footer{padding-block:40px 110px;color:var(--muted);font-size:.85rem;border-top:1
     <p>מסלולים לזוג עם נופים שמגיעים אליהם ברכב, חופים ושופינג.</p>
     <div class="search">
       <div class="pill">
+        <button class="segb where" data-pop="dest" aria-expanded="false"><small>לאן</small><span id="vDest"></span></button>
         <button class="segb" data-pop="budget" aria-expanded="false"><small>תקציב</small><span id="vBudget"></span></button>
         <button class="segb" data-pop="days" aria-expanded="false"><small>כמה ימים</small><span id="vDays"></span></button>
         <button class="segb" data-pop="flight" aria-expanded="false"><small>זמן טיסה</small><span id="vFlight"></span></button>
         <button class="segb" data-pop="month" aria-expanded="false"><small>מתי</small><span id="vMonth"></span></button>
         <button class="go" id="goSpin" aria-label="הפתיעו אותנו"><span data-ic="compass"></span></button>
       </div>
+      <div class="panel" data-panel="dest" hidden><h3><label for="destQ">בחרו יעד מראש</label></h3><input type="search" id="destQ" placeholder="חיפוש יעד או מדינה" autocomplete="off"><div class="dlist" id="destList"></div></div>
       <div class="panel" data-panel="budget" hidden><h3><label for="budget">תקציב לזוג, כולל טיסות</label></h3><div class="big" id="budgetOut"></div><input type="range" id="budget" min="3000" max="40000" step="500" value="14000"></div>
       <div class="panel" data-panel="days" hidden><h3><label for="days">אורך הטיול</label></h3><div class="big" id="daysOut"></div><input type="range" id="days" min="3" max="14" step="1" value="6"></div>
       <div class="panel" data-panel="flight" hidden><h3><label for="flight">זמן טיסה מרבי מישראל</label></h3><div class="big" id="flightOut"></div><input type="range" id="flight" min="1" max="12" step="0.5" value="5"></div>
@@ -685,7 +694,7 @@ function scene(id){
 }
 
 /* ---------- state ---------- */
-const st={budget:14000,days:6,flight:5,month:0,tier:1,walk:0,styles:new Set(['views','drive','shop'])};
+const st={dest:'',budget:14000,days:6,flight:5,month:0,tier:1,walk:0,styles:new Set(['views','drive','shop'])};
 let trips=[];try{trips=JSON.parse(localStorage.getItem('mifras.trips'))||[]}catch(e){}
 const persist=()=>{try{localStorage.setItem('mifras.trips',JSON.stringify(trips))}catch(e){}};
 
@@ -720,10 +729,10 @@ const heart=d=>`<button class="heart" data-save="${d.id}" aria-pressed="${isSave
 
 function card(r,i,fit){
   const d=r.d,top=Object.entries(d.s).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k])=>STYLES[k]).join(' · ');
-  return `<article class="card" data-open="${d.id}" tabindex="0" role="button" aria-label="${d.n}, לפתיחת המסלול">${ph(d,(fit&&i<3&&!r.partial?'<span class="badge">הכי מתאים לכם</span>':'')+heart(d))}
+  return `<article class="card" data-open="${d.id}" tabindex="0" role="button" aria-label="${d.n}, לפתיחת המסלול">${ph(d,(r.mine?'<span class="badge">היעד שבחרתם</span>':fit&&i<3&&!r.partial?'<span class="badge">הכי מתאים לכם</span>':'')+heart(d))}
   <div class="info"><div class="r1"><h3>${d.n}, ${d.w}</h3><span class="rate">${ic('star')}${Math.round(r.sc*100)}%</span></div>
   <div class="muted">טיסה של ${fmtH(d.h)} · ${d.c[3]?'עם רכב':'בלי רכב'}</div><div class="muted">${top}</div>
-  <div class="price"><b>${nis(r.total)}</b> לזוג · ${st.days} ימים${fit&&r.over?' <span class="over">(מעט מעל התקציב)</span>':''}${fit&&r.partial?' <span class="over">(התאמה חלקית לסגנון)</span>':''}</div></div></article>`;
+  <div class="price"><b>${nis(r.total)}</b> לזוג · ${st.days} ימים${fit&&r.over?' <span class="over">(מעט מעל התקציב)</span>':''}${fit&&r.partial&&!r.mine?' <span class="over">(התאמה חלקית לסגנון)</span>':''}</div></div></article>`;
 }
 
 function render(){
@@ -731,12 +740,16 @@ function render(){
   $('#daysOut').textContent=$('#vDays').textContent=st.days+' ימים';
   $('#flightOut').textContent=$('#vFlight').textContent='עד '+fmtH(st.flight);
   $('#vMonth').textContent=MONTHS[st.month];
-  const all=ranked(),fit=all.filter(r=>r.fit),rest=all.filter(r=>!r.fit);
+  const cd=D.find(d=>d.id===st.dest);$('#vDest').textContent=cd?cd.n:'כל יעד';destList();
+  let all=ranked();const mine=all.find(r=>r.d.id===st.dest);if(mine)all=[{...mine,fit:true,mine:true},...all.filter(r=>r!==mine)];
+  const fit=all.filter(r=>r.fit),rest=all.filter(r=>!r.fit);
   $('#resSub').textContent=fit.length?`${fit.length} יעדים שמתאימים לכל מה שבחרתם${st.styles.size?': '+[...st.styles].map(k=>STYLES[k]).join(', '):''}.`:'';
   $('#reel').innerHTML=fit.length?fit.map((r,i)=>card(r,i,1)).join(''):`<div class="empty">אין יעד שעומד בכל התנאים. נסו להעלות מעט את התקציב, לקצר את הטיול או להאריך את זמן הטיסה.</div>`;
   $('#restSec').hidden=!rest.length;$('#allGrid').innerHTML=rest.map((r,i)=>card(r,i,0)).join('');
   renderTrips();
 }
+function destList(){const q=$('#destQ').value.trim();
+  $('#destList').innerHTML=`<button data-dest="" aria-pressed="${!st.dest}"><b>כל יעד</b><span>לפי התקציב והסגנון</span></button>`+D.filter(d=>!q||(d.n+' '+d.w).includes(q)).sort((a,b)=>a.n.localeCompare(b.n,'he')).map(d=>`<button data-dest="${d.id}" aria-pressed="${d.id===st.dest}"><b>${d.n}</b><span>${d.w} · ${fmtH(d.h)}</span></button>`).join('')}
 function renderTrips(){
   $('#tripCount').textContent=trips.length;
   $('#tripGrid').innerHTML=trips.length?trips.map(t=>{const d=D.find(x=>x.id===t.id);return `<article class="card trip">${ph(d,heart(d))}<div class="info">
@@ -830,7 +843,8 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('.search,.filt'))pop('');
   const b=e.target.closest('button,[data-open]');if(!b)return;const ds=b.dataset;
   if(ds.tab){location.hash=ds.tab;show(ds.tab);scrollTo(0,0)}
-  else if(ds.pop)pop(ds.pop);
+  else if(ds.pop){pop(ds.pop);if(ds.pop==='dest'&&!$('[data-panel=dest]').hidden)$('#destQ').focus()}
+  else if('dest' in ds){st.dest=ds.dest;pop('');render();if(st.dest)openDest(st.dest)}
   else if(ds.style){st.styles.has(ds.style)?st.styles.delete(ds.style):st.styles.add(ds.style);b.setAttribute('aria-pressed',st.styles.has(ds.style));render()}
   else if(ds.month){st.month=+ds.month;press('[data-month]',ds.month,'month');render()}
   else if(ds.tier){st.tier=+ds.tier;press('[data-tier]',ds.tier,'tier');render()}
@@ -847,6 +861,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.card[data-open]'))openDest(e.target.dataset.open)});
 $('#dlg').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.close()});
+$('#destQ').addEventListener('input',destList);
 document.addEventListener('input',e=>{const id=e.target.dataset.note;if(id){trips.find(t=>t.id===id).note=e.target.value;persist()}});
 
 const seen=new Set();let lastPick='';
