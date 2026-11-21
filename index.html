@@ -334,6 +334,29 @@ b,strong{font-weight:600}
 
 
 
+
+/* ---- cheap flights tab ---- */
+.watch{background:var(--soft);border-radius:24px;padding:18px;display:grid;gap:14px;max-width:760px;margin-bottom:22px}
+.watch h3{margin:0;font-size:1.1rem;font-weight:500}
+.wchips{display:flex;flex-wrap:wrap;gap:8px}
+.wchip{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:5px 6px 5px 14px;font-weight:500}
+[dir=rtl] .wchip{padding:5px 14px 5px 6px}
+.wchip button{width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.12);line-height:1}
+.wrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.wrow label,.wl{display:grid;gap:4px;font-size:.82rem;color:var(--muted);min-width:0}
+.wrow input,.wrow select{width:100%;min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--bg);padding:10px 12px;font-size:1rem;color:var(--ink);min-height:44px}
+.watch .chipsrow{margin-top:6px}
+.watch .chipsrow button{background:var(--bg)}
+.watch .none{margin:0;color:var(--muted)}
+.dlist2{display:grid;gap:12px;max-width:760px}
+.deal{display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:14px;align-items:center;border:1px solid var(--line);border-radius:22px;padding:10px;color:var(--ink);text-decoration:none;transition:transform .2s,box-shadow .2s}
+.deal:hover{transform:translateY(-3px);box-shadow:var(--sh2)}
+.dth{width:84px;height:84px;border-radius:16px;overflow:hidden;background:var(--soft)}.dth img,.dth svg{width:100%;height:100%;object-fit:cover;display:block}
+.dtx b{font-weight:500;font-size:1.1rem;display:block}.dtx small,.dpr small{color:var(--muted);display:block;font-size:.85rem}
+.dpr{text-align:end;padding-inline-end:8px}.dpr b{font-size:1.25rem;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.drop{display:inline-block;margin-top:4px;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:600}
+#view-deals section{padding-bottom:90px}
+@media (max-width:420px){.dock .tab{padding:9px 11px}}
 /* ---- trip list ---- */
 .tact{max-width:640px;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
 .tact .btn{padding:14px;border-radius:18px}
@@ -427,10 +450,6 @@ dialog{overflow-x:hidden}
 .d-body .seasw,.d-body .cmpw{max-width:100%}
 .d-foot{left:0;right:0}
 .hl div{min-width:0}.hl b,.hl span,.d-body .muted,.credit{overflow-wrap:anywhere;min-width:0}
-/* ---- cheap flights ---- */
-.filt.under+.filt.under{margin-inline-start:8px}
-.howto{background:var(--soft);border-radius:16px;padding:14px 16px;margin-top:4px}
-.howto b{font-weight:600}.howto ol{margin:8px 0 0;padding-inline-start:1.3em;display:grid;gap:6px;color:var(--muted);font-size:.93rem}
 /* ---- style inside the search card ---- */
 .panel .cats{flex-wrap:wrap;overflow:visible;justify-content:flex-start}
 .panel h3 .hint{font-size:.85rem;color:var(--muted);font-weight:400;margin-inline-start:8px}
@@ -510,13 +529,8 @@ dialog{overflow-x:hidden}
       <div class="panel" data-panel="flight" hidden><h3><label for="flight">זמן טיסה מרבי מישראל</label></h3><p class="muted" style="margin:-10px 0 0;font-size:.88rem">ביעדים שדורשים כמה טיסות, זה הזמן הכולל עם ההמתנה.</p><div class="big" id="flightOut"></div><input type="range" id="flight" min="1" max="12" step="0.5" value="5"></div>
       <div class="panel" data-panel="month" hidden><h3>מתי נוסעים?</h3><div class="wheel" id="months" role="group" aria-label="חודש"></div></div>
       <div class="panel" data-panel="style" hidden><h3>מה בא לכם? <span class="hint">אפשר לבחור כמה</span></h3><div class="cats" id="styles" role="group" aria-label="סגנון הטיול"></div></div>
-      <div class="panel" data-panel="cheap" hidden><h3>טיסות זולות מתל אביב</h3>
-        <p class="muted" style="margin:-8px 0 4px">המחירים מוצגים באתרים עצמם, לשני נוסעים. בוחרים שם תאריכים גמישים ורואים לאן הכי זול לטוס.</p>
-        <div class="links" id="cheapLinks"></div>
-        <div class="howto"><b>איך מקבלים התראה כשהמחיר יורד</b><ol><li>פתחו יעד באתר, ובחלק ״מחירים אמיתיים והזמנה״ לחצו על ״טיסות ב-Skyscanner״ או על ״מעקב מחיר ב-Google Flights״.</li><li>בדף שנפתח הפעילו את ההתראה: ב-Skyscanner סמל הפעמון ״קבלת התראות מחיר״, וב-Google Flights המתג ״מעקב אחר מחירים״.</li><li>ההתראות יגיעו מהם למייל או לאפליקציה, עם המחיר והתאריכים.</li></ol></div></div>
       <div class="panel" data-panel="more" hidden><div class="two"><div><h3>רמת פינוק</h3><div class="seg" id="tier" role="group" aria-label="רמת פינוק"></div></div><div><h3>כמה הולכים ברגל?</h3><div class="seg" id="walk" role="group" aria-label="רמת הליכה"></div></div></div><div><h3 style="margin-bottom:8px">איך מגיעים?</h3><div class="chipsrow" id="go" role="group" aria-label="דרך ההגעה"></div></div></div>
       <button class="filt under" data-pop="more" aria-expanded="false"><span data-ic="sliders"></span><span>מסננים נוספים</span></button>
-      <button class="filt under" data-pop="cheap" aria-expanded="false"><span data-ic="plane"></span><span>טיסות זולות</span></button>
     </div>
   </div>
 
@@ -530,6 +544,17 @@ dialog{overflow-x:hidden}
   <div class="head" style="padding-top:20px"><h2 style="font-size:2rem;font-weight:800">נסיעות מתוכננות</h2><p>המסלולים ששמרתם, עם ההערות שלכם.</p></div>
   <div class="grid" id="tripGrid"></div>
 </section></div></div>
+<div id="view-deals" hidden><div class="wrap"><section>
+  <div class="head" style="padding-top:20px"><h2 style="font-size:2rem">טיסות זולות</h2><p>בדיקה יומית של המחירים הזולים ביותר ליעדים שבחרתם, עם תאריכים. <span id="dealsWhen"></span></p></div>
+  <div class="watch">
+    <h3>אחרי מה לעקוב</h3>
+    <div class="wchips" id="watchDests"></div>
+    <div class="wrow"><label>הוספת יעד<select id="watchAdd"></select></label><label>מחיר מרבי לזוג<input type="number" id="watchMax" inputmode="numeric" min="0" step="100" placeholder="בלי הגבלה"></label><label>כמה ימים<input type="number" id="watchDays" inputmode="numeric" min="2" max="21" placeholder="6"></label></div>
+    <div><span class="wl">באילו חודשים</span><div class="chipsrow" id="watchMonths"></div></div>
+  </div>
+  <div id="dealsList" class="dlist2"></div>
+</section></div></div>
+
 <div id="view-plan" hidden><div class="wrap"><section>
   <div class="head" style="padding-top:20px"><h2 style="font-size:2rem" id="planH">הטיולים שלי</h2><p><span id="planSub"></span> <span id="syncNote">נשמר בדפדפן הזה.</span></p></div>
   <div id="planList" class="grid tlist"></div>
@@ -564,6 +589,7 @@ dialog{overflow-x:hidden}
 <nav class="dock" role="tablist" aria-label="ניווט ראשי"><div>
   <button class="tab" role="tab" data-tab="planner" id="tab-planner"><span data-ic="home"></span><span class="lb">יעדים</span></button>
   <button class="tab" role="tab" data-tab="trips" id="tab-trips"><span data-ic="heart"></span><span class="lb">נסיעות מתוכננות</span><span class="count" id="tripCount">0</span></button>
+  <button class="tab" role="tab" data-tab="deals" id="tab-deals"><span data-ic="plane"></span><span class="lb">טיסות זולות</span></button>
   <button class="tab" role="tab" data-tab="plan" id="tab-plan"><span data-ic="cal"></span><span class="lb">הטיולים שלי</span></button>
 </div></nav>
 <dialog id="dlg" aria-labelledby="dTitle"></dialog>
@@ -1488,13 +1514,11 @@ function booking(d,c){
   const pl=PLACE[d.id],q=encodeURIComponent(pl),ap=AIR[d.id],xm=c.styles.has('xmas')&&d.s.xmas>=2;
   const L=[['plane','טיסות ב-Google Flights','מחירים עדכניים לשני נוסעים',`https://www.google.com/travel/flights?q=${encodeURIComponent(`Flights from TLV to ${ap} on ${iso(a)} through ${iso(b)} for 2 adults`)}`],
    ['plane','טיסות ב-Skyscanner','השוואה בין חברות תעופה',`https://www.skyscanner.co.il/transport/flights/tlv/${ap.toLowerCase()}/${ymd(a)}/${ymd(b)}/?adultsv2=2`],
-   ['star',c.month?`כל ${MONTHS[c.month]} ב-Skyscanner`:'החודש הזול ביותר ב-Skyscanner','המחיר לכל יום בחודש, כדי לבחור תאריך זול',`https://www.skyscanner.co.il/transport/flights/tlv/${ap.toLowerCase()}/?adultsv2=2&rtn=1${c.month?`&oym=${String(a.getFullYear()).slice(2)}${String(c.month).padStart(2,'0')}&iym=${String(a.getFullYear()).slice(2)}${String(c.month).padStart(2,'0')}`:'&oym=cheapest&iym=cheapest'}`],
-   ['sun','מעקב מחיר ב-Google Flights','מפעילים שם ״מעקב אחר מחירים״ ומקבלים התראה',`https://www.google.com/travel/flights?q=${encodeURIComponent(`Flights from TLV to ${ap} for 2 adults`)}`],
    ['bed','מלונות ב-Booking',pl,`https://www.booking.com/searchresults.html?ss=${q}&checkin=${iso(a)}&checkout=${iso(b)}&group_adults=2&no_rooms=1`],
    ['home','דירות ב-Airbnb',pl,`https://www.airbnb.com/s/${encodeURIComponent(pl.replace(/, /g,'--'))}/homes?checkin=${iso(a)}&checkout=${iso(b)}&adults=2`],
    ['fork','מסעדות מומלצות','דירוגים וביקורות במפות Google',`https://www.google.com/maps/search/${encodeURIComponent('best restaurants in '+pl)}`],
    ['shop',xm?'שווקי חג המולד':'שווקים מיוחדים','שווקים מקומיים במפות Google',`https://www.google.com/maps/search/${encodeURIComponent((xm?'Christmas markets in ':'local markets in ')+pl)}`]];
-  return `<div><h3>מחירים אמיתיים והזמנה</h3><p class="muted" style="margin:-8px 0 16px">החיפוש נפתח לתאריכים ${he(a)} עד ${he(b)}, לשני מבוגרים. אפשר לשנות אותם באתר שנפתח. להתראה על ירידת מחיר: בדף של Skyscanner לחצו על סמל הפעמון, וב-Google Flights הפעילו ״מעקב אחר מחירים״.</p><div class="links">${L.map(l=>`<a class="lk" href="${l[3]}" target="_blank" rel="noopener">${ic(l[0])}<b>${l[1]}</b><span>${l[2]}</span><i>↗</i></a>`).join('')}</div></div>`;
+  return `<div><h3>מחירים אמיתיים והזמנה</h3><p class="muted" style="margin:-8px 0 16px">החיפוש נפתח לתאריכים ${he(a)} עד ${he(b)}, לשני מבוגרים. אפשר לשנות אותם באתר שנפתח.</p><div class="links">${L.map(l=>`<a class="lk" href="${l[3]}" target="_blank" rel="noopener">${ic(l[0])}<b>${l[1]}</b><span>${l[2]}</span><i>↗</i></a>`).join('')}</div></div>`;
 }
 const WAYS={direct:['plane','טיסה ישירה'],land:['drive','טיסה ואז רכב או רכבת'],ferry:['ferry','טיסה ומעבורת'],multi:['plane','כמה טיסות']};
 const GO={dolomites:['land','טיסה לוונציה או לוורונה, ומשם שעתיים וחצי ברכב.'],amalfi:['land','טיסה לנאפולי, ומשם שעה ברכב או במעבורת לסורנטו.'],como:['land','טיסה למילאנו, ומשם שעה ברכב או ברכבת.'],garda:['land','טיסה לוורונה או למילאנו, ומשם עד שעה וחצי ברכב.'],swiss:['land','טיסה לציריך, ומשם שעה ברכבת ללוצרן.'],salzburg:['land','טיסה לזלצבורג או למינכן, ומשם עד שעה וחצי ברכב.'],alsace:['land','טיסה לבאזל או לפרנקפורט, ומשם שעה עד שעתיים ברכב.'],slovenia:['land','טיסה ללובליאנה, ומשם 40 דקות ברכב לבלד.'],montenegro:['land','טיסה לטיווט או לפודגוריצה, ומשם עד שעה וחצי ברכב.'],andalusia:['land','טיסה למלגה, ומשם שעתיים ברכב לסביליה.'],puglia:['land','טיסה לבארי, ומשם 40 דקות ברכב.'],istria:['land','טיסה ללובליאנה או לזאגרב, ומשם שעתיים וחצי ברכב.'],albania:['land','טיסה לטירנה, ומשם נסיעה לאורך החוף, כ־4 שעות עם עצירות.'],transylvania:['land','טיסה לבוקרשט, ומשם שעתיים וחצי ברכב או ברכבת לברשוב.'],peloponnese:['land','טיסה לאתונה, ומשם שעתיים ברכב.'],annecy:['land','טיסה לז׳נבה, ומשם 40 דקות ברכב.'],tuscany:['land','טיסה לרומא או לבולוניה, ומשם שעה וחצי ברכבת מהירה לפירנצה.'],cinque:['land','טיסה למילאנו או לפיזה, ומשם שעה עד שלוש ברכבת.'],provence:['land','טיסה למרסיי או לניס, ומשם שעה עד שעתיים ברכב.'],bruges:['land','טיסה לבריסל, ומשם שעה ברכבת ישירה משדה התעופה.'],sofia:['direct','טיסה ישירה לסופיה. להרי רילה שעתיים ברכב.'],georgia:['direct','טיסה ישירה לטביליסי. לקזבגי שלוש שעות ברכב.'],
@@ -1613,7 +1637,6 @@ function saveTrip(id,o){
 function toast(m){document.querySelectorAll('.toast').forEach(e=>e.remove());const e=document.createElement('div');e.className='toast';e.setAttribute('role','status');e.textContent=m;($('#dlg').open?$('#dlg'):document.body).append(e);setTimeout(()=>e.remove(),2200)}
 
 /* ---------- controls ---------- */
-$('#cheapLinks').innerHTML=[['plane','לאן הכי זול ב-Skyscanner','כל היעדים מתל אביב, מהזול ליקר','https://www.skyscanner.co.il/transport/flights-from/tlv/?adultsv2=2'],['views','מפת המחירים של Google Flights','מחירים על מפה, עם תאריכים גמישים','https://www.google.com/travel/explore?q='+encodeURIComponent('Flights from Tel Aviv')],['compass','Kayak Explore','יעדים לפי תקציב על מפה','https://www.kayak.com/explore/TLV-anywhere']].map(l=>`<a class="lk" href="${l[3]}" target="_blank" rel="noopener">${ic(l[0])}<b>${l[1]}</b><span>${l[2]}</span><i>↗</i></a>`).join('');
 $('#styles').innerHTML=Object.entries(STYLES).map(([k,v])=>`<button class="cat" data-style="${k}" aria-pressed="${st.styles.has(k)}">${ic(k)}${v}</button>`).join('');
 $('#months').innerHTML=MONTHS.map((m,i)=>`<button data-month="${i}" aria-pressed="${i===st.month}">${m}</button>`).join('');
 $('#tier').innerHTML=TIERS.map((t,i)=>`<button data-tier="${i}" aria-pressed="${i===st.tier}">${t[0]}</button>`).join('');
@@ -1624,8 +1647,8 @@ const press=(sel,v,attr)=>document.querySelectorAll(sel).forEach(b=>b.setAttribu
 function pop(name){document.querySelectorAll('[data-panel]').forEach(p=>{p.hidden=p.dataset.panel!==name||!p.hidden&&true});document.querySelectorAll('[data-pop]').forEach(b=>b.setAttribute('aria-expanded',b.dataset.pop===name&&!$(`[data-panel="${name}"]`).hidden))}
 
 function show(tab){
-  if(!['planner','trips','plan'].includes(tab))tab='planner';
-  ['planner','trips','plan'].forEach(t=>{$('#view-'+t).hidden=t!==tab;$('#tab-'+t).setAttribute('aria-selected',t===tab)});
+  if(!['planner','trips','plan','deals'].includes(tab))tab='planner';
+  ['planner','trips','plan','deals'].forEach(t=>{$('#view-'+t).hidden=t!==tab;$('#tab-'+t).setAttribute('aria-selected',t===tab)});
 }
 addEventListener('hashchange',()=>{show(location.hash.slice(1));scrollTo(0,0)});
 
@@ -1671,6 +1694,8 @@ document.addEventListener('click',e=>{
   else if(ds.padd){const k=pDay+':'+ds.padd;pAdd=pAdd===k?'':k;renderPlan()}
   else if(ds.xdel){const[i,j]=ds.xdel.split(':');pl.x[i].splice(+j,1);savePl();renderPlan()}
   else if('toplan' in ds){let p=plans.find(x=>x.dest===cur.id);if(!p){p=blank();p.dest=cur.id;plans.unshift(p);pl=p;savePl()}$('#dlg').close();location.hash='plan';show('plan');openTrip(p,!p.o.d)}
+  else if(ds.wdel){watch.dests=watch.dests.filter(x=>x!==ds.wdel);saveWatch();renderWatch()}
+  else if(ds.wmonth){const m=+ds.wmonth,i=watch.months.indexOf(m);i<0?watch.months.push(m):watch.months.splice(i,1);saveWatch();renderWatch()}
   else if('pback' in ds){plOpen=false;watchShared();renderPlan();scrollTo(0,0)}
   else if('pnew' in ds){const p=blank();openTrip(p,true)}
   else if('psave' in ds){const had=hasContent(pl);if(had)savePl();plOpen=false;watchShared();renderPlan();scrollTo(0,0);toast(had?'הטיול נשמר':'הטיול היה ריק ולא נשמר')}
@@ -1860,6 +1885,30 @@ $('#planDays').addEventListener('toggle',e=>{const t=e.target;if(t.dataset&&t.da
 fillPlanForm();renderHotels();renderPlan();drawChat();
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('[data-ptrip]'))e.target.click()});
 $('#chatIn').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();chatSend()}});
+
+/* ---------- cheap flights: a watch list, and results written by a daily check ---------- */
+let watch={dests:[],max:'',days:'',months:[]},deals=null;
+try{watch=Object.assign(watch,JSON.parse(localStorage.getItem('mifras.watch'))||{})}catch(e){}
+const saveWatch=()=>{watch._t=Date.now();try{localStorage.setItem('mifras.watch',JSON.stringify(watch))}catch(e){}push('watch',watch)};
+function renderWatch(){
+  $('#watchDests').innerHTML=watch.dests.length?watch.dests.map(i=>D.find(x=>x.id===i)).filter(Boolean).map(d=>`<span class="wchip">${d.n}<button type="button" data-wdel="${d.id}" aria-label="הסרת ${d.n} מהמעקב">×</button></span>`).join(''):'<p class="none">עוד לא בחרתם יעדים. הוסיפו יעד מהרשימה.</p>';
+  $('#watchAdd').innerHTML='<option value="">בחרו יעד</option>'+[...D].filter(d=>!watch.dests.includes(d.id)).sort((a,b)=>a.n.localeCompare(b.n,'he')).map(d=>`<option value="${d.id}">${d.n}, ${d.w}</option>`).join('');
+  $('#watchMonths').innerHTML=MONTHS.slice(1).map((m,i)=>`<button type="button" data-wmonth="${i+1}" aria-pressed="${watch.months.includes(i+1)}">${m}</button>`).join('');
+  if(document.activeElement!==$('#watchMax'))$('#watchMax').value=watch.max;if(document.activeElement!==$('#watchDays'))$('#watchDays').value=watch.days;
+}
+function renderDeals(){
+  const el=$('#dealsList'),it=deals&&Array.isArray(deals.items)?deals.items:[];
+  $('#dealsWhen').textContent=deals&&deals.checked?'נבדק לאחרונה: '+new Date(deals.checked).toLocaleString('he-IL',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})+'.':'';
+  if(!it.length){el.innerHTML=`<div class="empty">${deals?'בבדיקה האחרונה לא נמצאו טיסות שמתאימות למעקב שלכם.':'הבדיקה היומית עוד לא הופעלה. כשהיא תופעל, יופיעו כאן המחירים הזולים ביותר ליעדים שבמעקב, עם תאריכי היציאה והחזרה.'}</div>`;return}
+  const f=x=>{try{return pdate(x).toLocaleDateString('he-IL',{weekday:'short',day:'numeric',month:'long'})}catch(e){return esc(x)}};
+  el.innerHTML=it.slice().sort((a,b)=>a.price-b.price).map(x=>{const d=D.find(z=>z.id===x.id),drop=x.prev&&x.prev>x.price?Math.round(x.prev-x.price):0,ap=d&&AIR[d.id]?AIR[d.id].toLowerCase():'',y=v=>String(v||'').slice(2).replace(/-/g,'');
+    return `<a class="deal" href="${ap&&x.dep?`https://www.skyscanner.co.il/transport/flights/tlv/${ap}/${y(x.dep)}/${x.ret?y(x.ret)+'/':''}?adultsv2=2`:'#'}" target="_blank" rel="noopener"><div class="dth">${d?img(d):''}</div><div class="dtx"><b>${d?d.n:esc(x.name||'')}</b><small>${x.dep?f(x.dep):''}${x.ret?' עד '+f(x.ret):''}</small>${x.note?`<small>${esc(x.note)}</small>`:''}${drop?`<span class="drop">ירד ב־${nis(drop)}</span>`:''}</div><div class="dpr"><b>${nis(x.price)}</b><small>לזוג</small></div></a>`}).join('')+'<p class="note">המחירים נאספים פעם ביום ממאגר מחירים, ועלולים להשתנות עד ההזמנה. לחיצה פותחת את אותם תאריכים ב-Skyscanner.</p>';
+}
+$('#watchAdd').addEventListener('change',e=>{if(e.target.value){watch.dests.push(e.target.value);saveWatch();renderWatch()}});
+$('#watchMax').addEventListener('input',e=>{watch.max=e.target.value;saveWatch()});
+$('#watchDays').addEventListener('input',e=>{watch.days=e.target.value;saveWatch()});
+if(!watch.dests.length&&!watch._t){watch.dests=[...new Set([...plans.map(p=>p.dest),...trips.map(t=>t.id)].filter(Boolean))].slice(0,6)}
+renderWatch();renderDeals();
 show(location.hash.slice(1));render();
 /* keep trips and the saved list in the viewer's own Claude storage when the page runs as an artifact */
 (async()=>{try{
@@ -1876,6 +1925,8 @@ show(location.hash.slice(1));render();
   const cb=b.exists?b.data():null;let lt=0;try{lt=+localStorage.getItem('mifras.trips.t')||0}catch(e){}
   if(cb&&((cb.t||0)>lt||!trips.length)){trips=JSON.parse(cb.v)||[];try{localStorage.setItem('mifras.trips',JSON.stringify(trips));localStorage.setItem('mifras.trips.t',cb.t)}catch(e){}render()}
   else if(trips.length)push('trips',trips);
+  try{const w=await col.doc('watch').get();if(w.exists){const c=w.data();if((c.t||0)>(watch._t||0)){watch=Object.assign(watch,JSON.parse(c.v));try{localStorage.setItem('mifras.watch',JSON.stringify(watch))}catch(e){}renderWatch()}else push('watch',watch)}else push('watch',watch)}catch(e){}
+  try{db.collection('deals').doc('latest').onSnapshot(sn=>{if(sn.exists){try{deals=JSON.parse(sn.data().v)}catch(e){deals=null}renderDeals()}},()=>{})}catch(e){}
   $('#syncNote').textContent='נשמר בחשבון Claude שלכם, כך שהוא נשאר גם אחרי שיוצאים.';
 }catch(e){}})();
 </script>
