@@ -330,19 +330,29 @@ b,strong{font-weight:600}
 .idea b{font-weight:500;display:block}.idea small{color:var(--muted);display:block;font-size:.85rem}.idea a{color:var(--ink);font-weight:600}
 .idea .plus{background:var(--ink);color:var(--bg)}
 .ideas .none{margin:0;color:var(--muted);font-size:.9rem}
-@media (max-width:700px){.hrow{grid-template-columns:1fr 30px}.hrow label{grid-column:1}.hrow .x{grid-row:1;grid-column:2}.nav .wrap{flex-wrap:wrap;padding-block:10px 6px}.brand{margin-left:auto}.tabs{display:flex;order:3;width:100%;justify-content:center;margin:0;gap:0}.tab{padding:6px 10px;font-size:.92rem}.addrow{grid-template-columns:96px 1fr}.addrow .btn{grid-column:1/-1}.ti{grid-template-columns:58px 1fr auto;padding:10px}}
+
+/* ---- floating dock navigation ---- */
+.dock{position:fixed;z-index:8;inset:auto 0 calc(16px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;pointer-events:none;padding-inline:12px}
+.dock>div{pointer-events:auto;background:var(--ink);border-radius:999px;padding:6px;display:flex;gap:2px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.dock .tab{display:flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;color:color-mix(in srgb,var(--bg) 70%,transparent);font-weight:500;font-size:.92rem;position:relative;transition:background .2s,color .2s}
+.dock .tab:hover{background:color-mix(in srgb,var(--bg) 14%,transparent);color:var(--bg)}
+.dock .tab .ic{width:24px;height:24px}
+.dock .tab .lb{display:none;white-space:nowrap}
+.dock .tab[aria-selected="true"]{background:var(--accent);color:var(--on-accent);font-weight:600}
+.dock .tab[aria-selected="true"] .lb{display:inline}
+.dock .count{position:absolute;top:2px;inset-inline-start:6px;min-width:17px;height:17px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:.68rem;font-weight:600;display:grid;place-items:center;padding:0 4px}
+.dock .tab[aria-selected="true"] .count{background:var(--ink);color:var(--bg)}
+.dock .count[data-zero]{display:none}
+.go{width:auto;min-width:50px;padding:0 14px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600}
+.go .lb{white-space:nowrap}
+.go:hover{transform:translateY(-2px)}
+@media (max-width:700px){.go .lb{display:none}.go{padding:0}.hrow{grid-template-columns:1fr 30px}.hrow label{grid-column:1}.hrow .x{grid-row:1;grid-column:2}.nav .wrap{flex-wrap:wrap;padding-block:10px 6px}.brand{margin-left:auto}.tabs{display:flex;order:3;width:100%;justify-content:center;margin:0;gap:0}.tab{padding:6px 10px;font-size:.92rem}.addrow{grid-template-columns:96px 1fr}.addrow .btn{grid-column:1/-1}.ti{grid-template-columns:58px 1fr auto;padding:10px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 
 <div id="app" dir="rtl" lang="he">
 <header class="nav"><div class="wrap">
   <div class="brand" lang="en" dir="ltr"><span data-ic="sail"></span><span class="wordmark">MIFRAS</span></div>
-  <nav class="tabs" role="tablist" aria-label="ניווט ראשי">
-    <button class="tab" role="tab" data-tab="planner" id="tab-planner">יעדים</button>
-    <button class="tab" role="tab" data-tab="trips" id="tab-trips">נסיעות מתוכננות</button>
-    <button class="tab" role="tab" data-tab="plan" id="tab-plan">הטיול שלי</button>
-  </nav>
-  <button class="saved" data-tab="trips" aria-label="נסיעות מתוכננות"><span data-ic="heart"></span><span class="count" id="tripCount">0</span></button>
 </div></header>
 
 <main>
@@ -357,7 +367,7 @@ b,strong{font-weight:600}
         <button class="segb" data-pop="days" aria-expanded="false"><small>כמה ימים</small><span id="vDays"></span></button>
         <button class="segb" data-pop="flight" aria-expanded="false"><small>זמן טיסה</small><span id="vFlight"></span></button>
         <button class="segb" data-pop="month" aria-expanded="false"><small>מתי</small><span id="vMonth"></span></button>
-        <button class="go" id="goSpin" aria-label="הפתיעו אותנו"><span data-ic="compass"></span></button>
+        <button class="go" id="goSpin" aria-label="הפתיעו אותנו" title="הפתיעו אותנו"><span data-ic="compass"></span><span class="lb">הפתיעו אותנו</span></button>
       </div>
       <div class="panel" data-panel="dest" hidden><h3><label for="destQ">בחרו יעד מראש</label></h3><input type="search" id="destQ" placeholder="חיפוש יעד או מדינה" autocomplete="off"><div class="dlist" id="destList"></div></div>
       <div class="panel" data-panel="budget" hidden><h3><label for="budget">תקציב לזוג, כולל טיסות</label></h3><div class="big" id="budgetOut"></div><input type="range" id="budget" min="3000" max="40000" step="500" value="14000"></div>
@@ -407,7 +417,11 @@ b,strong{font-weight:600}
 
 <footer><div class="wrap">המחירים וזמני הטיסה הם הערכה לתכנון בלבד (שקלים, לזוג) ומשתנים לפי עונה וחברת תעופה. כדאי לוודא שעות פתיחה ומועדי שווקים לפני הנסיעה.<details class="credits"><summary>קרדיט לצלמים (Unsplash)</summary><div id="credits"></div></details></div></footer>
 
-<button class="fab" id="fabSpin"><span data-ic="compass"></span>הפתיעו אותנו</button>
+<nav class="dock" role="tablist" aria-label="ניווט ראשי"><div>
+  <button class="tab" role="tab" data-tab="planner" id="tab-planner"><span data-ic="home"></span><span class="lb">יעדים</span></button>
+  <button class="tab" role="tab" data-tab="trips" id="tab-trips"><span data-ic="heart"></span><span class="lb">נסיעות מתוכננות</span><span class="count" id="tripCount">0</span></button>
+  <button class="tab" role="tab" data-tab="plan" id="tab-plan"><span data-ic="cal"></span><span class="lb">הטיול שלי</span></button>
+</div></nav>
 <dialog id="dlg" aria-labelledby="dTitle"></dialog>
 </div>
 
@@ -446,6 +460,8 @@ const IC={
 Object.assign(IC,{
  hidden:['','<path d="M5 13l5.500-7h11L27 13 16 27zM5 13h22M10.500 6l5.500 7 5.500-7M16 13v14"/>'],
  ferry:['','<path d="M4 21h24l-3 5H7zM8 21v-6h16v6M12 15v-5h8v5M16 10V6"/><path d="M4 29c2-1.500 4-1.500 6 0s4 1.500 6 0 4-1.500 6 0 4 1.500 6 0"/>'],
+ home:['','<path d="M5 15L16 5l11 10M8 13v13h16V13M13 26v-8h6v8"/>'],
+ cal:['','<rect x="5" y="7" width="22" height="20" rx="4"/><path d="M5 13.500h22M11 4v5M21 4v5"/>'],
  star:['','<path class="f" d="M16 3l3.9 8.3 9.1 1.2-6.7 6.3 1.7 9L16 23.4 8 27.8l1.7-9L3 12.5l9.1-1.2z"/>'],
  sliders:['','<path d="M5 10h13M24 10h3M5 22h3M14 22h13"/><circle cx="21" cy="10" r="3"/><circle cx="11" cy="22" r="3"/>'],
  sun:['','<circle cx="16" cy="16" r="5.5"/><path d="M16 4v3M16 25v3M4 16h3M25 16h3M7.5 7.5l2.1 2.1M22.4 22.4l2.1 2.1M7.5 24.5l2.1-2.1M22.4 9.6l2.1-2.1"/>'],
@@ -1280,7 +1296,7 @@ function render(){
 function destList(){const q=$('#destQ').value.trim();
   $('#destList').innerHTML=`<button data-dest="" aria-pressed="${!st.dest}"><b>כל יעד</b><span>לפי התקציב והסגנון</span></button>`+D.filter(d=>!q||(d.n+' '+d.w).includes(q)).sort((a,b)=>a.n.localeCompare(b.n,'he')).map(d=>`<button data-dest="${d.id}" aria-pressed="${d.id===st.dest}"><b>${d.n}</b><span>${d.w} · ${WAYS[way(d)][1]}</span></button>`).join('')}
 function renderTrips(){
-  $('#tripCount').textContent=trips.length;
+  $('#tripCount').textContent=trips.length;$('#tripCount').toggleAttribute('data-zero',!trips.length);
   $('#tripGrid').innerHTML=trips.length?trips.map(t=>{const d=D.find(x=>x.id===t.id);return `<article class="card trip">${ph(d,heart(d))}<div class="info">
    <div class="r1"><h3>${d.n}, ${d.w}</h3></div><div class="muted">${t.days} ימים · ${MONTHS[t.month]} · ${TIERS[t.tier][0]}</div>
    <div class="price"><b>${nis(cost(d,t.days,t.tier).total)}</b> לזוג</div></div>
@@ -1370,7 +1386,6 @@ function pop(name){document.querySelectorAll('[data-panel]').forEach(p=>{p.hidde
 function show(tab){
   if(!['planner','trips','plan'].includes(tab))tab='planner';
   ['planner','trips','plan'].forEach(t=>{$('#view-'+t).hidden=t!==tab;$('#tab-'+t).setAttribute('aria-selected',t===tab)});
-  $('#fabSpin').hidden=tab!=='planner';
 }
 addEventListener('hashchange',()=>{show(location.hash.slice(1));scrollTo(0,0)});
 
