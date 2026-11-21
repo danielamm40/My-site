@@ -427,6 +427,10 @@ dialog{overflow-x:hidden}
 .d-body .seasw,.d-body .cmpw{max-width:100%}
 .d-foot{left:0;right:0}
 .hl div{min-width:0}.hl b,.hl span,.d-body .muted,.credit{overflow-wrap:anywhere;min-width:0}
+/* ---- cheap flights ---- */
+.filt.under+.filt.under{margin-inline-start:8px}
+.howto{background:var(--soft);border-radius:16px;padding:14px 16px;margin-top:4px}
+.howto b{font-weight:600}.howto ol{margin:8px 0 0;padding-inline-start:1.3em;display:grid;gap:6px;color:var(--muted);font-size:.93rem}
 /* ---- style inside the search card ---- */
 .panel .cats{flex-wrap:wrap;overflow:visible;justify-content:flex-start}
 .panel h3 .hint{font-size:.85rem;color:var(--muted);font-weight:400;margin-inline-start:8px}
@@ -506,8 +510,13 @@ dialog{overflow-x:hidden}
       <div class="panel" data-panel="flight" hidden><h3><label for="flight">זמן טיסה מרבי מישראל</label></h3><p class="muted" style="margin:-10px 0 0;font-size:.88rem">ביעדים שדורשים כמה טיסות, זה הזמן הכולל עם ההמתנה.</p><div class="big" id="flightOut"></div><input type="range" id="flight" min="1" max="12" step="0.5" value="5"></div>
       <div class="panel" data-panel="month" hidden><h3>מתי נוסעים?</h3><div class="wheel" id="months" role="group" aria-label="חודש"></div></div>
       <div class="panel" data-panel="style" hidden><h3>מה בא לכם? <span class="hint">אפשר לבחור כמה</span></h3><div class="cats" id="styles" role="group" aria-label="סגנון הטיול"></div></div>
+      <div class="panel" data-panel="cheap" hidden><h3>טיסות זולות מתל אביב</h3>
+        <p class="muted" style="margin:-8px 0 4px">המחירים מוצגים באתרים עצמם, לשני נוסעים. בוחרים שם תאריכים גמישים ורואים לאן הכי זול לטוס.</p>
+        <div class="links" id="cheapLinks"></div>
+        <div class="howto"><b>איך מקבלים התראה כשהמחיר יורד</b><ol><li>פתחו יעד באתר, ובחלק ״מחירים אמיתיים והזמנה״ לחצו על ״טיסות ב-Skyscanner״ או על ״מעקב מחיר ב-Google Flights״.</li><li>בדף שנפתח הפעילו את ההתראה: ב-Skyscanner סמל הפעמון ״קבלת התראות מחיר״, וב-Google Flights המתג ״מעקב אחר מחירים״.</li><li>ההתראות יגיעו מהם למייל או לאפליקציה, עם המחיר והתאריכים.</li></ol></div></div>
       <div class="panel" data-panel="more" hidden><div class="two"><div><h3>רמת פינוק</h3><div class="seg" id="tier" role="group" aria-label="רמת פינוק"></div></div><div><h3>כמה הולכים ברגל?</h3><div class="seg" id="walk" role="group" aria-label="רמת הליכה"></div></div></div><div><h3 style="margin-bottom:8px">איך מגיעים?</h3><div class="chipsrow" id="go" role="group" aria-label="דרך ההגעה"></div></div></div>
       <button class="filt under" data-pop="more" aria-expanded="false"><span data-ic="sliders"></span><span>מסננים נוספים</span></button>
+      <button class="filt under" data-pop="cheap" aria-expanded="false"><span data-ic="plane"></span><span>טיסות זולות</span></button>
     </div>
   </div>
 
@@ -1479,11 +1488,13 @@ function booking(d,c){
   const pl=PLACE[d.id],q=encodeURIComponent(pl),ap=AIR[d.id],xm=c.styles.has('xmas')&&d.s.xmas>=2;
   const L=[['plane','טיסות ב-Google Flights','מחירים עדכניים לשני נוסעים',`https://www.google.com/travel/flights?q=${encodeURIComponent(`Flights from TLV to ${ap} on ${iso(a)} through ${iso(b)} for 2 adults`)}`],
    ['plane','טיסות ב-Skyscanner','השוואה בין חברות תעופה',`https://www.skyscanner.co.il/transport/flights/tlv/${ap.toLowerCase()}/${ymd(a)}/${ymd(b)}/?adultsv2=2`],
+   ['star',c.month?`כל ${MONTHS[c.month]} ב-Skyscanner`:'החודש הזול ביותר ב-Skyscanner','המחיר לכל יום בחודש, כדי לבחור תאריך זול',`https://www.skyscanner.co.il/transport/flights/tlv/${ap.toLowerCase()}/?adultsv2=2&rtn=1${c.month?`&oym=${String(a.getFullYear()).slice(2)}${String(c.month).padStart(2,'0')}&iym=${String(a.getFullYear()).slice(2)}${String(c.month).padStart(2,'0')}`:'&oym=cheapest&iym=cheapest'}`],
+   ['sun','מעקב מחיר ב-Google Flights','מפעילים שם ״מעקב אחר מחירים״ ומקבלים התראה',`https://www.google.com/travel/flights?q=${encodeURIComponent(`Flights from TLV to ${ap} for 2 adults`)}`],
    ['bed','מלונות ב-Booking',pl,`https://www.booking.com/searchresults.html?ss=${q}&checkin=${iso(a)}&checkout=${iso(b)}&group_adults=2&no_rooms=1`],
    ['home','דירות ב-Airbnb',pl,`https://www.airbnb.com/s/${encodeURIComponent(pl.replace(/, /g,'--'))}/homes?checkin=${iso(a)}&checkout=${iso(b)}&adults=2`],
    ['fork','מסעדות מומלצות','דירוגים וביקורות במפות Google',`https://www.google.com/maps/search/${encodeURIComponent('best restaurants in '+pl)}`],
    ['shop',xm?'שווקי חג המולד':'שווקים מיוחדים','שווקים מקומיים במפות Google',`https://www.google.com/maps/search/${encodeURIComponent((xm?'Christmas markets in ':'local markets in ')+pl)}`]];
-  return `<div><h3>מחירים אמיתיים והזמנה</h3><p class="muted" style="margin:-8px 0 16px">החיפוש נפתח לתאריכים ${he(a)} עד ${he(b)}, לשני מבוגרים. אפשר לשנות אותם באתר שנפתח.</p><div class="links">${L.map(l=>`<a class="lk" href="${l[3]}" target="_blank" rel="noopener">${ic(l[0])}<b>${l[1]}</b><span>${l[2]}</span><i>↗</i></a>`).join('')}</div></div>`;
+  return `<div><h3>מחירים אמיתיים והזמנה</h3><p class="muted" style="margin:-8px 0 16px">החיפוש נפתח לתאריכים ${he(a)} עד ${he(b)}, לשני מבוגרים. אפשר לשנות אותם באתר שנפתח. להתראה על ירידת מחיר: בדף של Skyscanner לחצו על סמל הפעמון, וב-Google Flights הפעילו ״מעקב אחר מחירים״.</p><div class="links">${L.map(l=>`<a class="lk" href="${l[3]}" target="_blank" rel="noopener">${ic(l[0])}<b>${l[1]}</b><span>${l[2]}</span><i>↗</i></a>`).join('')}</div></div>`;
 }
 const WAYS={direct:['plane','טיסה ישירה'],land:['drive','טיסה ואז רכב או רכבת'],ferry:['ferry','טיסה ומעבורת'],multi:['plane','כמה טיסות']};
 const GO={dolomites:['land','טיסה לוונציה או לוורונה, ומשם שעתיים וחצי ברכב.'],amalfi:['land','טיסה לנאפולי, ומשם שעה ברכב או במעבורת לסורנטו.'],como:['land','טיסה למילאנו, ומשם שעה ברכב או ברכבת.'],garda:['land','טיסה לוורונה או למילאנו, ומשם עד שעה וחצי ברכב.'],swiss:['land','טיסה לציריך, ומשם שעה ברכבת ללוצרן.'],salzburg:['land','טיסה לזלצבורג או למינכן, ומשם עד שעה וחצי ברכב.'],alsace:['land','טיסה לבאזל או לפרנקפורט, ומשם שעה עד שעתיים ברכב.'],slovenia:['land','טיסה ללובליאנה, ומשם 40 דקות ברכב לבלד.'],montenegro:['land','טיסה לטיווט או לפודגוריצה, ומשם עד שעה וחצי ברכב.'],andalusia:['land','טיסה למלגה, ומשם שעתיים ברכב לסביליה.'],puglia:['land','טיסה לבארי, ומשם 40 דקות ברכב.'],istria:['land','טיסה ללובליאנה או לזאגרב, ומשם שעתיים וחצי ברכב.'],albania:['land','טיסה לטירנה, ומשם נסיעה לאורך החוף, כ־4 שעות עם עצירות.'],transylvania:['land','טיסה לבוקרשט, ומשם שעתיים וחצי ברכב או ברכבת לברשוב.'],peloponnese:['land','טיסה לאתונה, ומשם שעתיים ברכב.'],annecy:['land','טיסה לז׳נבה, ומשם 40 דקות ברכב.'],tuscany:['land','טיסה לרומא או לבולוניה, ומשם שעה וחצי ברכבת מהירה לפירנצה.'],cinque:['land','טיסה למילאנו או לפיזה, ומשם שעה עד שלוש ברכבת.'],provence:['land','טיסה למרסיי או לניס, ומשם שעה עד שעתיים ברכב.'],bruges:['land','טיסה לבריסל, ומשם שעה ברכבת ישירה משדה התעופה.'],sofia:['direct','טיסה ישירה לסופיה. להרי רילה שעתיים ברכב.'],georgia:['direct','טיסה ישירה לטביליסי. לקזבגי שלוש שעות ברכב.'],
@@ -1602,6 +1613,7 @@ function saveTrip(id,o){
 function toast(m){document.querySelectorAll('.toast').forEach(e=>e.remove());const e=document.createElement('div');e.className='toast';e.setAttribute('role','status');e.textContent=m;($('#dlg').open?$('#dlg'):document.body).append(e);setTimeout(()=>e.remove(),2200)}
 
 /* ---------- controls ---------- */
+$('#cheapLinks').innerHTML=[['plane','לאן הכי זול ב-Skyscanner','כל היעדים מתל אביב, מהזול ליקר','https://www.skyscanner.co.il/transport/flights-from/tlv/?adultsv2=2'],['views','מפת המחירים של Google Flights','מחירים על מפה, עם תאריכים גמישים','https://www.google.com/travel/explore?q='+encodeURIComponent('Flights from Tel Aviv')],['compass','Kayak Explore','יעדים לפי תקציב על מפה','https://www.kayak.com/explore/TLV-anywhere']].map(l=>`<a class="lk" href="${l[3]}" target="_blank" rel="noopener">${ic(l[0])}<b>${l[1]}</b><span>${l[2]}</span><i>↗</i></a>`).join('');
 $('#styles').innerHTML=Object.entries(STYLES).map(([k,v])=>`<button class="cat" data-style="${k}" aria-pressed="${st.styles.has(k)}">${ic(k)}${v}</button>`).join('');
 $('#months').innerHTML=MONTHS.map((m,i)=>`<button data-month="${i}" aria-pressed="${i===st.month}">${m}</button>`).join('');
 $('#tier').innerHTML=TIERS.map((t,i)=>`<button data-tier="${i}" aria-pressed="${i===st.tier}">${t[0]}</button>`).join('');
