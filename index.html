@@ -402,6 +402,13 @@ b,strong{font-weight:600}
   .pi .acts{grid-column:2;justify-content:flex-start}
   .dnav .cur{font-size:.9rem;padding:9px 8px}
 }
+/* ---- the trip sheet never scrolls sideways; wide rows scroll inside themselves ---- */
+dialog{overflow-x:hidden}
+.d-body{grid-template-columns:minmax(0,1fr)}
+.d-body>*{min-width:0}
+.d-body .seasw,.d-body .cmpw{max-width:100%}
+.d-foot{left:0;right:0}
+.hl div{min-width:0}.hl b,.hl span,.d-body .muted,.credit{overflow-wrap:anywhere;min-width:0}
 /* ---- style inside the search card ---- */
 .panel .cats{flex-wrap:wrap;overflow:visible;justify-content:flex-start}
 .panel h3 .hint{font-size:.85rem;color:var(--muted);font-weight:400;margin-inline-start:8px}
