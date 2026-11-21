@@ -319,7 +319,18 @@ b,strong{font-weight:600}
 .pi .x{width:28px;height:28px;border-radius:50%;background:var(--bg);line-height:1}
 .part .none{margin:0;color:var(--muted);font-size:.9rem}
 .part .addrow{margin-top:2px}
-@media (max-width:700px){.nav .wrap{flex-wrap:wrap;padding-block:10px 6px}.brand{margin-left:auto}.tabs{display:flex;order:3;width:100%;justify-content:center;margin:0;gap:0}.tab{padding:6px 10px;font-size:.92rem}.addrow{grid-template-columns:96px 1fr}.addrow .btn{grid-column:1/-1}.ti{grid-template-columns:58px 1fr auto;padding:10px}}
+
+.pform fieldset.full{grid-column:1/-1}
+.hrow{display:grid;grid-template-columns:1fr 1.4fr 150px 30px;gap:10px;align-items:end;margin-bottom:10px}
+.hrow .x{width:30px;height:30px;border-radius:50%;background:var(--bg);margin-bottom:7px}
+.adapt{margin:0;background:var(--accent);color:var(--on-accent);border-radius:14px;padding:8px 14px;font-size:.9rem}
+.ideas{border:1px solid var(--line);border-radius:22px;padding:14px 16px;display:grid;gap:10px}
+.ideas h3{font-size:1rem;font-weight:500;margin:0}
+.idea{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border-top:1px solid var(--line);padding-top:10px}
+.idea b{font-weight:500;display:block}.idea small{color:var(--muted);display:block;font-size:.85rem}.idea a{color:var(--ink);font-weight:600}
+.idea .plus{background:var(--ink);color:var(--bg)}
+.ideas .none{margin:0;color:var(--muted);font-size:.9rem}
+@media (max-width:700px){.hrow{grid-template-columns:1fr 30px}.hrow label{grid-column:1}.hrow .x{grid-row:1;grid-column:2}.nav .wrap{flex-wrap:wrap;padding-block:10px 6px}.brand{margin-left:auto}.tabs{display:flex;order:3;width:100%;justify-content:center;margin:0;gap:0}.tab{padding:6px 10px;font-size:.92rem}.addrow{grid-template-columns:96px 1fr}.addrow .btn{grid-column:1/-1}.ti{grid-template-columns:58px 1fr auto;padding:10px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 
@@ -385,9 +396,9 @@ b,strong{font-weight:600}
       <label>המראה מהיעד<input type="time" id="p-b1" data-pl="b.t1"></label>
       <label>נחיתה בישראל<input type="time" id="p-b2" data-pl="b.t2"></label>
     </fieldset>
-    <fieldset><legend>המלון שלנו</legend>
-      <label>שם המלון<input id="p-hn" data-pl="h.n" placeholder="שם המלון או הדירה"></label>
-      <label class="wide">כתובת<input id="p-ha" data-pl="h.a" placeholder="רחוב, עיר" dir="auto"></label>
+    <fieldset class="full"><legend>איפה ישנים</legend>
+      <div id="p-hotels" class="wide"></div>
+      <button type="button" class="btn ghost wide" data-hadd style="justify-self:start">+ מקום לינה נוסף</button>
     </fieldset>
   </form>
   <div id="planDays"></div>
@@ -1380,11 +1391,18 @@ document.addEventListener('click',e=>{
   else if(ds.del){if(ds.sure){trips=trips.filter(t=>t.id!==ds.del);persist();render()}else{b.dataset.sure=1;b.textContent='למחוק? לחצו שוב'}}
   else if('close' in ds)$('#dlg').close();
   else if(ds.xadd){const i=ds.xadd,x=$('#xx-'+i).value.trim();if(x){(pl.x[i]=pl.x[i]||[]).push({t:$('#xt-'+i).value||'12:00',x});pAdd='';savePl();renderPlan()}}
+  else if('hadd' in ds){pl.hs.push({n:'',a:'',from:''});savePl();renderHotels();$('#p-hn-'+(pl.hs.length-1)).focus()}
+  else if(ds.hdel){pl.hs.splice(+ds.hdel,1);savePl();renderHotels();renderPlan()}
+  else if(ds.int){const i=pl.int.indexOf(ds.int);i<0?pl.int.push(ds.int):pl.int.splice(i,1);savePl();renderPlan()}
+  else if(ds.idea){const v=INT[ds.idea],it=b.closest('.idea');(pl.x[pDay]=pl.x[pDay]||[]).push({t:v[2],x:it.querySelector('b').textContent,q:decodeURIComponent(it.querySelector('a').href.split('/search/')[1])});savePl();renderPlan()}
+  else if(ds.ideast){const[j,k]=ds.ideast.split(':'),x=D.find(z=>z.id===pl.dest).st[+j];(pl.x[pDay]=pl.x[pDay]||[]).push({t:INT[k][2],x:x[0],a:x[1]});savePl();renderPlan()}
+  else if('hide' in ds){(pl.hide[pDay]=pl.hide[pDay]||[]).push(ds.hide);savePl();renderPlan()}
+  else if('unhide' in ds){delete pl.hide[pDay];savePl();renderPlan()}
   else if(ds.pday){pDay+= +ds.pday;pAdd='';renderPlan()}
   else if('pedit' in ds){pEdit=!pEdit;renderPlan();if(pEdit)$('#pform').scrollIntoView({block:'start'})}
   else if(ds.padd){const k=pDay+':'+ds.padd;pAdd=pAdd===k?'':k;renderPlan()}
   else if(ds.xdel){const[i,j]=ds.xdel.split(':');pl.x[i].splice(+j,1);savePl();renderPlan()}
-  else if('toplan' in ds){pEdit=true;pl.dest=cur.id;savePl();fillPlanForm();renderPlan();$('#dlg').close();location.hash='plan';show('plan');scrollTo(0,0)}
+  else if('toplan' in ds){pEdit=true;pl.dest=cur.id;savePl();fillPlanForm();renderHotels();renderPlan();$('#dlg').close();location.hash='plan';show('plan');scrollTo(0,0)}
   else if(ds.step){cur.days=Math.max(3,Math.min(14,cur.days+ +ds.step));drawDlg()}
   else if(ds.dtier){cur.tier=+ds.dtier;drawDlg()}
   else if('savecur' in ds){saveTrip(cur.id,cur);drawDlg();render()}
@@ -1423,53 +1441,82 @@ function fillPlanForm(){
   $('#p-name-l').hidden=pl.dest!=='other';
 }
 let pDay=0,pEdit=false,pAdd='';
+if(!pl.hs)pl.hs=[{n:(pl.h&&pl.h.n)||'',a:(pl.h&&pl.h.a)||'',from:''}];
+pl.int=pl.int||[];pl.hide=pl.hide||{};
+const INT={shop:['שופינג','shopping street','16:00'],market:['שווקים','local market','10:00'],food:['מסעדות','best restaurants','20:30'],park:['פארקים','park garden','17:00'],vintage:['וינטג׳','vintage second hand shop','11:30'],cafe:['בתי קפה','specialty coffee cafe','16:30'],view:['תצפיות','viewpoint','18:00'],museum:['מוזיאונים','museum','11:00']};
+const iso=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+const hname=h=>esc(h.n||'מקום הלינה');
+function hotelAt(i,d0){const day=iso(new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i));let h=pl.hs[0];pl.hs.slice(1).filter(x=>x.from).sort((a,b)=>a.from<b.from?-1:1).forEach(x=>{if(x.from<=day)h=x});return h}
+function renderHotels(){
+  $('#p-hotels').innerHTML=pl.hs.map((h,i)=>`<div class="hrow"><label>שם<input data-hi="${i}" data-hf="n" id="p-hn-${i}" value="${esc(h.n)}" placeholder="מלון או דירה"></label><label>כתובת<input data-hi="${i}" data-hf="a" id="p-ha-${i}" value="${esc(h.a)}" placeholder="רחוב, עיר" dir="auto"></label><label>${i?'מתאריך':'מיום ההגעה'}<input type="date" data-hi="${i}" data-hf="from" id="p-hf-${i}" value="${i?esc(h.from):pl.o.d}" ${i?'':'disabled'}></label>${i?`<button type="button" class="x" data-hdel="${i}" aria-label="הסרת מקום הלינה">×</button>`:'<span></span>'}</div>`).join('');
+}
 function dayItems(i,n,d,d0){
-  const name=d?d.n:(pl.name||'היעד'),car=d&&d.c[3]>0,hotel=pl.h.n||'המלון',arr=toMin(pl.o.t2),dep=toMin(pl.b.t1);
+  const name=d?d.n:(pl.name||'היעד'),car=d&&d.c[3]>0,arr=toMin(pl.o.t2),dep=toMin(pl.b.t1),H=hotelAt(i,d0),Hp=i?hotelAt(i-1,d0):H;
   const stops=d&&n>1?plan(d,Math.min(Math.max(n,2),14),st.styles,st.walk):[],ds=(stops[Math.min(i,stops.length-1)]||[]).slice();
-  const S=(m,x)=>({m,t:x[0],s:x[2],a:x[1],sg:1}),it=[],first=i===0,last=i===n-1&&n>1;
+  const S=(m,x)=>({m,t:x[0],s:x[2],a:x[1],sg:1,k:'stop'}),M=(m,t,s)=>({m,t,s,sg:1,k:'meal'}),first=i===0,last=i===n-1&&n>1;let it=[];
   if(first){
     if(pl.o.t1)it.push({m:toMin(pl.o.t1),t:'המראה מישראל',s:'להגיע לנתב״ג שלוש שעות לפני'});
-    if(arr!=null){it.push({m:arr,t:'נחיתה ב'+name},{m:arr+60,t:'יציאה משדה התעופה',s:car?'איסוף הרכב השכור':'מונית או הסעה למלון'},{m:arr+120,t:'הגעה ל'+esc(hotel),s:arr+120<900?'אם החדר עוד לא מוכן, משאירים מזוודות וממשיכים':'צ׳ק־אין והתארגנות',a:pl.h.a});
+    if(arr!=null){it.push({m:arr,t:'נחיתה ב'+name},{m:arr+60,t:'יציאה משדה התעופה',s:car?'איסוף הרכב השכור':'מונית או הסעה למלון'},{m:arr+120,t:'הגעה ל'+hname(H),s:arr+120<900?'אם החדר עוד לא מוכן, משאירים מזוודות וממשיכים':'צ׳ק־אין והתארגנות',a:H.a});
       if(ds[0]&&arr+180<=960)it.push(S(arr+180,ds[0]));
-      if(arr+150<1200)it.push({m:1200,t:'ארוחת ערב ראשונה',s:'ליד המלון, בלי תוכניות',sg:1})}
+      if(arr+150<1200)it.push(M(1200,'ארוחת ערב ראשונה','ליד מקום הלינה, בלי תוכניות'))}
     else if(ds[0])it.push(S(900,ds[0]));
   }
   if(last){
-    const co=dep!=null?Math.min(660,dep-240):660;it.push({m:co,t:'צ׳ק־אאוט מ'+esc(hotel),s:'אפשר לבקש לשמור מזוודות בקבלה',a:pl.h.a});
+    const co=dep!=null?Math.min(660,dep-240):660;it.push({m:co,t:'צ׳ק־אאוט מ'+hname(Hp),s:'אפשר לבקש לשמור מזוודות בקבלה',a:Hp.a});
     if(dep!=null){if(ds[0]&&dep-180-co>=210)it.push(S(co+30,ds[0]));it.push({m:dep-180,t:'הגעה לשדה התעופה',s:'שלוש שעות לפני ההמראה'+(car?', כולל החזרת הרכב':'')},{m:dep,t:'המראה חזרה לישראל'})}
     if(pl.b.t2)it.push({m:toMin(pl.b.t2)+(dep!=null&&toMin(pl.b.t2)<dep?1440:0),t:'נחיתה בישראל'});
   }
   if(!first&&!last){
-    if(ds[0])it.push(S(570,ds[0]));else it.push({m:600,t:'בוקר פתוח',s:d?'יום חופשי: חוף, קניות או נסיעת נוף':'',sg:1});
-    it.push({m:780,t:'ארוחת צהריים',sg:1});if(ds[1])it.push(S(900,ds[1]));it.push({m:1200,t:'ארוחת ערב',sg:1});
+    const move=H!==Hp;
+    if(move)it.push({m:660,t:'צ׳ק־אאוט מ'+hname(Hp),s:'עוברים היום למקום לינה חדש',a:Hp.a},{m:900,t:'צ׳ק־אין ב'+hname(H),s:'אפשר להשאיר מזוודות אם מגיעים מוקדם',a:H.a});
+    if(ds[0])it.push(S(move?720:570,ds[0]));else if(!move)it.push({m:600,t:'בוקר פתוח',s:d?'יום חופשי: חוף, קניות או נסיעת נוף':'',sg:1,k:'stop'});
+    it.push(M(780,'ארוחת צהריים'));if(ds[1]&&!move)it.push(S(900,ds[1]));it.push(M(1200,'ארוחת ערב'));
   }
-  (pl.x[i]||[]).forEach((c,j)=>it.push({m:toMin(c.t)??0,t:esc(c.x),cu:j}));
-  return it.sort((a,b)=>a.m-b.m);
+  const cu=(pl.x[i]||[]).map((c,j)=>({m:toMin(c.t)??0,t:esc(c.x),a:c.a,q:c.q,cu:j})),hid=pl.hide[i]||[];let changed=0;
+  it=it.filter(x=>!x.sg||!hid.includes(x.t));
+  const clash=(m,w)=>cu.some(c=>Math.abs(c.m-m)<w),free=m=>!clash(m,120)&&!it.some(x=>x.k==='stop'&&Math.abs(x.m-m)<120);
+  it=it.filter(x=>{
+    if(!x.sg)return true;
+    if(x.k==='meal'){if(clash(x.m,75)){changed++;return false}return true}
+    if(!clash(x.m,120))return true;
+    changed++;const slot=[570,900,1020].find(m=>m!==x.m&&free(m)&&!first&&!last);
+    if(slot&&x.a){x.m=slot;x.mv=1;return true}return false});
+  it=it.concat(cu).sort((a,b)=>a.m-b.m);it.changed=changed;it.hidden=hid.length;it.hotel=H;return it;
 }
 function renderPlan(){
   const el=$('#planDays'),d=D.find(x=>x.id===pl.dest),name=d?d.n:(pl.name||'הטיול שלנו'),ok=pl.o.d&&pl.b.d;
   const d0=ok?pdate(pl.o.d):null,n=ok?Math.round((pdate(pl.b.d)-d0)/864e5)+1:0,bad=ok&&(n<1||n>30);
   $('#pform').hidden=ok&&!bad&&!pEdit;
-  if(!ok){el.innerHTML='<div class="empty">הכניסו את תאריכי הטיסה הלוך וחזור, והלוח היומי יופיע כאן. שעות ההמראה והנחיתה והמלון ישובצו בו אוטומטית.</div>';return}
+  if(!ok){el.innerHTML='<div class="empty">הכניסו את תאריכי הטיסה הלוך וחזור, והלוח היומי יופיע כאן. שעות ההמראה והנחיתה ומקומות הלינה ישובצו בו אוטומטית.</div>';return}
   if(bad){el.innerHTML='<div class="empty">תאריך החזרה צריך להיות אחרי תאריך היציאה, ועד 30 ימים ממנו.</div>';return}
   pDay=Math.max(0,Math.min(n-1,pDay));
-  const dt=i=>new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i),fd=(x,o)=>x.toLocaleDateString('he-IL',o),code=d?AIR[d.id]:'',arr=toMin(pl.o.t2),dep=toMin(pl.b.t1);
+  const dt=i=>new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i),fd=(x,o)=>x.toLocaleDateString('he-IL',o),code=d?AIR[d.id]:'';
   const leg=(a,b,l,r)=>`<div class="f"><div><b>${a||'--:--'}</b><small>${l}</small></div><i></i><div><b>${b||'--:--'}</b><small>${r}</small></div></div>`;
   const it=dayItems(pDay,n,d,d0),parts=[['בוקר',0,720,'09:00'],['צהריים',720,1080,'14:00'],['ערב',1080,9999,'20:00']];
+  const nights={};for(let i=0;i<n-1;i++){const h=hotelAt(i,d0),k=pl.hs.indexOf(h);(nights[k]=nights[k]||[]).push(i)}
+  const hcards=Object.entries(nights).map(([k,a])=>{const h=pl.hs[k];return `<div class="hcard"><div><b>${hname(h)}</b><small>${a.length} לילות · ${fd(dt(a[0]),{day:'numeric',month:'numeric'})} עד ${fd(dt(a[a.length-1]+1),{day:'numeric',month:'numeric'})}</small>${h.a?`<small dir="auto">${esc(h.a)}</small>`:''}</div>${h.a?mapL(h.a):''}</div>`}).join('')||`<div class="hcard"><div><b>מקום הלינה</b><small>עוד לא הוספתם</small></div></div>`;
+  const H=it.hotel,near=H.a||H.n||(d?PLACE[d.id]:pl.name)||'',have=it.map(x=>x.t);
+  const ideas=pl.int.map(k=>{const[lb,q]=INT[k],tag={shop:'shop',view:'views'}[k];
+    const own=d&&tag?d.st.map((x,j)=>[x,j]).filter(([x])=>x[3].split(',').includes(tag)&&!have.includes(x[0])).slice(0,2).map(([x,j])=>`<div class="idea"><div><b>${x[0]}</b><small>${x[2]}</small></div><button type="button" class="plus" data-ideast="${j}:${k}" aria-label="הוספה ליום">+</button></div>`).join(''):'';
+    return own+`<div class="idea"><div><b>${lb} ליד ${esc(H.n||near.split(',')[0]||'מקום הלינה')}</b><small><a href="https://www.google.com/maps/search/${encodeURIComponent(q+' near '+near)}" target="_blank" rel="noopener">תוצאות אמיתיות במפות Google</a></small></div><button type="button" class="plus" data-idea="${k}" aria-label="הוספה ליום">+</button></div>`}).join('');
   el.innerHTML=`<div class="phead"><h2>${esc(name)}</h2><button type="button" class="link" data-pedit>${pEdit?'סיום עריכה':'עריכת פרטים'}</button></div>
   <div class="bp"><small>הלוך · ${fd(d0,{weekday:'long',day:'numeric',month:'long'})}</small>${leg(pl.o.t1,pl.o.t2,'TLV',code)}<hr><small>חזור · ${fd(dt(n-1),{weekday:'long',day:'numeric',month:'long'})}</small>${leg(pl.b.t1,pl.b.t2,code,'TLV')}</div>
-  <div class="hcard"><div><b>${esc(pl.h.n||'המלון שלנו')}</b><small>${n-1} לילות${arr!=null?` · הגעה ${fm(arr+120)}`:''} · צ׳ק־אאוט ${fm(dep!=null?Math.min(660,dep-240):660)}</small>${pl.h.a?`<small dir="auto">${esc(pl.h.a)}</small>`:''}</div>${pl.h.a?mapL(pl.h.a):`<button type="button" class="link" data-pedit>הוספת מלון</button>`}</div>
+  ${hcards}
   <div class="dnav"><button type="button" class="arrow" data-pday="-1" aria-label="היום הקודם" ${pDay?'':'disabled'}>›</button><span class="cur">יום ${pDay+1} מתוך ${n} · ${fd(dt(pDay),{weekday:'long',day:'numeric',month:'numeric'})}</span><button type="button" class="arrow" data-pday="1" aria-label="היום הבא" ${pDay<n-1?'':'disabled'}>‹</button></div>
+  ${it.changed?`<p class="adapt">התוכנית עודכנה סביב מה שהוספתם: ${it.changed} הצעות הוזזו או הוסרו כדי לפנות זמן.</p>`:''}
   ${parts.map(([t,lo,hi,def],k)=>{const li=it.filter(x=>x.m>=lo&&x.m<hi),open=pAdd===pDay+':'+k;return `<div class="part"><h3><span>${t}</span><button type="button" class="plus" data-padd="${k}" aria-label="הוספה ל${t}">${open?'×':'+'}</button></h3>
-    ${li.length?li.map(x=>`<div class="pi${x.sg?' sg':''}"><time>${fm(x.m)}</time><div><b>${x.t}</b>${x.s?`<small>${x.s}</small>`:''}${x.a?`<small dir="auto">${esc(x.a)} · ${mapL(x.a)}</small>`:''}</div>${x.cu!=null?`<button type="button" class="x" data-xdel="${pDay}:${x.cu}" aria-label="מחיקה">×</button>`:''}</div>`).join(''):'<p class="none">פנוי</p>'}
+    ${li.length?li.map(x=>`<div class="pi${x.sg?' sg':''}"><time>${fm(x.m)}</time><div><b>${x.t}</b>${x.mv?'<small>הוזז כדי לפנות מקום לתוכנית שלכם</small>':x.s?`<small>${x.s}</small>`:''}${x.a?`<small dir="auto">${esc(x.a)} · ${mapL(x.a)}</small>`:''}${x.q?`<small><a href="https://www.google.com/maps/search/${encodeURIComponent(x.q)}" target="_blank" rel="noopener">חיפוש במפות</a></small>`:''}</div>${x.cu!=null?`<button type="button" class="x" data-xdel="${pDay}:${x.cu}" aria-label="מחיקה">×</button>`:x.sg?`<button type="button" class="x" data-hide="${esc(x.t)}" aria-label="הסרת ההצעה">×</button>`:''}</div>`).join(''):'<p class="none">פנוי</p>'}
     ${open?`<div class="addrow"><input type="time" id="xt-${pDay}" aria-label="שעה" value="${def}"><input id="xx-${pDay}" aria-label="מה מתוכנן" placeholder="מה מתוכנן?"><button type="button" class="btn" data-xadd="${pDay}">הוספה</button></div>`:''}</div>`}).join('')}
-  ${pDay<n-1?`<div class="night"><small>הלילה ישנים ב־</small><b>${esc(pl.h.n||'המלון')}</b></div>`:''}
-  <p class="note">שעות בצהוב הן קבועות (טיסות, מלון ומה שהוספתם). שעות באפור הן הצעות לפי היעד.${d?` <a href="#planner" data-openid="${d.id}" style="color:inherit">לכל ההמלצות ליעד</a>`:''}</p>`;
+  ${it.hidden?`<button type="button" class="link" data-unhide style="justify-self:start">שחזור ${it.hidden} הצעות שהסרתם</button>`:''}
+  ${pDay<n-1?`<div class="night"><small>הלילה ישנים ב־</small><b>${hname(H)}</b></div>`:''}
+  <div class="ideas"><h3>מה עוד בא לכם היום?</h3><div class="chipsrow">${Object.entries(INT).map(([k,v])=>`<button type="button" data-int="${k}" aria-pressed="${pl.int.includes(k)}">${v[0]}</button>`).join('')}</div>${ideas||'<p class="none">בחרו נושא, ונציע מקומות ליד מקום הלינה של היום.</p>'}</div>
+  <p class="note">שעות בצהוב הן קבועות (טיסות, לינה ומה שהוספתם). שעות באפור הן הצעות, ואפשר להסיר אותן ב-×.${d?` <a href="#planner" data-openid="${d.id}" style="color:inherit">לכל ההמלצות ליעד</a>`:''}</p>`;
   if(pAdd)$('#xx-'+pDay)?.focus();
 }
-$('#pform').addEventListener('input',e=>{const k=e.target.dataset.pl;if(!k)return;const[a,b]=k.split('.');if(b)pl[a][b]=e.target.value;else pl[a]=e.target.value;$('#p-name-l').hidden=pl.dest!=='other';savePl();renderPlan()});
+$('#pform').addEventListener('input',e=>{const hf=e.target.dataset.hf;if(hf){pl.hs[+e.target.dataset.hi][hf]=e.target.value;savePl();renderPlan();return}
+  const k=e.target.dataset.pl;if(!k)return;const[a,b]=k.split('.');if(b)pl[a][b]=e.target.value;else pl[a]=e.target.value;$('#p-name-l').hidden=pl.dest!=='other';if(k==='o.d')renderHotels();savePl();renderPlan()});
 $('#pform').addEventListener('submit',e=>e.preventDefault());
-fillPlanForm();renderPlan();
+fillPlanForm();renderHotels();renderPlan();
 show(location.hash.slice(1));render();
 </script>
 </html>
