@@ -402,6 +402,13 @@ b,strong{font-weight:600}
   .pi .acts{grid-column:2;justify-content:flex-start}
   .dnav .cur{font-size:.9rem;padding:9px 8px}
 }
+/* ---- style inside the search card ---- */
+.panel .cats{flex-wrap:wrap;overflow:visible;justify-content:flex-start}
+.panel h3 .hint{font-size:.85rem;color:var(--muted);font-weight:400;margin-inline-start:8px}
+.filt.under{margin-top:12px;display:inline-flex}
+.filt.under span{display:inline}
+.top{padding-bottom:0}
+@media (max-width:700px){.segb.where{flex-basis:40%;padding-inline-end:14px}.segb{flex:1 1 40%}}
 /* ---- discovery extras ---- */
 .seasw{overflow-x:auto;margin-inline:-4px;padding:4px}
 .seas{display:grid;grid-auto-flow:column;grid-auto-columns:104px;gap:8px}
@@ -462,6 +469,7 @@ b,strong{font-weight:600}
         <button class="segb" data-pop="days" aria-expanded="false"><small>כמה ימים</small><span id="vDays"></span></button>
         <button class="segb" data-pop="flight" aria-expanded="false"><small>זמן טיסה</small><span id="vFlight"></span></button>
         <button class="segb" data-pop="month" aria-expanded="false"><small>מתי</small><span id="vMonth"></span></button>
+        <button class="segb" data-pop="style" aria-expanded="false"><small>סגנון</small><span id="vStyle"></span></button>
         <button class="go" id="goSpin" aria-label="הפתיעו אותנו" title="הפתיעו אותנו"><span data-ic="compass"></span><span class="lb">הפתיעו אותנו</span></button>
       </div>
       <div class="panel" data-panel="dest" hidden><h3><label for="destQ">בחרו יעד מראש</label></h3><input type="search" id="destQ" placeholder="חיפוש יעד או מדינה" autocomplete="off"><div class="dlist" id="destList"></div></div>
@@ -469,10 +477,11 @@ b,strong{font-weight:600}
       <div class="panel" data-panel="days" hidden><h3><label for="days">אורך הטיול</label></h3><div class="big" id="daysOut"></div><input type="range" id="days" min="3" max="14" step="1" value="6"></div>
       <div class="panel" data-panel="flight" hidden><h3><label for="flight">זמן טיסה מרבי מישראל</label></h3><p class="muted" style="margin:-10px 0 0;font-size:.88rem">ביעדים שדורשים כמה טיסות, זה הזמן הכולל עם ההמתנה.</p><div class="big" id="flightOut"></div><input type="range" id="flight" min="1" max="12" step="0.5" value="5"></div>
       <div class="panel" data-panel="month" hidden><h3>מתי נוסעים?</h3><div class="wheel" id="months" role="group" aria-label="חודש"></div></div>
+      <div class="panel" data-panel="style" hidden><h3>מה בא לכם? <span class="hint">אפשר לבחור כמה</span></h3><div class="cats" id="styles" role="group" aria-label="סגנון הטיול"></div></div>
       <div class="panel" data-panel="more" hidden><div class="two"><div><h3>רמת פינוק</h3><div class="seg" id="tier" role="group" aria-label="רמת פינוק"></div></div><div><h3>כמה הולכים ברגל?</h3><div class="seg" id="walk" role="group" aria-label="רמת הליכה"></div></div></div><div><h3 style="margin-bottom:8px">איך מגיעים?</h3><div class="chipsrow" id="go" role="group" aria-label="דרך ההגעה"></div></div></div>
+      <button class="filt under" data-pop="more" aria-expanded="false"><span data-ic="sliders"></span><span>מסננים נוספים</span></button>
     </div>
   </div>
-  <div class="catbar"><div class="wrap"><div class="cats" id="styles" role="group" aria-label="סגנון הטיול"></div><button class="filt" data-pop="more" aria-expanded="false"><span data-ic="sliders"></span><span>מסננים</span></button></div></div>
 
   <div class="wrap">
     <section><div class="head"><div class="hrow2"><h2>מתאימים לכם</h2><label class="sortl">מיון<select id="sort"><option value="fit">לפי התאמה</option><option value="price">מהזול ליקר</option><option value="time">לפי זמן הגעה</option></select></label></div><p id="resSub"></p></div><div class="grid" id="reel"></div></section>
@@ -1387,7 +1396,7 @@ function render(){
   $('#budgetOut').textContent=nis(st.budget);$('#vBudget').textContent='עד '+nis(st.budget);
   $('#daysOut').textContent=$('#vDays').textContent=st.days+' ימים';
   $('#flightOut').textContent=$('#vFlight').textContent='עד '+fmtH(st.flight);
-  $('#vMonth').textContent=MONTHS[st.month];
+  $('#vMonth').textContent=MONTHS[st.month];$('#vStyle').textContent=st.styles.size?[...st.styles].map(k=>STYLES[k]).join(', '):'הכול';
   const cd=D.find(d=>d.id===st.dest);$('#vDest').textContent=cd?cd.n:'כל יעד';destList();
   let all=ranked();const mine=all.find(r=>r.d.id===st.dest);if(mine)all=[{...mine,fit:true,mine:true},...all.filter(r=>r!==mine)];
   const fit=all.filter(r=>r.fit),rest=all.filter(r=>!r.fit);
