@@ -335,6 +335,11 @@ b,strong{font-weight:600}
 
 
 /* ---- trip list ---- */
+.tact{max-width:640px;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.tact .btn{padding:14px;border-radius:18px}
+.tact .btn.del{background:none;color:#c0392b;box-shadow:inset 0 0 0 1.5px #c0392b}
+.tact .btn.del:hover{background:#c0392b;color:#fff}
+.tact .btn.del[data-sure]{background:#c0392b;color:#fff}
 .tlist{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));max-width:900px}
 .tcard{height:190px;cursor:pointer}
 .tcard .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 35%,rgba(0,0,0,.72))}
@@ -540,6 +545,7 @@ dialog{overflow-x:hidden}
     </fieldset>
   </form>
   <div id="planDays"></div>
+  <div class="tact" id="tripActs" hidden><button type="button" class="btn" data-psave><span data-ic="check"></span>שמירה</button><button type="button" class="btn del" data-pdel><span data-ic="trash"></span>מחיקה</button></div>
   <div class="chatbox" id="chatBox"><h3>התייעצות עם העוזר</h3><div id="chatLog" class="chatlog" aria-live="polite"></div><div class="chatrow"><textarea id="chatIn" rows="2" aria-label="שאלה לעוזר" placeholder="מה תרצו לשאול?"></textarea><button type="button" class="btn" id="chatSend" data-chatsend>שליחה</button></div></div>
 </section></div></div>
 </main>
@@ -591,6 +597,8 @@ Object.assign(IC,{
  ferry:['','<path d="M4 21h24l-3 5H7zM8 21v-6h16v6M12 15v-5h8v5M16 10V6"/><path d="M4 29c2-1.500 4-1.500 6 0s4 1.500 6 0 4-1.500 6 0 4 1.500 6 0"/>'],
  home:['','<path d="M5 15L16 5l11 10M8 13v13h16V13M13 26v-8h6v8"/>'],
  cal:['','<rect x="5" y="7" width="22" height="20" rx="4"/><path d="M5 13.500h22M11 4v5M21 4v5"/>'],
+ check:['','<path d="M6 17l6.500 6.500L26 9"/>'],
+ trash:['','<path d="M6 9h20M12 9V6h8v3M9 9l1.200 17h11.600L23 9M13.500 14v8M18.500 14v8"/>'],
  star:['','<path class="f" d="M16 3l3.9 8.3 9.1 1.2-6.7 6.3 1.7 9L16 23.4 8 27.8l1.7-9L3 12.5l9.1-1.2z"/>'],
  sliders:['','<path d="M5 10h13M24 10h3M5 22h3M14 22h13"/><circle cx="21" cy="10" r="3"/><circle cx="11" cy="22" r="3"/>'],
  sun:['','<circle cx="16" cy="16" r="5.5"/><path d="M16 4v3M16 25v3M4 16h3M25 16h3M7.5 7.5l2.1 2.1M22.4 22.4l2.1 2.1M7.5 24.5l2.1-2.1M22.4 9.6l2.1-2.1"/>'],
@@ -1649,7 +1657,8 @@ document.addEventListener('click',e=>{
   else if('toplan' in ds){let p=plans.find(x=>x.dest===cur.id);if(!p){p=blank();p.dest=cur.id;plans.unshift(p);pl=p;savePl()}$('#dlg').close();location.hash='plan';show('plan');openTrip(p,!p.o.d)}
   else if('pback' in ds){plOpen=false;watchShared();renderPlan();scrollTo(0,0)}
   else if('pnew' in ds){const p=blank();openTrip(p,true)}
-  else if('pdel' in ds){if(ds.sure){gone.push(pl.id);if(pl.share&&cloudDb)cloudDb.collection('shared').doc(pl.id).delete().catch(()=>{});plans=plans.filter(p=>p!==pl);pl=plans[0]||blank();plOpen=false;try{localStorage.setItem('mifras.plans',JSON.stringify({list:plans,gone}))}catch(e){}pushPlans();renderPlan();toast('הטיול נמחק')}else{b.dataset.sure=1;b.textContent='למחוק את הטיול? לחצו שוב'}}
+  else if('psave' in ds){const had=hasContent(pl);if(had)savePl();plOpen=false;watchShared();renderPlan();scrollTo(0,0);toast(had?'הטיול נשמר':'הטיול היה ריק ולא נשמר')}
+  else if('pdel' in ds){if(ds.sure){gone.push(pl.id);if(pl.share&&cloudDb)cloudDb.collection('shared').doc(pl.id).delete().catch(()=>{});plans=plans.filter(p=>p!==pl);pl=plans[0]||blank();plOpen=false;try{localStorage.setItem('mifras.plans',JSON.stringify({list:plans,gone}))}catch(e){}pushPlans();renderPlan();toast('הטיול נמחק')}else{b.dataset.sure=1;b.lastChild.textContent='למחוק? לחצו שוב';setTimeout(()=>{if(b.isConnected){delete b.dataset.sure;b.lastChild.textContent='מחיקה'}},4000)}}
   else if(ds.step){cur.days=Math.max(3,Math.min(14,cur.days+ +ds.step));drawDlg()}
   else if(ds.dtier){cur.tier=+ds.dtier;drawDlg()}
   else if(ds.smonth!=null){cur.month=+ds.smonth;drawDlg()}
@@ -1761,7 +1770,6 @@ function planExtras(d,n,d0,it){
     <div class="addrow bud"><input id="budT" aria-label="על מה" placeholder="על מה? למשל: טיסות"><input type="number" id="budA" inputmode="numeric" min="0" aria-label="סכום בשקלים" placeholder="₪"><button type="button" class="btn" data-budadd>הוספה</button></div></details>
   <details class="xbox"${pl.ui==='share'?' open':''} data-ui="share"><summary><span>שמירה ושיתוף</span><small>${pl.share?'משותף':''}</small></summary>
     <button type="button" class="btn" data-export style="justify-self:start">שמירת הלוח כקובץ</button><p class="note">קובץ אחד עם כל הימים, שאפשר לפתוח בטלפון גם בלי אינטרנט או להדפיס.</p>
-    <button type="button" class="link danger" data-pdel style="justify-self:start">מחיקת הטיול הזה</button>
     <label class="chk"><input type="checkbox" id="shareOn"${pl.share?' checked':''}><span>טיול משותף: כל מי שהדף משותף איתו רואה ועורך את אותו לוח</span></label><p class="note">כדי שבן הזוג יראה את הטיול, שתפו איתו את הדף מתפריט השיתוף של Claude, ואז סמנו כאן. בלי הסימון הטיול נשאר פרטי.</p></details>`;
 }
 function exportHtml(){
@@ -1790,9 +1798,10 @@ function renderList(){
 function openTrip(p,edit){pl=p;plOpen=true;pDay=0;pAdd='';pEditItem=null;pEdit=!!edit;chat=[];fillPlanForm();renderHotels();renderPlan();drawChat();watchShared();scrollTo(0,0)}
 function renderPlan(){
   $('#planList').hidden=plOpen;$('#chatBox').hidden=!plOpen;
-  if(!plOpen){$('#pform').hidden=true;$('#planDays').innerHTML='';renderList();return}
+  if(!plOpen){$('#pform').hidden=true;$('#planDays').innerHTML='';$('#tripActs').hidden=true;renderList();return}
   $('#planH').innerHTML='<button type="button" class="link back" data-pback>‹ כל הטיולים</button>';$('#planSub').textContent='מלאו את פרטי הטיסות והלינה, והלוח ייבנה סביבם.';
   const el=$('#planDays'),d=D.find(x=>x.id===pl.dest),name=d?d.n:(pl.name||'טיול חדש'),ok=pl.o.d&&pl.b.d;
+  $('#tripActs').hidden=false;
   const d0=ok?pdate(pl.o.d):null,n=ok?Math.round((pdate(pl.b.d)-d0)/864e5)+1:0,bad=ok&&(n<1||n>30);
   $('#pform').hidden=ok&&!bad&&!pEdit;
   if(!ok){el.innerHTML='<div class="empty">הכניסו את תאריכי הטיסה הלוך וחזור, והלוח היומי יופיע כאן. שעות ההמראה והנחיתה ומקומות הלינה ישובצו בו אוטומטית.</div>';return}
