@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>מפרש טיולים</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Suez+One&display=swap">
+<style>
+/* Layout: illustrated sea-and-sun hero, planner panel floating over its lower edge, results as a horizontal reel, tabs for all destinations and saved trips. */
+:root{
+  --bg:#f4fbfe; --surface:#ffffff; --sand:#fff6e3; --sky:#d3f0fc;
+  --ink:#0f3447; --muted:#527486; --line:#d3e8f0;
+  --sea:#0f9fb4; --sea-deep:#0a6c86; --sun:#ffc531; --on-sun:#3d2c00;
+  --bloom:#e8397f; --on-bloom:#ffffff; --coral:#ff7a59; --leaf:#2f9e6b;
+  --shadow:0 10px 30px rgba(15,80,110,.13); --shadow-lg:0 22px 50px rgba(15,80,110,.22);
+  --display:"Suez One","Assistant","Arial Hebrew",serif;
+  --body:"Assistant","Heebo","Arial Hebrew",Arial,sans-serif;
+  --r:22px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#06202b; --surface:#0d3040; --sand:#143a4a; --sky:#0f3d52;
+  --ink:#eaf7fb; --muted:#9dc1ce; --line:#1e4c5e;
+  --sea:#3cc6d6; --sea-deep:#8fe0ea; --sun:#ffc531; --on-sun:#3d2c00;
+  --bloom:#ff5f9e; --on-bloom:#2b0014; --coral:#ff9478; --leaf:#62d19b;
+  --shadow:0 10px 30px rgba(0,0,0,.35); --shadow-lg:0 22px 50px rgba(0,0,0,.5); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#06202b; --surface:#0d3040; --sand:#143a4a; --sky:#0f3d52;
+  --ink:#eaf7fb; --muted:#9dc1ce; --line:#1e4c5e;
+  --sea:#3cc6d6; --sea-deep:#8fe0ea; --sun:#ffc531; --on-sun:#3d2c00;
+  --bloom:#ff5f9e; --on-bloom:#2b0014; --coral:#ff9478; --leaf:#62d19b;
+  --shadow:0 10px 30px rgba(0,0,0,.35); --shadow-lg:0 22px 50px rgba(0,0,0,.5); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--bloom);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.15;margin:0;text-wrap:balance}
+.wrap{max-width:1180px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:10px}
+.brand{font-family:var(--display);font-size:1.5rem;display:flex;align-items:center;gap:8px;margin-inline-end:auto}
+.brand svg{width:34px;height:34px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{border:0;background:transparent;padding:8px 16px;border-radius:999px;font-weight:700;color:var(--muted);transition:.2s}
+.tab:hover{background:var(--sky);color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--sea);color:var(--surface)}
+.count{display:inline-block;min-width:1.5em;padding:0 6px;margin-inline-start:6px;border-radius:999px;background:var(--sun);color:var(--on-sun);font-size:.8em;text-align:center}
+
+/* hero */
+.hero{position:relative;overflow:hidden;background:var(--sky)}
+.hero svg.sea{display:block;width:100%;height:clamp(300px,42vw,440px)}
+.hero-copy{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-start;gap:10px;padding-top:clamp(28px,5vw,60px)}
+.hero h1{font-size:clamp(2.1rem,5.4vw,4rem);color:#0b4560;max-width:13em}
+.hero h1 em{font-style:normal;color:#d92672}
+.hero p{margin:0;font-size:clamp(1rem,1.8vw,1.25rem);font-weight:600;color:#14506a;max-width:30em}
+@keyframes bob{50%{transform:translateY(-6px) rotate(-2deg)}}
+@keyframes drift{to{transform:translateX(-60px)}}
+@keyframes sway{50%{transform:rotate(4deg)}}
+.bob{animation:bob 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.bob.b2{animation-duration:5.5s}.bob.b3{animation-duration:6.5s}
+.drift{animation:drift 7s linear infinite alternate}
+.sway{animation:sway 5s ease-in-out infinite;transform-box:fill-box;transform-origin:top right}
+
+/* planner */
+.planner{position:relative;margin-top:-70px;background:var(--surface);border-radius:28px;box-shadow:var(--shadow-lg);padding:clamp(18px,3vw,30px);display:grid;gap:22px}
+.planner h2{font-size:1.6rem}
+.fields{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.field{min-width:0;display:flex;flex-direction:column;gap:8px}
+.field label,.lbl{font-weight:700;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.field output{font-family:var(--display);font-size:1.25rem;color:var(--sea-deep);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--bloom);height:28px}
+.hint{font-size:.88rem;color:var(--muted);margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 15px;font-weight:700;transition:transform .2s,box-shadow .2s,background .2s}
+.chip:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.chip[aria-pressed="true"]{background:var(--sun);border-color:var(--sun);color:var(--on-sun)}
+.seg{display:inline-flex;background:var(--sky);border-radius:999px;padding:4px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:6px 14px;border-radius:999px;font-weight:700;color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--surface);box-shadow:var(--shadow);color:var(--bloom)}
+.wheel{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px;scrollbar-width:none;mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.wheel::-webkit-scrollbar{display:none}
+.wheel button{flex:none;scroll-snap-align:center;border:0;background:var(--sky);color:var(--ink);border-radius:14px;padding:8px 14px;font-weight:700;transition:.2s}
+.wheel button[aria-pressed="true"]{background:var(--sea);color:var(--surface);transform:scale(1.12)}
+
+/* sections */
+main section{padding-block:34px}
+.head{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.head h2{font-size:clamp(1.5rem,3vw,2.1rem);margin-inline-end:auto}
+.head p{margin:0;color:var(--muted);flex-basis:100%}
+.arrows{display:flex;gap:8px}
+.round{width:46px;height:46px;border-radius:50%;border:0;background:var(--surface);box-shadow:var(--shadow);font-size:1.3rem;transition:.2s}
+.round:hover{transform:translateY(-3px) scale(1.06);background:var(--sun);color:var(--on-sun)}
+.reel{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 4px 26px;scrollbar-width:thin}
+.reel .card{flex:none;width:min(320px,82vw);scroll-snap-align:start}
+.grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+
+.card{position:relative;background:var(--surface);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg)}
+.card .pic{position:relative;aspect-ratio:5/3;max-width:100%}
+.card .pic svg{display:block;width:100%;height:100%}
+.match{position:absolute;top:10px;inset-inline-start:10px;background:var(--sun);color:var(--on-sun);font-weight:800;border-radius:999px;padding:3px 12px;font-size:.9rem}
+.heart{position:absolute;top:8px;inset-inline-end:8px;width:42px;height:42px;border-radius:50%;border:0;background:var(--surface);box-shadow:var(--shadow);font-size:1.2rem;transition:.2s}
+.heart:hover{transform:scale(1.15)}
+.heart[aria-pressed="true"]{background:var(--bloom);color:var(--on-bloom)}
+.card .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card h3{font-size:1.35rem}
+.where{color:var(--muted);font-weight:600;font-size:.95rem}
+.facts{display:flex;flex-wrap:wrap;gap:6px}
+.fact{background:var(--sky);border-radius:10px;padding:2px 10px;font-size:.88rem;font-weight:700}
+.fact.over{background:var(--sand);color:var(--coral)}
+.price{font-family:var(--display);font-size:1.3rem;color:var(--sea-deep);margin-top:auto;font-variant-numeric:tabular-nums}
+.price small{font-family:var(--body);font-size:.8rem;color:var(--muted);font-weight:600}
+.btn{border:0;border-radius:999px;padding:10px 20px;font-weight:800;background:var(--bloom);color:var(--on-bloom);transition:transform .2s,box-shadow .2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+.btn:hover{transform:translateY(-3px);box-shadow:0 10px 22px color-mix(in srgb,var(--bloom) 40%,transparent)}
+.btn.ghost{background:var(--sky);color:var(--ink)}
+.btn.sea{background:var(--sea);color:var(--surface)}
+.empty{background:var(--sand);border-radius:var(--r);padding:26px;text-align:center;font-weight:600}
+
+/* floating */
+.fabs{position:fixed;z-index:8;bottom:calc(18px + env(safe-area-inset-bottom,0px));left:calc(18px + env(safe-area-inset-left,0px));display:flex;flex-direction:row-reverse;gap:10px;align-items:center}
+.fab{border:0;border-radius:999px;padding:12px 18px;font-weight:800;box-shadow:var(--shadow-lg);background:var(--sun);color:var(--on-sun);transition:.25s;animation:bob 5s ease-in-out infinite}
+.fab:hover{transform:translateY(-5px) scale(1.05)}
+.fab.b{background:var(--surface);color:var(--ink);animation-delay:-2s}
+
+/* dialog */
+dialog{border:0;padding:0;border-radius:26px;width:min(860px,calc(100vw - 20px));max-height:calc(100dvh - 24px);background:var(--bg);color:var(--ink);box-shadow:var(--shadow-lg)}
+dialog::backdrop{background:rgba(6,40,56,.55);backdrop-filter:blur(3px)}
+.d-pic{position:relative;height:200px}
+.d-pic svg{width:100%;height:100%;display:block}
+.d-close{position:absolute;top:12px;inset-inline-end:12px}
+.d-body{padding:20px clamp(16px,3vw,30px) 28px;display:grid;gap:20px}
+.d-body h2{font-size:clamp(1.7rem,4vw,2.4rem)}
+.d-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.stepper{display:inline-flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;padding:4px 6px;box-shadow:var(--shadow);font-weight:800}
+.stepper button{width:34px;height:34px;border-radius:50%;border:0;background:var(--sky);font-weight:800}
+.box{background:var(--surface);border-radius:18px;padding:16px 18px;box-shadow:var(--shadow)}
+.box h3{font-size:1.2rem;margin-bottom:10px}
+.costs{display:grid;gap:7px}
+.cost{display:grid;grid-template-columns:7.5em 1fr auto;gap:10px;align-items:center;font-weight:600}
+.cost i{display:block;height:10px;border-radius:99px;background:linear-gradient(90deg,var(--sea),var(--sun))}
+.cost b{font-variant-numeric:tabular-nums}
+.total{display:flex;justify-content:space-between;border-top:2px dashed var(--line);margin-top:8px;padding-top:8px;font-family:var(--display);font-size:1.3rem}
+.day{display:grid;gap:10px}
+.day>h3{display:flex;align-items:center;gap:10px;font-size:1.2rem}
+.day>h3 span{background:var(--sea);color:var(--surface);border-radius:999px;padding:2px 14px;font-size:1rem}
+.stop{background:var(--surface);border-radius:16px;padding:12px 16px;box-shadow:var(--shadow);display:grid;gap:4px;border-inline-start:0}
+.stop h4{margin:0;font-size:1.08rem;font-weight:800}
+.stop address{font-style:normal;color:var(--muted);font-size:.95rem;direction:ltr;text-align:right;unicode-bidi:plaintext}
+.stop p{margin:0}
+.stop .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:4px}
+.stop a{color:var(--sea-deep);font-weight:800}
+.tips{margin:0;padding-inline-start:1.2em;display:grid;gap:6px}
+.note{font-size:.88rem;color:var(--muted);margin:0}
+
+/* saved */
+.trip textarea{width:100%;min-height:64px;border:2px solid var(--line);border-radius:12px;background:var(--bg);padding:8px 10px;resize:vertical}
+.trip .acts{display:flex;gap:8px;flex-wrap:wrap}
+
+/* spin */
+.spin{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(6,40,56,.6);backdrop-filter:blur(4px)}
+.spin div{background:var(--surface);border-radius:30px;padding:30px 40px;text-align:center;box-shadow:var(--shadow-lg);min-width:min(320px,86vw)}
+.spin b{display:block;font-family:var(--display);font-weight:400;font-size:2.2rem;color:var(--bloom);min-height:1.3em}
+.toast{position:fixed;z-index:30;bottom:calc(24px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 22px;border-radius:999px;font-weight:700;box-shadow:var(--shadow-lg)}
+footer{padding-block:26px 110px;color:var(--muted);font-size:.9rem;text-align:center}
+@media (max-width:560px){.planner{margin-top:-40px}.fab span{display:none}.cost{grid-template-columns:6em 1fr auto}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div id="app" dir="rtl" lang="he">
+<header class="nav"><div class="wrap">
+  <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#ffc531"/><path d="M20 6v22H8z" fill="#fff"/><path d="M22 10v18h10z" fill="#e8397f"/><path d="M5 30h30l-5 6H10z" fill="#0a6c86"/></svg>מפרש</div>
+  <nav class="tabs" role="tablist" aria-label="ניווט ראשי">
+    <button class="tab" role="tab" data-tab="planner" id="tab-planner">בונים טיול</button>
+    <button class="tab" role="tab" data-tab="destinations" id="tab-destinations">כל היעדים</button>
+    <button class="tab" role="tab" data-tab="trips" id="tab-trips">נסיעות מתוכננות<span class="count" id="tripCount">0</span></button>
+  </nav>
+</div></header>
+
+<main>
+<div id="view-planner">
+  <div class="hero">
+    <svg class="sea" viewBox="0 0 1200 440" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <defs><linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#aee3fb"/><stop offset=".7" stop-color="#e9f8ff"/><stop offset="1" stop-color="#fff3c9"/></linearGradient></defs>
+      <rect width="1200" height="440" fill="url(#hsky)"/>
+      <circle cx="210" cy="120" r="120" fill="#ffe27a" opacity=".45"/><circle cx="210" cy="120" r="72" fill="#ffc531"/>
+      <g fill="#fff" opacity=".9" class="drift"><ellipse cx="520" cy="80" rx="70" ry="18"/><ellipse cx="570" cy="66" rx="46" ry="16"/><ellipse cx="60" cy="200" rx="60" ry="14"/></g>
+      <path d="M0 300q70-70 190-50t150 30v40H0z" fill="#8fd0a0"/><path d="M40 268h22v20H40zm34-10h18v26H74zm30 14h20v16h-20z" fill="#fff"/><path d="M38 268l11-9 13 9zm34-10l10-8 10 8z" fill="#ff7a59"/>
+      <g class="drift"><path d="M-60 290q30-12 60 0t60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0V440H-60z" fill="#5fd3de"/></g>
+      <g class="bob b3"><path d="M700 300h56l-10 14h-36z" fill="#0a6c86"/><path d="M728 248v48h-26z" fill="#fff"/><path d="M732 256v40h20z" fill="#ffd0e2"/></g>
+      <path d="M0 330q30-12 60 0t60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0V440H0z" fill="#27b5c8"/>
+      <g class="bob"><path d="M450 350h96l-16 24h-64z" fill="#0b5d78"/><path d="M498 262v82h-46z" fill="#fff"/><path d="M505 276v68h36z" fill="#e8397f"/><path d="M498 262l14 6-14 5z" fill="#ffc531"/></g>
+      <g class="bob b2"><path d="M930 345h70l-12 18h-46z" fill="#0b5d78"/><path d="M965 282v58h-32z" fill="#fff"/><path d="M970 292v48h26z" fill="#ffc531"/></g>
+      <path d="M0 385q30-12 60 0t60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0 60 0V440H0z" fill="#0f9fb4"/>
+      <g class="sway"><path d="M1200 0v150q-40-30-60-90t-70-60z" fill="#2f9e6b"/><g fill="#e8397f"><circle cx="1150" cy="40" r="20"/><circle cx="1118" cy="22" r="16"/><circle cx="1170" cy="84" r="18"/><circle cx="1138" cy="74" r="13"/><circle cx="1182" cy="128" r="14"/><circle cx="1090" cy="10" r="12"/></g><g fill="#ff8fbb"><circle cx="1158" cy="58" r="10"/><circle cx="1104" cy="30" r="8"/><circle cx="1178" cy="106" r="9"/></g><g fill="#ffc531"><circle cx="1150" cy="40" r="4"/><circle cx="1170" cy="84" r="4"/><circle cx="1118" cy="22" r="3"/></g></g>
+    </svg>
+    <div class="hero-copy"><div class="wrap">
+      <h1>החופשה הבאה שלכם, <em>בדיוק במידה</em></h1>
+      <p>נופים שמגיעים אליהם ברכב, חופים, שווקי חג ושופינג. מסלול מוכן לפי התקציב, הימים וזמן הטיסה.</p>
+    </div></div>
+  </div>
+
+  <div class="wrap">
+    <div class="planner">
+      <h2>מה מתאים לכם?</h2>
+      <div class="fields">
+        <div class="field"><label for="budget">תקציב לזוג, כולל טיסות <output id="budgetOut"></output></label><input type="range" id="budget" min="3000" max="40000" step="500" value="14000"></div>
+        <div class="field"><label for="days">אורך הטיול <output id="daysOut"></output></label><input type="range" id="days" min="3" max="14" step="1" value="6"></div>
+        <div class="field"><label for="flight">זמן טיסה מרבי מישראל <output id="flightOut"></output></label><input type="range" id="flight" min="1" max="12" step="0.5" value="5"></div>
+      </div>
+      <div class="field"><span class="lbl">סגנון הטיול <span class="hint">אפשר לבחור כמה</span></span><div class="chips" id="styles"></div></div>
+      <div class="fields">
+        <div class="field"><span class="lbl">מתי נוסעים?</span><div class="wheel" id="months" role="group" aria-label="חודש"></div></div>
+        <div class="field"><span class="lbl">רמת פינוק</span><div class="seg" id="tier" role="group" aria-label="רמת פינוק"></div></div>
+        <div class="field"><span class="lbl">כמה הולכים ברגל?</span><div class="seg" id="walk" role="group" aria-label="רמת הליכה"></div></div>
+      </div>
+    </div>
+
+    <section>
+      <div class="head"><h2 id="resTitle">היעדים שמתאימים לכם</h2>
+        <div class="arrows"><button class="round" id="prev" aria-label="הקודם">→</button><button class="round" id="next" aria-label="הבא">←</button></div>
+        <p id="resSub"></p></div>
+      <div class="reel" id="reel"></div>
+    </section>
+  </div>
+</div>
+
+<div id="view-destinations" hidden><div class="wrap"><section>
+  <div class="head"><h2>כל היעדים</h2><p>20 יעדים שנבחרו לזוגות שאוהבים נוף בלי טרקים. המחירים מחושבים לפי ההגדרות שבחרתם בלשונית "בונים טיול".</p></div>
+  <div class="chips" id="filter" style="margin-bottom:20px"></div>
+  <div class="grid" id="allGrid"></div>
+</section></div></div>
+
+<div id="view-trips" hidden><div class="wrap"><section>
+  <div class="head"><h2>נסיעות מתוכננות</h2><p>המסלולים ששמרתם נשמרים בדפדפן הזה. אפשר להוסיף הערות, לפתוח מחדש או למחוק.</p></div>
+  <div class="grid" id="tripGrid"></div>
+</section></div></div>
+</main>
+
+<footer class="wrap">המחירים וזמני הטיסה הם הערכה לתכנון בלבד (שקלים, לזוג) ומשתנים לפי עונה וחברת תעופה. כדאי לוודא שעות פתיחה ומועדי שווקים לפני הנסיעה.</footer>
+
+<div class="fabs">
+  <button class="fab" id="fabSpin">🎲 <span>הפתיעו אותנו</span></button>
+  <button class="fab b" id="fabTrips">🧳 <span>הנסיעות שלי</span></button>
+  <button class="fab b" id="fabTop" aria-label="חזרה למעלה">↑</button>
+</div>
+<dialog id="dlg" aria-labelledby="dTitle"></dialog>
+</div>
+
+<script>
+document.documentElement.lang='he';document.documentElement.dir='rtl';
+const $=s=>document.querySelector(s), nis=n=>Math.round(n).toLocaleString('he-IL')+' ₪';
+const STYLES={views:['🏔','נופים'],drive:['🚗','טיול ברכב'],shop:['🛍','שופינג'],beach:['🏖','בטן־גב'],xmas:['🎄','כריסמס'],romance:['💞','רומנטי'],city:['🏙','עיר']};
+const MONTHS=['גמיש','ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+const TIERS=[['חסכוני',.7,.8],['נוח',1,1],['מפנק',1.7,1.4]];
+const WALKS=['כמה שפחות','הליכה קלה','לא משנה'];
+const WALKLBL=['','🚗 מגיעים עד המקום','🚶 הליכה קלה','🥾 מדרגות או עלייה'];
+
+/* stop: [שם, כתובת, המלצה, תגיות, הליכה 1-3]  |  s: משקל סגנון 0-3  |  c: [טיסות לזוג, מלון ללילה, אוכל ליום, רכב ליום] */
+const D=[
+{id:'dolomites',n:'הדולומיטים',w:'צפון איטליה',sc:'mount',h:3.8,m:[6,7,8,9,10],c:[2000,650,400,220],walk:1,s:{views:3,drive:3,shop:1,romance:2,xmas:1},
+ stay:'אורטיזיי (Ortisei) בואל גרדנה, בסיס אחד נוח לכל הרכבלים והמעברים.',tips:['טסים לוונציה או ורונה ואוספים רכב, כשעתיים וחצי נסיעה צפונה.','כמעט כל תצפית גדולה נגישה ברכבל, אין צורך בטרקים.'],
+ st:[['אגם בראייס','Lago di Braies, 39030 Braies BZ, Italy','להגיע לפני 9:00, החניה מתמלאת. סירות עץ להשכרה על האגם.','views,romance',1],
+ ['רכבל סצ׳דה','Via Val d\'Anna 2, 39046 Ortisei BZ, Italy','התצפית המפורסמת נמצאת דקות ספורות מהתחנה העליונה.','views',2],
+ ['מעבר פורדוי ורכבל סאס פורדוי','Passo Pordoi, 38032 Canazei TN, Italy','הרכבל עולה ל־2,950 מ׳ בארבע דקות. מרפסת עם נוף של 360 מעלות.','views,drive',1],
+ ['אגם קארצה','Via Carezza, 39056 Nova Levante BZ, Italy','עצירה של חצי שעה בדרך הדולומיטים הגדולה. האגם צמוד לחניה.','views,drive',1],
+ ['אלפה די סיוזי','Via Sciliar 39, 39040 Siusi BZ, Italy','עולים ברכבל מסיוזי לאחו האלפיני הגדול באירופה, מסלול מישורי בין בקתות.','views',2],
+ ['קורטינה ד׳אמפצו','Corso Italia, 32043 Cortina d\'Ampezzo BL, Italy','מדרחוב אלגנטי עם בוטיקים איטלקיים וקפה מול ההרים.','shop,city',1]]},
+{id:'amalfi',n:'חוף אמלפי',w:'דרום איטליה',sc:'sea',h:3.5,m:[5,6,9,10],c:[2400,850,450,250],walk:2,s:{views:3,drive:2,shop:2,beach:2,romance:3},
+ stay:'סורנטו: מישורית, עם חניה, מעבורות לקאפרי ומחירים נוחים יותר מפוזיטנו.',tips:['כביש החוף צר ומפותל. אם לא נוח לנהוג, לקחת נהג ליום או מעבורת בין העיירות.','ביולי ואוגוסט עמוס מאוד, מאי וספטמבר נעימים יותר.'],
+ st:[['סורנטו, קורסו איטליה','Corso Italia, 80067 Sorrento NA, Italy','שופינג של סנדלים בעבודת יד, לימונצ׳לו וקרמיקה.','shop,city',1],
+ ['פוזיטנו, החוף הגדול','Via Marina Grande, 84017 Positano SA, Italy','להגיע במעבורת כדי לחסוך את המדרגות מהכביש. מיטות שיזוף בתשלום.','beach,views,romance',2],
+ ['כביש אמלפי SS163','Strada Statale 163, 84010 Furore SA, Italy','נסיעת הנוף של הטיול. לעצור בתצפית על הפיורד של פורורה.','drive,views',1],
+ ['אמלפי, כיכר הדואומו','Piazza Duomo, 84011 Amalfi SA, Italy','לטעום דליציה אל לימונה בקונדיטוריה שבכיכר.','city,shop',1],
+ ['וילה רופולו, רוולו','Piazza Duomo, 84010 Ravello SA, Italy','גנים על מרפסת מעל הים, פריחה מרהיבה באביב.','views,romance',2],
+ ['קאפרי, מרינה גרנדה','Marina Grande, 80073 Capri NA, Italy','שיט סביב האי יוצא מהנמל, הפוניקולר עולה לעיירה.','views,shop,romance',2]]},
+{id:'como',n:'אגם קומו ומילאנו',w:'צפון איטליה',sc:'lake',h:4,m:[4,5,6,9,10,12],c:[1700,750,450,230],walk:1,s:{views:3,shop:3,drive:2,romance:3,city:2,xmas:1},
+ stay:'שלושה לילות באזור בלאג׳ו או וארנה, ולילה־שניים במילאנו לשופינג.',tips:['מעבורת הרכבים בין בלאג׳ו, וארנה ומנאג׳ו חוסכת נסיעה ארוכה סביב האגם.','באאוטלטים מקבלים החזר מס במקום, להביא דרכון.'],
+ st:[['בלאג׳ו','Piazza della Chiesa, 22021 Bellagio CO, Italy','סמטת המדרגות סליטה סרבלוני מלאה בחנויות משי ועור.','views,shop,romance',2],
+ ['וארנה, טיילת האוהבים','Passeggiata degli Innamorati, 23829 Varenna LC, Italy','שביל מישורי על המים, מושלם לשקיעה.','views,romance',1],
+ ['וילה דל בלביאנלו','Via Guido Monzino 1, 22016 Tremezzina CO, Italy','להגיע בסירת מונית מלנו כדי לחסוך קילומטר הליכה.','views,romance',2],
+ ['פוניקולר קומו–ברונטה','Piazza Alcide de Gasperi 4, 22100 Como CO, Italy','שבע דקות לתצפית על כל האגם.','views',1],
+ ['גלריה ויטוריו עמנואלה','Piazza del Duomo, 20123 Milano MI, Italy','משם ממשיכים לרובע האופנה ברחוב מונטה נפוליאונה.','shop,city',1],
+ ['סרוואלה דיזיינר אאוטלט','Via della Moda 1, 15069 Serravalle Scrivia AL, Italy','האאוטלט הגדול באירופה, כשעה ממילאנו. להקדיש יום שלם.','shop,drive',1]]},
+{id:'garda',n:'אגם גארדה וורונה',w:'צפון איטליה',sc:'lake',h:4,m:[4,5,6,9,10],c:[1900,600,400,220],walk:1,s:{views:3,drive:3,shop:2,romance:2,beach:1,city:1},
+ stay:'בארדולינו או גארדה בחוף המזרחי, קרוב לוורונה ולרכבל.',tips:['כביש גארדזאנה המערבי (SS45bis) חצוב במנהרות מעל המים, נסיעה יפהפייה.','טיסה ישירה לוורונה או למילאנו ברגמו.'],
+ st:[['סירמיונה, המבצר הסקאליגרי','Piazza Castello 34, 25019 Sirmione BS, Italy','חונים מחוץ לחומה. גלידריות ענקיות בסמטאות.','views,city',2],
+ ['רכבל מונטה באלדו, מלצ׳זינה','Via Navene Vecchia 12, 37018 Malcesine VR, Italy','קרונית מסתובבת עד 1,760 מ׳, תצפית מיד ביציאה.','views',1],
+ ['לימונה סול גארדה','Lungolago Marconi, 25010 Limone sul Garda BS, Italy','טיילת צבעונית עם חנויות לימונים ושמן זית.','views,shop,romance',1],
+ ['ריבה דל גארדה','Piazza III Novembre, 38066 Riva del Garda TN, Italy','הקצה הצפוני של האגם, הרים שנופלים למים.','views,drive',1],
+ ['ורונה, פיאצה ברה','Piazza Bra, 37121 Verona VR, Italy','מהארנה הולכים בויה מאציני, רחוב הקניות, עד המרפסת של יוליה.','city,shop,romance',2],
+ ['פרנצ׳קורטה אאוטלט וילג׳','Piazza Cascina Moie 1, 25050 Rodengo Saiano BS, Italy','כ־40 דקות מהאגם, 190 חנויות.','shop',1]]},
+{id:'swiss',n:'לוצרן והאלפים הברניים',w:'שווייץ',sc:'mount',h:4.3,m:[6,7,8,9,12],c:[2400,1000,650,300],walk:1,s:{views:3,drive:3,romance:2,shop:1,xmas:2,city:1},
+ stay:'שני לילות בלוצרן ושאר הזמן באינטרלקן או בגרינדלוולד.',tips:['שווייץ יקרה: ארוחת צהריים מסופרמרקט Coop או Migros חוסכת הרבה.','חובה מדבקת אגרה (Vignette) לכבישים המהירים, בדרך כלל כלולה ברכב שכור.'],
+ st:[['לוצרן, גשר הקפלה','Kapellbrücke, 6002 Luzern, Switzerland','סיבוב בעיר העתיקה ושיט קצר באגם.','city,views,romance',1],
+ ['הר פילאטוס','Schlossweg 1, 6010 Kriens, Switzerland','רכבל פנורמי מקרינס עד הפסגה. מסעדה עם מרפסת נוף.','views',1],
+ ['לאוטרברונן, מפל שטאובך','Staubbachfall, 3822 Lauterbrunnen, Switzerland','עמק של 72 מפלים, המפל נראה ישר מהרחוב הראשי.','views,drive',1],
+ ['גרינדלוולד פירסט','Dorfstrasse 187, 3818 Grindelwald, Switzerland','רכבל לגשר התלוי על הצוק, מישורי וקצר.','views',2],
+ ['איזלטוואלד, אגם בריינץ','Seestrasse, 3807 Iseltwald, Switzerland','כפר דייגים על מים בצבע טורקיז, מגיעים ברכב עד המזח.','views,romance,drive',1],
+ ['הרדר קולם','Brückstrasse, 3800 Interlaken, Switzerland','פוניקולר לתצפית על שני האגמים. סגור בחורף, לבדוק מראש.','views',1]]},
+{id:'salzburg',n:'זלצבורג והאלשטאט',w:'אוסטריה',sc:'xmas',h:3.8,m:[6,7,8,9,12],c:[2000,650,400,230],walk:1,s:{xmas:3,views:3,drive:3,shop:2,romance:2,city:2},
+ stay:'זלצבורג לשווקים, ולילה או שניים בסנט וולפגנג שעל האגם.',tips:['שווקי חג המולד פתוחים בדרך כלל מסוף נובמבר עד 24–26 בדצמבר.','בחורף לוודא שהרכב השכור מגיע עם צמיגי חורף.'],
+ st:[['שוק חג המולד בכיכר הדום','Domplatz, 5020 Salzburg, Austria','אחד השווקים העתיקים באירופה. לטעום גלוהוויין ואגוזים מסוכרים.','xmas,city',1],
+ ['גטריידגאסה','Getreidegasse, 5020 Salzburg, Austria','רחוב הקניות עם שלטי הברזל, ובו בית הולדתו של מוצרט.','shop,city',1],
+ ['מבצר הוהנזלצבורג','Mönchsberg 34, 5020 Salzburg, Austria','עולים בפוניקולר, נוף על כל העיר וההרים.','views',1],
+ ['סנט וולפגנג','Markt, 5360 St. Wolfgang im Salzkammergut, Austria','בדצמבר יש שוק אדוונט על שפת האגם עם פנס צף ענק.','xmas,views,romance,drive',1],
+ ['האלשטאט, תצפית סקייווק','Salzbergstraße 21, 4830 Hallstatt, Austria','פוניקולר למרפסת מעל הכפר והאגם. בבוקר שקט יותר.','views,romance',1],
+ ['דיזיינר אאוטלט זלצבורג','Kasernenstraße 1, 5073 Wals-Himmelreich, Austria','חמש דקות משדה התעופה, נוח ליום האחרון.','shop',1]]},
+{id:'alsace',n:'אלזס והיער השחור',w:'צרפת וגרמניה',sc:'xmas',h:4.4,m:[5,6,9,10,12],c:[2200,600,420,220],walk:1,s:{xmas:3,drive:3,views:2,shop:2,romance:3,city:1},
+ stay:'קולמר כבסיס לכפרי היין, ולילה בטיטיזה או בטריברג ביער השחור.',tips:['טסים לבאזל או לפרנקפורט ואוספים רכב.','דרך היין של אלזס עוברת מכפר לכפר, כל עשר דקות עצירה חדשה.'],
+ st:[['קולמר, ונציה הקטנה','Quai de la Poissonnerie, 68000 Colmar, France','בתי עץ צבעוניים על התעלה, שיט קצר בסירה שטוחה.','views,romance,xmas,city',1],
+ ['ריקוויר','Rue du Général de Gaulle, 68340 Riquewihr, France','רחוב אחד מרוצף, כולו חנויות יין, עוגיות וקישוטי חג.','xmas,shop,romance',2],
+ ['טירת או־קניגסבורג','Château du Haut-Kœnigsbourg, 67600 Orschwiller, France','נוסעים עד השער, תצפית על כל עמק הריין.','views,drive',2],
+ ['שטרסבורג, שוק כריסטקינדלסמריק','Place Broglie, 67000 Strasbourg, France','בירת חג המולד, השוק פועל מאז 1570.','xmas,city,shop',1],
+ ['רופנהיים דה סטייל אאוטלטס','1 Route de l\'Europe, 67480 Roppenheim, France','כפר אאוטלט בסגנון אלזסי, 45 דקות משטרסבורג.','shop',1],
+ ['מפלי טריברג','Hauptstraße 85, 78098 Triberg, Germany','המפלים הגבוהים בגרמניה ובית שעוני הקוקייה. הכניסה התחתונה קרובה לחניה.','views,drive',2],
+ ['אגם טיטיזה','Seestraße, 79822 Titisee-Neustadt, Germany','טיילת עם חנויות שעונים ועוגת היער השחור.','views,shop,drive',1]]},
+{id:'vienna',n:'וינה',w:'אוסטריה',sc:'xmas',h:3.6,m:[4,5,9,11,12],c:[1800,600,400,0],walk:2,s:{xmas:3,shop:3,city:3,romance:2,views:1},
+ stay:'הרובע הראשון או ליד מריהילפר שטראסה, הכול במרחק חשמלית.',tips:['כרטיס תחבורה ל־72 שעות משתלם, אין צורך ברכב בעיר.','שווקי החג נפתחים באמצע נובמבר.'],
+ st:[['שוק כריסטקינדלמרקט ברטהאוספלאץ','Rathausplatz 1, 1010 Wien, Austria','השוק הגדול בעיר, עם משטח החלקה בין העצים המוארים.','xmas,romance',1],
+ ['קרנטנר שטראסה והגראבן','Kärntner Straße, 1010 Wien, Austria','מדרחוב הקניות הראשי, מהאופרה עד קתדרלת סטפן.','shop,city',1],
+ ['קפה סנטרל','Herrengasse 14, 1010 Wien, Austria','בית קפה וינאי קלאסי. להזמין אפפלשטרודל ולהגיע מוקדם.','city,romance',1],
+ ['ארמון שנברון','Schönbrunner Schloßstraße 47, 1130 Wien, Austria','בדצמבר יש שוק חג בחצר הארמון. הגנים בכניסה חופשית.','views,xmas,city',2],
+ ['תצפית קאלנברג','Am Kahlenberg, 1190 Wien, Austria','אוטובוס 38A עד התצפית על העיר והדנובה.','views',1],
+ ['דיזיינר אאוטלט פרנדורף','Designer-Outlet-Straße 1, 7111 Parndorf, Austria','שאטל יוצא מהאופרה, כ־45 דקות. 160 חנויות.','shop',1]]},
+{id:'budapest',n:'בודפשט',w:'הונגריה',sc:'xmas',h:3.3,m:[4,5,9,10,12],c:[1400,400,300,0],walk:2,s:{xmas:3,shop:2,city:3,romance:2,views:2},
+ stay:'רובע 5 ליד הבזיליקה, הכול קרוב ושטוח.',tips:['העיר זולה יחסית, מתאימה לחופשה מפנקת בתקציב קטן.','בצד של בודה יש עליות. פוניקולר ואוטובוס 16 עולים למצודה.'],
+ st:[['שוק חג המולד בכיכר ורשמרטי','Vörösmarty tér, 1051 Budapest, Hungary','לטעום קיורטוש חם וגולש בכיכר לחם.','xmas,shop',1],
+ ['בזיליקת סטפן הקדוש','Szent István tér 1, 1051 Budapest, Hungary','מופע אורות על חזית הבזיליקה בערבי דצמבר.','xmas,city,romance',1],
+ ['רחוב ואצי ורחוב האופנה','Váci utca, 1052 Budapest, Hungary','מדרחוב קניות ארוך, המותגים ברחוב דיאק פרנץ הצמוד.','shop,city',1],
+ ['מרחצאות סצ׳ני','Állatkerti krt. 9-11, 1146 Budapest, Hungary','בריכות חמות בחוץ גם בשלג. להזמין תא פרטי מראש.','romance,beach',1],
+ ['מצודת הדייגים','Szentháromság tér, 1014 Budapest, Hungary','התצפית היפה ביותר על הפרלמנט. בשקיעה או מוקדם בבוקר.','views,romance',2],
+ ['שיט ערב על הדנובה','Vigadó tér, 1051 Budapest, Hungary','שעה של שיט מול הגשרים המוארים.','views,romance',1]]},
+{id:'prague',n:'פראג',w:'צ׳כיה',sc:'xmas',h:3.9,m:[4,5,9,10,12],c:[1500,420,300,0],walk:2,s:{xmas:3,shop:2,city:3,romance:3,views:2},
+ stay:'העיר העתיקה או העיר החדשה ליד כיכר ואצלב.',tips:['הרחובות מרוצפים באבן, נעליים נוחות חשובות.','חשמלית 22 עולה לטירה וחוסכת את העלייה ברגל.'],
+ st:[['כיכר העיר העתיקה','Staroměstské nám., 110 00 Praha 1, Czechia','שוק חג המולד המרכזי מול השעון האסטרונומי.','xmas,city',1],
+ ['גשר קארל','Karlův most, 110 00 Praha 1, Czechia','בזריחה הגשר כמעט ריק.','views,romance',1],
+ ['טירת פראג','Hradčany, 119 08 Praha 1, Czechia','להגיע בחשמלית 22 ולרדת ברגל דרך סמטת הזהב.','views,city',2],
+ ['רחוב פאריז׳סקה','Pařížská, 110 00 Praha 1, Czechia','שדרת מותגי היוקרה של העיר.','shop',1],
+ ['שיט על הוולטאבה','Dvořákovo nábřeží, 110 00 Praha 1, Czechia','שיט של שעה עם נוף לטירה.','views,romance',1],
+ ['פאשן ארנה אאוטלט','Zamenhofova 440, 108 00 Praha 10, Czechia','כ־25 דקות מהמרכז במטרו ושאטל.','shop',1]]},
+{id:'slovenia',n:'בלד ולובליאנה',w:'סלובניה',sc:'lake',h:3.6,m:[5,6,7,8,9,12],c:[1900,480,330,180],walk:1,s:{views:3,drive:3,romance:3,xmas:2,shop:1,city:1},
+ stay:'בלד לשלושה לילות, ולילה או שניים בלובליאנה.',tips:['מדינה קטנה: מהאלפים עד הים בשעתיים נסיעה.','צריך מדבקת אגרה (Vinjeta) לכבישים המהירים.'],
+ st:[['אגם בלד, שיט פלטנה','Cesta svobode, 4260 Bled, Slovenia','סירת עץ מסורתית לאי. לטעום קרמשניטה, עוגת הקרם המקומית.','views,romance',1],
+ ['טירת בלד','Grajska cesta 61, 4260 Bled, Slovenia','נוסעים עד החניה העליונה. מסעדה עם מרפסת מעל האגם.','views,romance',2],
+ ['אגם בוהיני ורכבל ווגל','Ukanc 6, 4265 Bohinjsko jezero, Slovenia','הרכבל עולה לתצפית על האגם והאלפים היוליים.','views,drive',1],
+ ['מערת פוסטוינה','Jamska cesta 30, 6230 Postojna, Slovenia','רכבת חשמלית מסיעה לתוך המערה. להביא סוודר, בפנים 10 מעלות.','views,drive',2],
+ ['לובליאנה, כיכר פרשרן','Prešernov trg, 1000 Ljubljana, Slovenia','בדצמבר העיר מוארת כולה, דוכנים לאורך הנהר.','city,xmas,shop,romance',1],
+ ['פיראן','Tartinijev trg, 6330 Piran, Slovenia','עיירה ונציאנית על הים האדריאטי, ארוחת דגים על הטיילת.','views,beach,romance',2]]},
+{id:'montenegro',n:'מפרץ קוטור',w:'מונטנגרו',sc:'sea',h:3,m:[5,6,7,8,9],c:[1500,400,280,160],walk:2,s:{views:3,drive:3,beach:2,romance:2,shop:1},
+ stay:'קוטור או פראסט לנוף, בודווה למי שרוצה יותר חוף.',tips:['יעד זול עם נופים של פיורד. המטבע הוא אירו.','טיסות ישירות לטיווט בעיקר בקיץ.'],
+ st:[['העיר העתיקה של קוטור','Stari Grad, 85330 Kotor, Montenegro','סמטאות אבן וחתולים. אין צורך לטפס לחומות, הנוף יפה גם מלמטה.','city,views',1],
+ ['פראסט וגבירתנו של הסלעים','Obala Marka Martinovića, 85336 Perast, Montenegro','סירה קטנה לאי הכנסייה, חמישה אירו לאדם.','views,romance',1],
+ ['רכבל קוטור–לובצ׳ן','Dub, 85330 Kotor, Montenegro','11 דקות לתצפית על כל המפרץ מגובה 1,350 מ׳.','views',1],
+ ['כביש הסרפנטינות','P1, 85330 Kotor, Montenegro','25 פיתולים מעל המפרץ. לנהוג לאט ורק באור יום.','drive,views',1],
+ ['סווטי סטפן','Sveti Stefan, 85315, Montenegro','התצפית מהכביש הראשי היא התמונה המפורסמת. חוף ציבורי למרגלות האי.','views,beach,romance',1],
+ ['פורטו מונטנגרו','Obala bb, 85320 Tivat, Montenegro','מרינת יאכטות עם בוטיקים ומסעדות.','shop,romance',1]]},
+{id:'riviera',n:'הריביירה הצרפתית',w:'צרפת ומונקו',sc:'sea',h:4.6,m:[5,6,7,9,10],c:[2400,800,500,230],walk:2,s:{views:3,drive:3,shop:3,beach:2,romance:3,city:2},
+ stay:'ניס: טיילת, שופינג וגישה נוחה לכל כיוון.',tips:['שלושת כבישי הקורניש בין ניס למונקו הם מנסיעות הנוף היפות באירופה.','בחופי ניס יש חלוקי אבן, כדאי נעלי מים.'],
+ st:[['טיילת האנגלים','Promenade des Anglais, 06000 Nice, France','כיסאות כחולים מול הים. שוק הפרחים בקור סלייה בבקרים.','beach,views,city',1],
+ ['וילפרנש סור מר','Plage des Marinières, 06230 Villefranche-sur-Mer, France','מפרץ רגוע עם חוף חולי, היפה באזור.','beach,views,romance',1],
+ ['הכפר אז','20 Rue du Château, 06360 Èze, France','כפר על צוק עם גן קקטוסים. יש עלייה במדרגות, לקחת את הזמן.','views,romance',3],
+ ['מונקו, כיכר הקזינו','Place du Casino, 98000 Monaco','מכוניות יוקרה, קפה דה פארי וחנויות מותגים.','shop,city,views',1],
+ ['קאן, לה קרואזט','Boulevard de la Croisette, 06400 Cannes, France','טיילת הדקלים ורחוב ד׳אנטיב לקניות.','shop,beach,city',1],
+ ['קאפ 3000','Avenue Eugène Donadeï, 06700 Saint-Laurent-du-Var, France','קניון ענק על הים, חמש דקות משדה התעופה.','shop',1]]},
+{id:'crete',n:'כרתים',w:'יוון',sc:'sea',h:1.8,m:[5,6,7,8,9,10],c:[1400,450,300,160],walk:1,s:{beach:3,views:2,drive:3,romance:2,shop:1},
+ stay:'חאניה או רתימנו במערב האי, קרוב לחופים היפים.',tips:['האי גדול. לבחור צד אחד ולא לנסות להספיק הכול.','טברנה כפרית זולה וטעימה יותר ממסעדות הנמל.'],
+ st:[['הנמל הוונציאני של חאניה','Akti Kountourioti, Chania 731 32, Greece','ארוחת ערב מול המגדלור, שופינג של עור בסמטת סקרידלוף.','city,shop,romance',1],
+ ['חוף אלפוניסי','Elafonisi 730 01, Greece','חול ורדרד ומים רדודים. שעה וחצי נסיעת נוף מחאניה.','beach,views,drive',1],
+ ['לגונת באלוס בשיט','Kissamos Port, Kissamos 734 00, Greece','בשיט מנמל קיסמוס חוסכים את הירידה הרגלית התלולה.','beach,views',2],
+ ['חוף פלסרנה','Falasarna 734 00, Greece','חוף רחב עם שקיעה מפורסמת, חניה צמודה.','beach,romance',1],
+ ['אגם קורנס','Kournas 730 07, Greece','סירות פדלים באגם מים מתוקים, וטברנות מעליו.','views,drive',1],
+ ['העיר העתיקה של רתימנו','Arkadiou, Rethymno 741 00, Greece','רחוב קניות ארוך שמוביל לנמל קטן.','shop,city',1]]},
+{id:'rhodes',n:'רודוס',w:'יוון',sc:'sea',h:1.5,m:[5,6,7,8,9,10],c:[1300,420,300,150],walk:1,s:{beach:3,shop:2,drive:2,views:2,romance:1,city:1},
+ stay:'פלירקי או קולימביה למלונות הכול כלול, העיר רודוס למי שרוצה ערבים.',tips:['טיסה של שעה וחצי, מתאים גם לסוף שבוע ארוך.','את האי מקיפים ברכב ביום אחד.'],
+ st:[['העיר העתיקה, רחוב האבירים','Ippoton, Rhodes 851 00, Greece','בין החומות מאות חנויות: תכשיטים, עור וקרמיקה.','shop,city',2],
+ ['חוף אלי','Elli Beach, Rhodes 851 00, Greece','חוף עירוני מסודר עם מיטות, צמוד למרכז.','beach',1],
+ ['מפרץ אנתוני קווין','Anthony Quinn Bay, Faliraki 851 00, Greece','מפרצון ירקרק בין סלעים. להגיע מוקדם, החניה קטנה.','beach,views',2],
+ ['חוף צמביקה','Tsambika Beach, Archangelos 851 02, Greece','החוף החולי היפה באי, מים רדודים.','beach',1],
+ ['לינדוס ומפרץ סנט פול','Lindos 851 07, Greece','העלייה לאקרופוליס תלולה. אפשר להסתפק בכפר הלבן ובמפרץ שלמטה.','views,beach,romance',2],
+ ['פרסוניסי','Prasonisi 851 09, Greece','הקצה הדרומי: שני ימים נפגשים על לשון חול.','views,drive',1]]},
+{id:'cyprus',n:'פאפוס ולימסול',w:'קפריסין',sc:'sea',h:1,m:[4,5,6,9,10,11],c:[800,400,300,140],walk:1,s:{beach:3,drive:2,shop:2,views:2,romance:1},
+ stay:'פאפוס, באזור קאטו פאפוס או קורל ביי.',tips:['נוהגים בצד שמאל. רכב אוטומטי מקל מאוד.','טיסה של שעה, היעד הזול ברשימה.'],
+ st:[['קורל ביי','Coral Bay, Peyia 8575, Cyprus','מפרץ חולי ורגוע עם מיטות ומסעדות.','beach',1],
+ ['נמל פאפוס והמבצר','Kato Paphos Harbour, Paphos 8040, Cyprus','טיילת מישורית, מסעדות דגים על המים.','city,romance',1],
+ ['סלע אפרודיטה','Petra tou Romiou, B6, Kouklia 8500, Cyprus','תצפית מהכביש וחוף חלוקים. יפה במיוחד בשקיעה.','views,drive,romance',1],
+ ['הכפר אומודוס','Omodos 4760, Cyprus','כפר יין בהרי הטרודוס: כיכר מרוצפת, תחרה ולחם מקומי.','views,drive,shop',2],
+ ['מרינת לימסול','Limassol Marina, 3601 Limassol, Cyprus','יאכטות, בתי קפה וחנויות.','shop,city,romance',1],
+ ['קניון קינגס אבניו','2 Apostolou Pavlou Ave, Paphos 8046, Cyprus','הקניון הגדול בפאפוס, כל המותגים המוכרים.','shop',1]]},
+{id:'santorini',n:'סנטוריני',w:'יוון',sc:'sea',h:2,m:[5,6,9,10],c:[1800,900,450,180],walk:2,s:{views:3,romance:3,beach:2,shop:2,drive:1},
+ stay:'אימרוביגלי או פירה, עם מרפסת לקלדרה.',tips:['באי יש הרבה מדרגות. לבקש מהמלון חדר קרוב לכביש.','שלושה עד ארבעה ימים מספיקים.'],
+ st:[['אויה, מבצר השקיעה','Oia Castle, Oia 847 02, Greece','להגיע שעה לפני השקיעה, או להזמין שולחן במסעדה עם נוף.','views,romance,shop',2],
+ ['יקב סנטו','Santo Wines, Pyrgos 847 00, Greece','טעימות יין על מרפסת מעל הקלדרה, חניה צמודה.','views,romance',1],
+ ['שיט קטמרן בקלדרה','Vlychada Marina, Vlychada 847 00, Greece','חמש שעות עם עצירות שחייה וארוחה על הסיפון.','views,beach,romance',1],
+ ['החוף השחור של פריסה','Perissa Beach, Perissa 847 03, Greece','חול וולקני שחור, מיטות וטברנות לאורך הטיילת.','beach',1],
+ ['פירה, סמטאות הזהב','Ypapantis, Fira 847 00, Greece','רחוב התכשיטים של האי, עם נוף לקלדרה בין החנויות.','shop,views,city',2]]},
+{id:'dubai',n:'דובאי',w:'איחוד האמירויות',sc:'desert',h:3.3,m:[11,12,1,2,3,4],c:[2200,650,450,200],walk:1,s:{shop:3,beach:3,city:3,views:2,drive:1,romance:1},
+ stay:'דובאי מרינה או JBR לחוף, דאונטאון לקניונים.',tips:['שמש חמימה כשבאירופה חורף. בקיץ חם מדי.','מוניות זולות ונוחות, רכב שכור אינו הכרחי.'],
+ st:[['דובאי מול והמזרקות','Financial Center Rd, Downtown Dubai, UAE','1,200 חנויות. מופע המזרקות כל חצי שעה בערב.','shop,city',1],
+ ['בורג׳ ח׳ליפה, At the Top','1 Sheikh Mohammed bin Rashid Blvd, Dubai, UAE','להזמין כרטיס מראש לשעת השקיעה.','views,city',1],
+ ['חוף JBR','The Beach, Jumeirah Beach Residence, Dubai, UAE','חוף מסודר עם טיילת מסעדות וחנויות.','beach,shop',1],
+ ['סוק מדינת ג׳ומיירה','King Salman Bin Abdulaziz Al Saud St, Dubai, UAE','שוק מעוצב על תעלות מים מול בורג׳ אל ערב.','shop,romance,views',1],
+ ['ספארי מדבר','Al Marmoom Desert Conservation Reserve, Dubai, UAE','אוספים מהמלון: דיונות בג׳יפ וארוחת ערב במאהל.','views,drive',1],
+ ['דובאי אאוטלט מול','Dubai–Al Ain Rd (E66), Dubai, UAE','מותגים בהנחות של 30 עד 90 אחוז.','shop',1]]},
+{id:'nyc',n:'ניו יורק',w:'ארצות הברית',sc:'city',h:11.5,m:[5,9,10,12],c:[6500,1300,650,0],walk:2,s:{shop:3,xmas:3,city:3,views:2,romance:2},
+ stay:'מידטאון, קרוב לשדרה החמישית ולרוקפלר.',tips:['בדצמבר קר מאוד, להתלבש בשכבות.','העץ ברוקפלר מואר מתחילת דצמבר ועד תחילת ינואר.'],
+ st:[['העץ ברוקפלר סנטר','45 Rockefeller Plaza, New York, NY 10111, USA','הכי שקט מוקדם בבוקר או אחרי 22:00.','xmas,city,romance',1],
+ ['חלונות הראווה של השדרה החמישית','611 5th Ave, New York, NY 10022, USA','מופע האורות על חזית סאקס כל עשר דקות בערב.','xmas,shop',1],
+ ['כפר החורף בבריאנט פארק','Bryant Park, New York, NY 10018, USA','דוכני מתנות ומשטח החלקה בכניסה חופשית.','xmas,shop',1],
+ ['תצפית סאמיט וואן ונדרבילט','45 E 42nd St, New York, NY 10017, USA','חדרי מראות מעל העיר. להזמין לשעת השקיעה.','views,romance',1],
+ ['וודברי קומון פרימיום אאוטלטס','498 Red Apple Ct, Central Valley, NY 10917, USA','אוטובוס מפורט אותוריטי, כשעה. 250 חנויות, יום שלם.','shop',1],
+ ['האורות של דייקר הייטס','11th–13th Ave & 83rd–86th St, Brooklyn, NY 11228, USA','שכונה שלמה מקושטת. הכי נוח בסיור ערב מאורגן.','xmas,views',2]]},
+{id:'phuket',n:'פוקט',w:'תאילנד',sc:'tropic',h:11,m:[11,12,1,2,3,4],c:[6000,450,250,120],walk:1,s:{beach:3,views:2,shop:2,romance:3,drive:1},
+ stay:'קאטה או קארון: חופים יפים ושקטים יותר מפאטונג.',tips:['העונה היבשה היא מנובמבר עד אפריל.','נהג פרטי ליום עולה מעט, ועדיף על נהיגה עצמית בצד שמאל.'],
+ st:[['חוף קאטה נוי','Kata Noi Beach, Karon, Phuket 83100, Thailand','חוף קטן ונקי עם מים שקטים.','beach,romance',1],
+ ['כף פרומתפ','Promthep Cape, Rawai, Phuket 83100, Thailand','נקודת השקיעה של האי, חניה ליד התצפית.','views,romance',1],
+ ['שיט במפרץ פאנג נגה','Ao Por Pier, Pa Klok, Phuket 83110, Thailand','סירה גדולה ונוחה בין צוקי הגיר, כולל אי ג׳יימס בונד.','views,beach',1],
+ ['הבודהה הגדול','Karon, Mueang Phuket, Phuket 83100, Thailand','נוסעים עד הפסגה. לכסות כתפיים וברכיים.','views,drive',1],
+ ['העיר העתיקה של פוקט','Thalang Rd, Talat Yai, Phuket 83000, Thailand','בתים צבעוניים ובתי קפה. שוק לילה בימי ראשון.','shop,city',1],
+ ['סנטרל פוקט','199 Vichitsongkram Rd, Wichit, Phuket 83000, Thailand','קניון ממוזג ענק, טוב לשעות החמות.','shop',1]]}
+];
+
+/* ---------- illustrations ---------- */
+let gid=0;
+const wv=(y,c)=>`<path d="M0 ${y}q25-8 50 0t50 0 50 0 50 0 50 0 50 0 50 0 50 0V240H0z" fill="${c}"/>`;
+const bt=(x,y,s,c)=>`<g transform="translate(${x} ${y}) scale(${s})"><path d="M-14 0h28l-5 7h-18z" fill="#0b5d78"/><path d="M0-26v24h-13z" fill="#fff"/><path d="M2-22v20h10z" fill="${c}"/></g>`;
+function scene(t,k=0){
+  const id='g'+(gid++), sx=[90,300,200,330][k%4], pal={sea:['#aee3fb','#fff3c9'],lake:['#b9e6fb','#eefaff'],mount:['#a9dcf8','#fdf3d6'],xmas:['#31457f','#f6a8c6'],city:['#a8d8f5','#ffe4c2'],desert:['#ffd58a','#ffeccd'],tropic:['#8fdcf5','#fff3c9']}[t];
+  let o=`<svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${pal[0]}"/><stop offset="1" stop-color="${pal[1]}"/></linearGradient></defs><rect width="400" height="240" fill="url(#${id})"/>`;
+  if(t!=='xmas')o+=`<circle cx="${sx}" cy="58" r="44" fill="#ffe27a" opacity=".5"/><circle cx="${sx}" cy="58" r="27" fill="#ffc531"/>`;
+  if(t==='sea')o+=`<path d="M${k%2?0:210} 150q70-75 190-45v45z" fill="#8fd0a0"/><path d="M${k%2?60:280} 118h14v14h-14zm22-8h12v20h-12zm20 12h14v10h-14z" fill="#fff"/><circle cx="${k%2?150:255}" cy="128" r="9" fill="#e8397f"/>`+wv(146,'#5fd3de')+bt(k%2?280:120,168,1.3,'#ffd0e2')+wv(176,'#27b5c8')+bt(k%2?120:300,200,.9,'#ffc531')+wv(210,'#0f9fb4');
+  if(t==='tropic')o+=wv(140,'#5fd3de')+bt(120,160,1,'#ffd0e2')+wv(165,'#27b5c8')+`<path d="M0 240v-40q120-30 400 10v30z" fill="#ffe9b8"/><path d="M318 215q-6-70 12-120" stroke="#8a5a2b" stroke-width="8" fill="none"/><g fill="#2f9e6b"><path d="M330 95q-50-30-80 0 45-12 80 0z"/><path d="M330 95q40-40 70-10-40-8-70 10z"/><path d="M330 95q-30-50-70-45 45 12 70 45z"/><path d="M330 95q10-50 55-55-35 20-55 55z"/></g>`;
+  if(t==='mount'||t==='lake')o+=`<path d="M0 175 70 78l40 50 52-84 60 92 58-70 62 62 58-50v162H0z" fill="#9db7da"/><path d="M162 44l-18 30 12-6 8 10 9-9 10 8zM70 78l-14 20 13-5 9 8z" fill="#fff"/>`;
+  if(t==='mount')o+=`<path d="M0 190q100-55 200-12t200-22v84H0z" fill="#8fd0a0"/><path d="M0 215q120-40 400-10v35H0z" fill="#62b97e"/><path d="M120 240q50-30 110-36t70-30" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/><rect x="226" y="196" width="18" height="9" rx="3" fill="#e8397f"/><g fill="#2f9e6b"><path d="M40 205l10-26 10 26zM64 212l9-22 9 22zM340 200l10-26 10 26z"/></g>`;
+  if(t==='lake')o+=`<path d="M0 168q60-22 130-6v20H0zM280 172q60-26 120-8v20H280z" fill="#62b97e"/><circle cx="60" cy="160" r="8" fill="#e8397f"/><circle cx="76" cy="164" r="6" fill="#ff8fbb"/>`+wv(172,'#6fd0e6')+bt(210,196,1.3,'#e8397f')+wv(206,'#27b5c8');
+  if(t==='xmas'){let w='';for(let i=0;i<7;i++){const x=i*58-6,h=60+((i*37+k*13)%40);w+=`<path d="M${x} 200v-${h}l27-22 27 22v${h}z" fill="${i%2?'#27386b':'#1f2e59'}"/><rect x="${x+10}" y="${190-h+14}" width="9" height="12" fill="#ffd866"/><rect x="${x+34}" y="${190-h+14}" width="9" height="12" fill="#ffd866"/><rect x="${x+22}" y="${190-h+40}" width="9" height="12" fill="#ffb347"/>`}
+    o+=w+`<path d="M0 200h400v40H0z" fill="#f4fbff"/><path d="M200 70l-34 50h14l-26 40h92l-26-40h14z" fill="#2f9e6b"/><rect x="194" y="160" width="12" height="42" fill="#8a5a2b"/><path d="M200 56l4 9 10 1-8 6 3 10-9-6-9 6 3-10-8-6 10-1z" fill="#ffc531"/><g fill="#e8397f"><circle cx="188" cy="112" r="4"/><circle cx="214" cy="140" r="4"/><circle cx="178" cy="150" r="4"/></g><g fill="#ffc531"><circle cx="210" cy="104" r="3"/><circle cx="194" cy="136" r="3"/><circle cx="226" cy="154" r="3"/></g><path d="M0 26q100 34 200 0t200 0" stroke="#27386b" fill="none"/><g>${[20,60,100,140,180,220,260,300,340,380].map((x,i)=>`<circle cx="${x}" cy="${36+((i%5)-2)**2*-2+8}" r="4" fill="${['#ffc531','#e8397f','#5fd3de'][i%3]}"/>`).join('')}</g><g fill="#fff">${[30,90,150,250,310,370,60,340].map((x,i)=>`<circle cx="${x}" cy="${50+(i*41)%120}" r="2.2"/>`).join('')}</g>`}
+  if(t==='city')o+=`<g fill="#7fa6c9"><rect x="20" y="110" width="40" height="130"/><rect x="110" y="70" width="34" height="170"/><rect x="240" y="96" width="44" height="144"/><rect x="330" y="120" width="50" height="120"/></g><g fill="#4f7fae"><rect x="62" y="130" width="46" height="110"/><path d="M168 240V60l14-34 14 34v180z"/><rect x="200" y="140" width="38" height="100"/><rect x="286" y="80" width="40" height="160"/></g><g fill="#ffd866">${[[30,124],[44,150],[118,90],[128,130],[250,112],[262,150],[296,100],[306,140],[344,140],[72,150],[210,160]].map(p=>`<rect x="${p[0]}" y="${p[1]}" width="7" height="10"/>`).join('')}</g><path d="M0 222h400v18H0z" fill="#f4fbff"/><path d="M356 222l-12-30h8l-9-22h26l-9 22h8z" fill="#2f9e6b"/>`;
+  if(t==='desert')o+=`<g fill="#b98f6a"><rect x="40" y="110" width="26" height="80"/><rect x="72" y="90" width="22" height="100"/><path d="M118 190V40l8-30 8 30v150z"/><rect x="150" y="120" width="30" height="70"/><path d="M200 190q0-70 34-80v80z"/></g>`+wv(176,'#5fd3de')+bt(300,186,1.1,'#e8397f')+`<path d="M0 240v-34q110-34 220-8t180-12v54z" fill="#f3c98b"/><path d="M0 240v-14q150-30 400 0v14z" fill="#e9b673"/>`;
+  return o+'</svg>';
+}
+
+/* ---------- state ---------- */
+const st={budget:14000,days:6,flight:5,month:0,tier:1,walk:0,styles:new Set(['views','drive','shop']),filter:''};
+let trips=[];try{trips=JSON.parse(localStorage.getItem('mifras.trips'))||[]}catch(e){}
+const persist=()=>{try{localStorage.setItem('mifras.trips',JSON.stringify(trips))}catch(e){}};
+
+function cost(d,days,tier){
+  const T=TIERS[tier],[fl,ho,fo,car]=d.c;
+  const p={'טיסות':fl,'לינה':ho*T[1]*(days-1),'אוכל':fo*T[2]*days,'רכב ודלק':car*days,'אטרקציות':140*T[2]*days};
+  if(!car)p['תחבורה בעיר']=70*days,delete p['רכב ודלק'];
+  p.total=Math.round(Object.values(p).reduce((a,b)=>a+b,0)/100)*100;return p;
+}
+function score(d){
+  const sel=[...st.styles];let s=.6;
+  if(sel.length)s=sel.reduce((a,k)=>{let v=(d.s[k]||0)/3;if(k==='xmas'&&st.month&&st.month!==12&&st.month!==11)v=0;return a+v},0)/sel.length;
+  if(st.month)s+=d.m.includes(st.month)?.12:-.18;
+  if(st.walk===0&&d.walk>1)s-=.06;
+  return Math.max(.2,Math.min(.99,s*.85+.14));
+}
+function ranked(){
+  return D.map(d=>({d,total:cost(d,st.days,st.tier).total,sc:score(d)}))
+    .map(r=>({...r,fit:r.d.h<=st.flight&&r.total<=st.budget*1.12,over:r.total>st.budget}))
+    .sort((a,b)=>b.sc-a.sc);
+}
+const isSaved=id=>trips.some(t=>t.id===id);
+
+function card(r){
+  const d=r.d,top=Object.entries(d.s).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k])=>STYLES[k][0]+' '+STYLES[k][1]).join(' · ');
+  return `<article class="card"><div class="pic">${scene(d.sc,D.indexOf(d))}<span class="match">${Math.round(r.sc*100)}% התאמה</span>
+  <button class="heart" data-save="${d.id}" aria-pressed="${isSaved(d.id)}" aria-label="שמירת ${d.n} בנסיעות מתוכננות">${isSaved(d.id)?'♥':'♡'}</button></div>
+  <div class="body"><div><h3>${d.n}</h3><div class="where">${d.w}</div></div>
+  <div class="facts"><span class="fact">✈ ${fmtH(d.h)}</span><span class="fact">${d.c[3]?'🚗 עם רכב':'🚋 בלי רכב'}</span>${r.over?'<span class="fact over">מעט מעל התקציב</span>':''}</div>
+  <div class="where">${top}</div>
+  <div class="price">${nis(r.total)} <small>לזוג · ${st.days} ימים</small></div>
+  <button class="btn" data-open="${d.id}">לבניית המסלול</button></div></article>`;
+}
+const fmtH=h=>{const m=Math.round(h*60),hh=Math.floor(m/60),mm=m%60;return mm?`${hh}:${String(mm).padStart(2,'0')} שע׳`:`${hh} שע׳`};
+
+function render(){
+  $('#budgetOut').textContent=nis(st.budget);
+  $('#daysOut').textContent=st.days+' ימים';
+  $('#flightOut').textContent='עד '+fmtH(st.flight);
+  const all=ranked(),fit=all.filter(r=>r.fit);
+  $('#resSub').textContent=fit.length?`${fit.length} יעדים מתוך ${D.length} עומדים בתקציב ובזמן הטיסה, מסודרים לפי התאמה לסגנון שבחרתם.`:'';
+  $('#reel').innerHTML=fit.length?fit.map(card).join(''):`<div class="empty" style="flex:1">אין יעד שעומד בכל התנאים. נסו להעלות מעט את התקציב, לקצר את הטיול או להאריך את זמן הטיסה המרבי.</div>`;
+  const f=st.filter;
+  $('#allGrid').innerHTML=all.filter(r=>!f||r.d.s[f]>=2).sort((a,b)=>f?b.d.s[f]-a.d.s[f]||a.total-b.total:a.d.h-b.d.h).map(r=>card({...r,over:false})).join('');
+  renderTrips();
+}
+function renderTrips(){
+  $('#tripCount').textContent=trips.length;
+  $('#tripGrid').innerHTML=trips.length?trips.map(t=>{const d=D.find(x=>x.id===t.id);return `<article class="card trip"><div class="pic">${scene(d.sc,D.indexOf(d))}</div><div class="body">
+   <div><h3>${d.n}</h3><div class="where">${d.w}</div></div>
+   <div class="facts"><span class="fact">${t.days} ימים</span><span class="fact">${MONTHS[t.month]}</span><span class="fact">${TIERS[t.tier][0]}</span></div>
+   <div class="price">${nis(cost(d,t.days,t.tier).total)} <small>לזוג</small></div>
+   <label class="hint" for="note-${t.id}">הערות לנסיעה</label><textarea id="note-${t.id}" data-note="${t.id}" placeholder="תאריכים, מלון שאהבנו, מה לארוז…">${(t.note||'').replace(/</g,'&lt;')}</textarea>
+   <div class="acts"><button class="btn" data-trip="${t.id}">לפתיחת המסלול</button><button class="btn ghost" data-del="${t.id}">מחיקה</button></div></div></article>`}).join('')
+   :`<div class="empty" style="grid-column:1/-1">עדיין לא שמרתם מסלול. לחצו על ♡ בכרטיס של יעד, או על "שמירת המסלול" בתוך המסלול עצמו.</div>`;
+}
+
+/* ---------- itinerary ---------- */
+function plan(d,days,styles,walk){
+  const n=Math.max(2,days*2-2);
+  let s=d.st.map((x,i)=>({x,i,p:x[3].split(',').filter(t=>styles.has(t)).length*2-(walk===0&&x[4]===3?3:0)-(walk===0&&x[4]===2?.5:0)}));
+  if(s.length>n)s=s.sort((a,b)=>b.p-a.p||a.i-b.i).slice(0,n).sort((a,b)=>a.i-b.i);
+  const q=s.map(o=>o.x),out=Array.from({length:days},()=>[]),cap=out.map(()=>0);
+  if(q.length<=days)q.forEach((_,j)=>cap[Math.floor(j*days/q.length)]++);
+  else{cap.fill(1);for(let e=q.length-days,i=1;e>0;e--,i++)cap[i]++}
+  cap.forEach((c,i)=>out[i]=q.splice(0,c));
+  return out;
+}
+const FILL={beach:['יום בטן־גב','בריכה, חוף ומסעדה טובה בערב. בלי שעון.'],shop:['יום שופינג חופשי','חזרה לחנויות שסימנתם, וקפה ארוך באמצע.'],xmas:['ערב שווקים','סיבוב נוסף בשוק החג אחרי החשכה, כשהאורות דולקים.'],views:['נסיעת נוף רגועה','בוקר איטי במלון ונסיעה בלי יעד מוגדר, עוצרים איפה שיפה.']};
+let cur=null;
+function openDest(id,o={}){
+  const d=D.find(x=>x.id===id);
+  cur={id,days:o.days??st.days,tier:o.tier??st.tier,month:o.month??st.month,styles:new Set(o.styles??st.styles),walk:o.walk??st.walk};
+  drawDlg();const g=$('#dlg');if(!g.open)g.showModal();g.scrollTop=0;
+}
+function drawDlg(){
+  const d=D.find(x=>x.id===cur.id),c=cost(d,cur.days,cur.tier),days=plan(d,cur.days,cur.styles,cur.walk);
+  const max=Math.max(...Object.entries(c).filter(e=>e[0]!=='total').map(e=>e[1]));
+  const fillKey=['beach','shop','xmas','views'].find(k=>cur.styles.has(k)&&d.s[k]>=2)||'views';
+  const xm=cur.styles.has('xmas')&&d.s.xmas>=2&&cur.month&&cur.month<11?'<p class="note">שימו לב: שווקי חג המולד פועלים רק מסוף נובמבר ועד סוף דצמבר.</p>':'';
+  const seas=cur.month&&!d.m.includes(cur.month)?`<p class="note">${MONTHS[cur.month]} אינו העונה המומלצת ליעד הזה. החודשים הטובים: ${d.m.map(m=>MONTHS[m]).join(', ')}.</p>`:'';
+  $('#dlg').innerHTML=`<div class="d-pic">${scene(d.sc,D.indexOf(d))}<button class="round d-close" data-close aria-label="סגירה">✕</button></div>
+  <div class="d-body">
+   <div><h2 id="dTitle">${d.n}</h2><div class="where">${d.w} · טיסה של ${fmtH(d.h)} מתל אביב · עונה מומלצת: ${d.m.map(m=>MONTHS[m]).join(', ')}</div></div>
+   <div class="d-bar">
+     <span class="stepper"><button data-step="-1" aria-label="יום פחות">−</button><span>${cur.days} ימים</span><button data-step="1" aria-label="יום נוסף">+</button></span>
+     <span class="seg">${TIERS.map((t,i)=>`<button data-dtier="${i}" aria-pressed="${i===cur.tier}">${t[0]}</button>`).join('')}</span>
+     <button class="btn" data-savecur style="margin-inline-start:auto">${isSaved(d.id)?'♥ עדכון המסלול השמור':'♡ שמירת המסלול'}</button>
+   </div>${seas}${xm}
+   <div class="box"><h3>כמה זה יעלה</h3><div class="costs">${Object.entries(c).filter(e=>e[0]!=='total').map(([k,v])=>`<div class="cost"><span>${k}</span><i style="width:${Math.max(4,v/max*100)}%"></i><b>${nis(v)}</b></div>`).join('')}</div>
+     <div class="total"><span>סה״כ לזוג</span><span>${nis(c.total)}</span></div><p class="note">הערכה לפי מחירים ממוצעים. לא כולל קניות.</p></div>
+   ${days.map((list,i)=>`<div class="day"><h3><span>יום ${i+1}</span>${i===0?'נחיתה והתמקמות':i===days.length-1?'יום אחרון וטיסה הביתה':list.length?list.map(s=>s[0].split(',')[0]).join(' ו')+'':FILL[fillKey][0]}</h3>
+     ${list.length?list.map(s=>`<div class="stop"><h4>${s[0]}</h4><address>${s[1]}</address><p>${s[2]}</p><div class="row"><span class="fact">${WALKLBL[s[4]]}</span>${s[3].split(',').map(t=>`<span class="fact">${STYLES[t][0]} ${STYLES[t][1]}</span>`).join('')}<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s[1])}" target="_blank" rel="noopener">פתיחה במפות ↗</a></div></div>`).join(''):`<div class="stop"><p>${FILL[fillKey][1]}</p></div>`}</div>`).join('')}
+   <div class="box"><h3>ההמלצות שלנו</h3><ul class="tips"><li><b>איפה לישון:</b> ${d.stay}</li>${d.tips.map(t=>`<li>${t}</li>`).join('')}</ul></div>
+  </div>`;
+}
+function saveTrip(id,o){
+  const t={id,days:o.days,tier:o.tier,month:o.month,styles:[...o.styles],walk:o.walk},i=trips.findIndex(x=>x.id===id);
+  if(i>=0)trips[i]={...trips[i],...t};else trips.unshift(t);
+  persist();toast('המסלול נשמר בנסיעות מתוכננות');
+}
+function toast(m){document.querySelectorAll('.toast').forEach(e=>e.remove());const e=document.createElement('div');e.className='toast';e.setAttribute('role','status');e.textContent=m;($('#dlg').open?$('#dlg'):document.body).append(e);setTimeout(()=>e.remove(),2200)}
+
+/* ---------- controls ---------- */
+$('#styles').innerHTML=Object.entries(STYLES).map(([k,v])=>`<button class="chip" data-style="${k}" aria-pressed="${st.styles.has(k)}">${v[0]} ${v[1]}</button>`).join('');
+$('#filter').innerHTML=`<button class="chip" data-filter="" aria-pressed="true">הכול</button>`+Object.entries(STYLES).map(([k,v])=>`<button class="chip" data-filter="${k}" aria-pressed="false">${v[0]} ${v[1]}</button>`).join('');
+$('#months').innerHTML=MONTHS.map((m,i)=>`<button data-month="${i}" aria-pressed="${i===st.month}">${m}</button>`).join('');
+$('#tier').innerHTML=TIERS.map((t,i)=>`<button data-tier="${i}" aria-pressed="${i===st.tier}">${t[0]}</button>`).join('');
+$('#walk').innerHTML=WALKS.map((t,i)=>`<button data-walk="${i}" aria-pressed="${i===st.walk}">${t}</button>`).join('');
+['budget','days','flight'].forEach(k=>$('#'+k).addEventListener('input',e=>{st[k]=+e.target.value;render()}));
+const press=(sel,v,attr)=>document.querySelectorAll(sel).forEach(b=>b.setAttribute('aria-pressed',b.dataset[attr]==v));
+
+function show(tab){
+  if(!['planner','destinations','trips'].includes(tab))tab='planner';
+  ['planner','destinations','trips'].forEach(t=>{$('#view-'+t).hidden=t!==tab;$('#tab-'+t).setAttribute('aria-selected',t===tab)});
+}
+addEventListener('hashchange',()=>{show(location.hash.slice(1));scrollTo(0,0)});
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;const ds=b.dataset;
+  if(ds.tab){location.hash=ds.tab;show(ds.tab)}
+  else if(ds.style){st.styles.has(ds.style)?st.styles.delete(ds.style):st.styles.add(ds.style);b.setAttribute('aria-pressed',st.styles.has(ds.style));render()}
+  else if('filter' in ds){st.filter=ds.filter;press('[data-filter]',ds.filter,'filter');render()}
+  else if(ds.month){st.month=+ds.month;press('[data-month]',ds.month,'month');b.parentNode.scrollTo({left:b.offsetLeft-b.parentNode.clientWidth/2+b.offsetWidth/2,behavior:'smooth'});render()}
+  else if(ds.tier){st.tier=+ds.tier;press('[data-tier]',ds.tier,'tier');render()}
+  else if(ds.walk){st.walk=+ds.walk;press('[data-walk]',ds.walk,'walk');render()}
+  else if(ds.open)openDest(ds.open);
+  else if(ds.trip){const t=trips.find(x=>x.id===ds.trip);openDest(t.id,t)}
+  else if(ds.save){if(isSaved(ds.save)){trips=trips.filter(t=>t.id!==ds.save);persist();toast('המסלול הוסר')}else saveTrip(ds.save,st);render()}
+  else if(ds.del){if(ds.sure){trips=trips.filter(t=>t.id!==ds.del);persist();render()}else{b.dataset.sure=1;b.textContent='בטוח? לחצו שוב למחיקה';b.classList.remove('ghost')}}
+  else if('close' in ds)$('#dlg').close();
+  else if(ds.step){cur.days=Math.max(3,Math.min(14,cur.days+ +ds.step));drawDlg()}
+  else if(ds.dtier){cur.tier=+ds.dtier;drawDlg()}
+  else if('savecur' in ds){saveTrip(cur.id,cur);drawDlg();render()}
+  else if(b.id==='prev'||b.id==='next')$('#reel').scrollBy({left:(b.id==='next'?-1:1)*340,behavior:'smooth'});
+  else if(b.id==='fabTrips'){location.hash='trips';show('trips');scrollTo(0,0)}
+  else if(b.id==='fabTop')scrollTo({top:0,behavior:'smooth'});
+  else if(b.id==='fabSpin')spin();
+});
+$('#dlg').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.close()});
+document.addEventListener('input',e=>{const id=e.target.dataset.note;if(id){trips.find(t=>t.id===id).note=e.target.value;persist()}});
+
+function spin(){
+  let pool=ranked().filter(r=>r.fit);if(!pool.length)pool=ranked();
+  const pick=pool[Math.floor(Math.random()*Math.min(pool.length,8))].d;
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return openDest(pick.id);
+  const o=document.createElement('div');o.className='spin';o.innerHTML='<div><span class="hint">הגלגל מסתובב…</span><b></b></div>';document.body.append(o);
+  let i=0;const b=o.querySelector('b'),t=setInterval(()=>{b.textContent=D[(i++*7)%D.length].n},90);
+  setTimeout(()=>{clearInterval(t);b.textContent=pick.n;o.querySelector('span').textContent='נוסעים ל…';setTimeout(()=>{o.remove();openDest(pick.id)},900)},1700);
+}
+show(location.hash.slice(1));render();
+</script>
+</html>
