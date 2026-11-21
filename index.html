@@ -332,6 +332,35 @@ b,strong{font-weight:600}
 .ideas .none{margin:0;color:var(--muted);font-size:.9rem}
 
 
+
+/* ---- trip extras ---- */
+.pi{grid-template-columns:58px 1fr auto}
+.acts{display:flex;gap:4px}
+.addrow.edit{grid-template-columns:100px 1fr 92px auto}
+.addrow.edit select{border:1px solid var(--line);border-radius:12px;background:var(--bg);padding:8px;color:var(--ink);font:inherit}
+.route{display:block;text-align:center;border:1px solid var(--ink);border-radius:16px;padding:10px 14px;color:var(--ink);font-weight:600;text-decoration:none}
+.route:hover{background:var(--soft)}
+.xbox{border:1px solid var(--line);border-radius:22px;padding:4px 16px}
+.xbox[open]{padding-bottom:14px}
+.xbox summary{cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;font-weight:500;list-style:none}
+.xbox summary::-webkit-details-marker{display:none}
+.xbox summary small{color:var(--muted);font-weight:400}
+.xbox>*+*{margin-top:8px}
+.xbox{display:block}.xbox[open]{display:grid}
+.chk{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:4px 0}
+.chk input{width:20px;height:20px;accent-color:var(--ink)}
+.chk input:checked+span{color:var(--muted);text-decoration:line-through}
+.chk .x,.bi .x{width:28px;height:28px;border-radius:50%;background:var(--soft);line-height:1}
+.addrow.two{grid-template-columns:1fr auto}
+.addrow.bud{grid-template-columns:1fr 100px auto}
+.budt{display:grid;gap:4px;font-size:.85rem;color:var(--muted)}
+.budt input,.addrow.bud input,.addrow.two input{border:1px solid var(--line);border-radius:12px;background:var(--bg);padding:10px 12px;font-size:1rem;color:var(--ink);width:100%;min-width:0}
+.bar{height:10px;border-radius:99px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ink);border-radius:99px}.bar i.over{background:#c0392b}
+.budsum{margin:0;font-weight:600}
+.bi{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border-top:1px solid var(--line);padding-top:8px}
+.bi b{font-weight:500;font-variant-numeric:tabular-nums}
+@media (max-width:700px){.addrow.edit{grid-template-columns:96px 1fr}.addrow.edit select,.addrow.edit .btn{grid-column:auto}.addrow.bud{grid-template-columns:1fr 90px}.addrow.bud .btn{grid-column:1/-1}}
 /* ---- discovery extras ---- */
 .hrow2{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .sortl{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--muted)}
@@ -1260,8 +1289,12 @@ function scene(id){
 /* ---------- state ---------- */
 const st={go:new Set(['direct','land','ferry','multi']),dest:'',budget:14000,days:6,flight:5,month:0,tier:1,walk:0,styles:new Set(['views','drive','shop'])};
 let trips=[];try{trips=JSON.parse(localStorage.getItem('mifras.trips'))||[]}catch(e){}
-let cloud=null;const cloudT={};
-function push(k,val){if(!cloud)return;clearTimeout(cloudT[k]);cloudT[k]=setTimeout(()=>{cloud.doc(k).set({v:JSON.stringify(val),t:Date.now()}).catch(()=>{})},700)}
+let cloud=null,cloudDb=null,unsub=null;const cloudT={};
+const planRef=()=>pl.share&&cloudDb?cloudDb.collection('shared').doc('plan'):cloud.doc('plan');
+function push(k,val){if(!cloud)return;clearTimeout(cloudT[k]);cloudT[k]=setTimeout(()=>{(k==='plan'?planRef():cloud.doc(k)).set({v:JSON.stringify(val),t:val._t||Date.now()}).catch(()=>{});if(k==='plan')cloud.doc('prefs').set({share:!!pl.share}).catch(()=>{})},700)}
+function takePlan(c){if(!c||!c.v||(c.t||0)<=(pl._t||0))return;const sh=pl.share;pl=Object.assign(pl,JSON.parse(c.v));pl._t=c.t;pl.share=sh;pl.hs=pl.hs||[{n:'',a:'',from:''}];pl.int=pl.int||[];pl.hide=pl.hide||{};pl.x=pl.x||{};pl.pack=pl.pack||{};pl.packX=pl.packX||[];pl.bud=pl.bud||{total:'',items:[]};try{localStorage.setItem('mifras.plan',JSON.stringify(pl))}catch(e){}if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#view-plan input,#view-plan select'))return;fillPlanForm();renderHotels();renderPlan()}
+function watchShared(){if(unsub){unsub();unsub=null}if(pl.share&&cloudDb)unsub=cloudDb.collection('shared').doc('plan').onSnapshot(s=>{if(s.exists)takePlan(s.data())},()=>{})}
+function setShare(on){if(on&&!cloudDb){toast('שיתוף זמין רק כשהדף פתוח ב-Claude');renderPlan();return}pl.share=on;pl.ui='share';savePl();watchShared();renderPlan();toast(on?'הטיול משותף עכשיו':'הטיול חזר להיות פרטי')}
 const persist=()=>{try{localStorage.setItem('mifras.trips',JSON.stringify(trips));localStorage.setItem('mifras.trips.t',Date.now())}catch(e){}push('trips',trips)};
 
 const seas=(d,m)=>!m?1:m===7||m===8?1.3:m===12?(d.s.xmas>=2||d.m.includes(12)?1.25:.9):m===6||m===9?1.1:[1,2,11].includes(m)?(d.m.includes(m)?1.15:.85):1;
@@ -1455,7 +1488,15 @@ document.addEventListener('click',e=>{
   else if(ds.ideast){const[j,k]=ds.ideast.split(':'),x=D.find(z=>z.id===pl.dest).st[+j];(pl.x[pDay]=pl.x[pDay]||[]).push({t:INT[k][2],x:x[0],a:x[1]});savePl();renderPlan()}
   else if('hide' in ds){(pl.hide[pDay]=pl.hide[pDay]||[]).push(ds.hide);savePl();renderPlan()}
   else if('unhide' in ds){delete pl.hide[pDay];savePl();renderPlan()}
-  else if(ds.pday){pDay+= +ds.pday;pAdd='';renderPlan()}
+  else if(ds.pday){pDay+= +ds.pday;pAdd='';pEditItem=null;renderPlan()}
+  else if(ds.xedit){pEditItem=+ds.xedit;renderPlan();$('#ex')?.focus()}
+  else if(ds.sgedit){const x=lastIt.find(z=>z.sg&&esc(z.t)===ds.sgedit||z.t===ds.sgedit);if(x){(pl.x[pDay]=pl.x[pDay]||[]).push({t:fm(x.m),x:x.t,a:x.a||''});(pl.hide[pDay]=pl.hide[pDay]||[]).push(x.t);pEditItem=pl.x[pDay].length-1;savePl();renderPlan();$('#et')?.focus()}}
+  else if('xsave' in ds){const c=pl.x[pDay][pEditItem],nd=+$('#ed').value;c.t=$('#et').value||c.t;c.x=$('#ex').value.trim()||c.x;if(nd!==pDay){pl.x[pDay].splice(pEditItem,1);(pl.x[nd]=pl.x[nd]||[]).push(c);toast('הועבר ליום '+(nd+1))}pEditItem=null;savePl();renderPlan()}
+  else if('packadd' in ds){const v=$('#packNew').value.trim();if(v&&!pl.packX.includes(v)){pl.packX.push(v);pl.ui='pack';savePl();renderPlan()}}
+  else if(ds.packdel){pl.packX=pl.packX.filter(x=>x!==ds.packdel);delete pl.pack[ds.packdel];pl.ui='pack';savePl();renderPlan()}
+  else if('budadd' in ds){const t=$('#budT').value.trim(),a=+$('#budA').value;if(t&&a>0){pl.bud.items.push({t,a});pl.ui='bud';savePl();renderPlan()}}
+  else if(ds.buddel){pl.bud.items.splice(+ds.buddel,1);pl.ui='bud';savePl();renderPlan()}
+  else if('export' in ds)doExport();
   else if('pedit' in ds){pEdit=!pEdit;renderPlan();if(pEdit)$('#pform').scrollIntoView({block:'start'})}
   else if(ds.padd){const k=pDay+':'+ds.padd;pAdd=pAdd===k?'':k;renderPlan()}
   else if(ds.xdel){const[i,j]=ds.xdel.split(':');pl.x[i].splice(+j,1);savePl();renderPlan()}
@@ -1502,7 +1543,8 @@ function fillPlanForm(){
 }
 let pDay=0,pEdit=false,pAdd='';
 if(!pl.hs)pl.hs=[{n:(pl.h&&pl.h.n)||'',a:(pl.h&&pl.h.a)||'',from:''}];
-pl.int=pl.int||[];pl.hide=pl.hide||{};
+pl.int=pl.int||[];pl.hide=pl.hide||{};pl.pack=pl.pack||{};pl.packX=pl.packX||[];pl.bud=pl.bud||{total:'',items:[]};
+let pEditItem=null,lastIt=[];
 const INT={shop:['שופינג','shopping street','16:00'],market:['שווקים','local market','10:00'],food:['מסעדות','best restaurants','20:30'],park:['פארקים','park garden','17:00'],vintage:['וינטג׳','vintage second hand shop','11:30'],cafe:['בתי קפה','specialty coffee cafe','16:30'],view:['תצפיות','viewpoint','18:00'],museum:['מוזיאונים','museum','11:00']};
 const iso=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
 const hname=h=>esc(h.n||'מקום הלינה');
@@ -1543,6 +1585,42 @@ function dayItems(i,n,d,d0){
     if(slot&&x.a){x.m=slot;x.mv=1;return true}return false});
   it=it.concat(cu).sort((a,b)=>a.m-b.m);it.changed=changed;it.hidden=hid.length;it.hotel=H;return it;
 }
+function packList(d){
+  const L=['דרכונים בתוקף לחצי שנה לפחות','ביטוח נסיעות','כרטיס אשראי בינלאומי ומעט מזומן','אישורי הזמנה לטיסות וללינה','מטען לטלפון ומטען נייד','תרופות קבועות'],m=pl.o.d?pdate(pl.o.d).getMonth()+1:0;
+  if(d){if(d.c[3])L.push('רישיון נהיגה (ורישיון בינלאומי אם נדרש)','אישור השכרת הרכב');
+    if(['cyprus','ayianapa','malta','london','scotland','dubai','abudhabi','maldives'].includes(d.id))L.push('מתאם לשקע בריטי (שלושה פינים)');
+    if(d.id==='nyc')L.push('מתאם לשקע אמריקאי','אישור כניסה לארה״ב (ESTA או ויזה)');
+    if(d.s.beach>=2)L.push('בגדי ים, קרם הגנה וכובע');
+    if(m&&temp(d,m)<=10)L.push('מעיל חם, כפפות וכובע צמר');else if(m&&temp(d,m)<=18)L.push('ז׳קט ושכבה חמה לערב');
+    if(d.walk>1)L.push('נעלי הליכה נוחות')}
+  return L.concat(pl.packX);
+}
+function planExtras(d,n,d0,it){
+  const L=packList(d),done=L.filter(x=>pl.pack[x]).length,sum=pl.bud.items.reduce((a,x)=>a+(+x.a||0),0),tot=+pl.bud.total||st.budget,left=tot-sum;
+  return `<details class="xbox"${pl.ui==='pack'?' open':''} data-ui="pack"><summary><span>רשימת אריזה ומסמכים</span><small>${done} מתוך ${L.length}</small></summary>
+    ${L.map(x=>`<label class="chk"><input type="checkbox" data-pack="${esc(x)}"${pl.pack[x]?' checked':''}><span>${esc(x)}</span>${pl.packX.includes(x)?`<button type="button" class="x" data-packdel="${esc(x)}" aria-label="הסרה">×</button>`:''}</label>`).join('')}
+    <div class="addrow two"><input id="packNew" aria-label="פריט חדש" placeholder="להוסיף פריט לרשימה"><button type="button" class="btn" data-packadd>הוספה</button></div></details>
+  <details class="xbox"${pl.ui==='bud'?' open':''} data-ui="bud"><summary><span>מעקב תקציב</span><small>${nis(sum)} מתוך ${nis(tot)}</small></summary>
+    <label class="budt">התקציב לטיול<input type="number" id="budTotal" inputmode="numeric" min="0" step="100" value="${esc(pl.bud.total)}" placeholder="${st.budget}"></label>
+    <div class="bar"><i style="width:${Math.min(100,tot?sum/tot*100:0)}%"${left<0?' class="over"':''}></i></div>
+    <p class="budsum">${left>=0?`נשארו ${nis(left)}`:`חריגה של ${nis(-left)}`}</p>
+    ${pl.bud.items.map((x,j)=>`<div class="bi"><span>${esc(x.t)}</span><b>${nis(+x.a||0)}</b><button type="button" class="x" data-buddel="${j}" aria-label="מחיקה">×</button></div>`).join('')}
+    <div class="addrow bud"><input id="budT" aria-label="על מה" placeholder="על מה? למשל: טיסות"><input type="number" id="budA" inputmode="numeric" min="0" aria-label="סכום בשקלים" placeholder="₪"><button type="button" class="btn" data-budadd>הוספה</button></div></details>
+  <details class="xbox"${pl.ui==='share'?' open':''} data-ui="share"><summary><span>שמירה ושיתוף</span><small>${pl.share?'משותף':''}</small></summary>
+    <button type="button" class="btn" data-export style="justify-self:start">שמירת הלוח כקובץ</button><p class="note">קובץ אחד עם כל הימים, שאפשר לפתוח בטלפון גם בלי אינטרנט או להדפיס.</p>
+    <label class="chk"><input type="checkbox" id="shareOn"${pl.share?' checked':''}><span>טיול משותף: כל מי שהדף משותף איתו רואה ועורך את אותו לוח</span></label><p class="note">כדי שבן הזוג יראה את הטיול, שתפו איתו את הדף מתפריט השיתוף של Claude, ואז סמנו כאן. בלי הסימון הטיול נשאר פרטי.</p></details>`;
+}
+function exportHtml(){
+  const d=D.find(x=>x.id===pl.dest),name=d?d.n:(pl.name||'הטיול שלנו'),d0=pdate(pl.o.d),n=Math.round((pdate(pl.b.d)-d0)/864e5)+1;let h='';
+  for(let i=0;i<n;i++){const it=dayItems(i,n,d,d0),day=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i);
+    h+=`<h2>יום ${i+1} · ${day.toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'})}</h2><table>${it.map(x=>`<tr><td class="t">${fm(x.m)}</td><td><b>${x.t}</b>${x.s?`<br><small>${x.s}</small>`:''}${x.a?`<br><small dir="auto">${esc(x.a)}</small>`:''}</td></tr>`).join('')}</table>${i<n-1?`<p class="n">לינה: ${hname(it.hotel)}${it.hotel.a?' · '+esc(it.hotel.a):''}</p>`:''}`}
+  return `<!doctype html><html lang="he" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(name)}</title><style>body{font-family:Arial,sans-serif;max-width:680px;margin:24px auto;padding:0 16px;color:#111;line-height:1.5}h1{font-weight:400}h2{font-size:1.1rem;margin:26px 0 8px;border-bottom:2px solid #111;padding-bottom:4px}table{width:100%;border-collapse:collapse}td{padding:7px 0;border-bottom:1px solid #ddd;vertical-align:top}td.t{width:64px;font-weight:bold}small,.n{color:#555}</style><h1>${esc(name)}</h1><p>הלוך ${pl.o.d} · ${pl.o.t1||''} ← ${pl.o.t2||''}<br>חזור ${pl.b.d} · ${pl.b.t1||''} ← ${pl.b.t2||''}</p>${h}</html>`;
+}
+async function doExport(){
+  const html=exportHtml(),blob=new Blob([html],{type:'text/html'}),fn='mifras-trip.html';
+  try{const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;if(dl){await dl.save({filename:fn,data:blob});toast('הקובץ נשמר');return}}catch(e){if(e&&e.code==='declined')return}
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.append(a);a.click();a.remove();toast('הקובץ ירד למכשיר')}catch(e){toast('לא ניתן לשמור קובץ בתצוגה הזו')}
+}
 function renderPlan(){
   const el=$('#planDays'),d=D.find(x=>x.id===pl.dest),name=d?d.n:(pl.name||'הטיול שלנו'),ok=pl.o.d&&pl.b.d;
   const d0=ok?pdate(pl.o.d):null,n=ok?Math.round((pdate(pl.b.d)-d0)/864e5)+1:0,bad=ok&&(n<1||n>30);
@@ -1552,7 +1630,7 @@ function renderPlan(){
   pDay=Math.max(0,Math.min(n-1,pDay));
   const dt=i=>new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i),fd=(x,o)=>x.toLocaleDateString('he-IL',o),code=d?AIR[d.id]:'';
   const leg=(a,b,l,r)=>`<div class="f"><div><b>${a||'--:--'}</b><small>${l}</small></div><i></i><div><b>${b||'--:--'}</b><small>${r}</small></div></div>`;
-  const it=dayItems(pDay,n,d,d0),parts=[['בוקר',0,720,'09:00'],['צהריים',720,1080,'14:00'],['ערב',1080,9999,'20:00']];
+  const it=lastIt=dayItems(pDay,n,d,d0),parts=[['בוקר',0,720,'09:00'],['צהריים',720,1080,'14:00'],['ערב',1080,9999,'20:00']];
   const nights={};for(let i=0;i<n-1;i++){const h=hotelAt(i,d0),k=pl.hs.indexOf(h);(nights[k]=nights[k]||[]).push(i)}
   const hcards=Object.entries(nights).map(([k,a])=>{const h=pl.hs[k];return `<div class="hcard"><div><b>${hname(h)}</b><small>${a.length} לילות · ${fd(dt(a[0]),{day:'numeric',month:'numeric'})} עד ${fd(dt(a[a.length-1]+1),{day:'numeric',month:'numeric'})}</small>${h.a?`<small dir="auto">${esc(h.a)}</small>`:''}</div>${h.a?mapL(h.a):''}</div>`}).join('')||`<div class="hcard"><div><b>מקום הלינה</b><small>עוד לא הוספתם</small></div></div>`;
   const H=it.hotel,near=H.a||H.n||(d?PLACE[d.id]:pl.name)||'',have=it.map(x=>x.t);
@@ -1565,17 +1643,24 @@ function renderPlan(){
   <div class="dnav"><button type="button" class="arrow" data-pday="-1" aria-label="היום הקודם" ${pDay?'':'disabled'}>›</button><span class="cur">יום ${pDay+1} מתוך ${n} · ${fd(dt(pDay),{weekday:'long',day:'numeric',month:'numeric'})}</span><button type="button" class="arrow" data-pday="1" aria-label="היום הבא" ${pDay<n-1?'':'disabled'}>‹</button></div>
   ${it.changed?`<p class="adapt">התוכנית עודכנה סביב מה שהוספתם: ${it.changed} הצעות הוזזו או הוסרו כדי לפנות זמן.</p>`:''}
   ${parts.map(([t,lo,hi,def],k)=>{const li=it.filter(x=>x.m>=lo&&x.m<hi),open=pAdd===pDay+':'+k;return `<div class="part"><h3><span>${t}</span><button type="button" class="plus" data-padd="${k}" aria-label="הוספה ל${t}">${open?'×':'+'}</button></h3>
-    ${li.length?li.map(x=>`<div class="pi${x.sg?' sg':''}"><time>${fm(x.m)}</time><div><b>${x.t}</b>${x.mv?'<small>הוזז כדי לפנות מקום לתוכנית שלכם</small>':x.s?`<small>${x.s}</small>`:''}${x.a?`<small dir="auto">${esc(x.a)} · ${mapL(x.a)}</small>`:''}${x.q?`<small><a href="https://www.google.com/maps/search/${encodeURIComponent(x.q)}" target="_blank" rel="noopener">חיפוש במפות</a></small>`:''}</div>${x.cu!=null?`<button type="button" class="x" data-xdel="${pDay}:${x.cu}" aria-label="מחיקה">×</button>`:x.sg?`<button type="button" class="x" data-hide="${esc(x.t)}" aria-label="הסרת ההצעה">×</button>`:''}</div>`).join(''):'<p class="none">פנוי</p>'}
+    ${li.length?li.map(x=>x.cu!=null&&x.cu===pEditItem?`<div class="addrow edit"><input type="time" id="et" aria-label="שעה" value="${fm(x.m)}"><input id="ex" aria-label="מה מתוכנן" value="${x.t}"><select id="ed" aria-label="יום">${Array.from({length:n},(_,j)=>`<option value="${j}"${j===pDay?' selected':''}>יום ${j+1}</option>`).join('')}</select><button type="button" class="btn" data-xsave>שמירה</button></div>`:`<div class="pi${x.sg?' sg':''}"><time>${fm(x.m)}</time><div><b>${x.t}</b>${x.mv?'<small>הוזז כדי לפנות מקום לתוכנית שלכם</small>':x.s?`<small>${x.s}</small>`:''}${x.a?`<small dir="auto">${esc(x.a)} · ${mapL(x.a)}${H.a&&x.a!==H.a?` · <a href="https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(H.a)}&destination=${encodeURIComponent(x.a)}" target="_blank" rel="noopener">כמה זמן מהלינה</a>`:''}</small>`:''}${x.q?`<small><a href="https://www.google.com/maps/search/${encodeURIComponent(x.q)}" target="_blank" rel="noopener">חיפוש במפות</a></small>`:''}</div><span class="acts">${x.cu!=null?`<button type="button" class="x" data-xedit="${x.cu}" aria-label="עריכה">✎</button><button type="button" class="x" data-xdel="${pDay}:${x.cu}" aria-label="מחיקה">×</button>`:x.sg?`<button type="button" class="x" data-sgedit="${esc(x.t)}" aria-label="שינוי שעה או יום">✎</button><button type="button" class="x" data-hide="${esc(x.t)}" aria-label="הסרת ההצעה">×</button>`:''}</span></div>`).join(''):'<p class="none">פנוי</p>'}
     ${open?`<div class="addrow"><input type="time" id="xt-${pDay}" aria-label="שעה" value="${def}"><input id="xx-${pDay}" aria-label="מה מתוכנן" placeholder="מה מתוכנן?"><button type="button" class="btn" data-xadd="${pDay}">הוספה</button></div>`:''}</div>`}).join('')}
+  ${(()=>{const ad=[...new Set(it.filter(x=>x.a&&x.a!==H.a).map(x=>x.a))].slice(0,8);return H.a&&ad.length?`<a class="route" href="https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(H.a)}&destination=${encodeURIComponent(H.a)}&waypoints=${encodeURIComponent(ad.join('|'))}" target="_blank" rel="noopener">מסלול היום במפות Google, כולל זמני נסיעה</a>`:''})()}
   ${it.hidden?`<button type="button" class="link" data-unhide style="justify-self:start">שחזור ${it.hidden} הצעות שהסרתם</button>`:''}
   ${pDay<n-1?`<div class="night"><small>הלילה ישנים ב־</small><b>${hname(H)}</b></div>`:''}
   <div class="ideas"><h3>מה עוד בא לכם היום?</h3><div class="chipsrow">${Object.entries(INT).map(([k,v])=>`<button type="button" data-int="${k}" aria-pressed="${pl.int.includes(k)}">${v[0]}</button>`).join('')}</div>${ideas||'<p class="none">בחרו נושא, ונציע מקומות ליד מקום הלינה של היום.</p>'}</div>
+  ${planExtras(d,n,d0,it)}
   <p class="note">שעות בצהוב הן קבועות (טיסות, לינה ומה שהוספתם). שעות באפור הן הצעות, ואפשר להסיר אותן ב-×.${d?` <a href="#planner" data-openid="${d.id}" style="color:inherit">לכל ההמלצות ליעד</a>`:''}</p>`;
   if(pAdd)$('#xx-'+pDay)?.focus();
 }
 $('#pform').addEventListener('input',e=>{const hf=e.target.dataset.hf;if(hf){pl.hs[+e.target.dataset.hi][hf]=e.target.value;savePl();renderPlan();return}
   const k=e.target.dataset.pl;if(!k)return;const[a,b]=k.split('.');if(b)pl[a][b]=e.target.value;else pl[a]=e.target.value;$('#p-name-l').hidden=pl.dest!=='other';if(k==='o.d')renderHotels();savePl();renderPlan()});
 $('#pform').addEventListener('submit',e=>e.preventDefault());
+$('#planDays').addEventListener('change',e=>{const t=e.target;
+  if(t.dataset.pack){pl.pack[t.dataset.pack]=t.checked;pl.ui='pack';savePl();renderPlan()}
+  else if(t.id==='budTotal'){pl.bud.total=t.value;pl.ui='bud';savePl();renderPlan()}
+  else if(t.id==='shareOn'){setShare(t.checked)}});
+$('#planDays').addEventListener('toggle',e=>{const t=e.target;if(t.dataset&&t.dataset.ui&&t.open)pl.ui=t.dataset.ui;else if(t.dataset&&pl.ui===t.dataset.ui)pl.ui=''},true);
 fillPlanForm();renderHotels();renderPlan();
 show(location.hash.slice(1));render();
 /* keep the trip and saved list in the viewer's own Claude storage when the page runs as an artifact */
@@ -1583,12 +1668,15 @@ show(location.hash.slice(1));render();
   if(!window.claude||!window.claude.use)return;
   const[db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);if(!db||!user)return;
   const id=await user.id();if(!id)return;
-  const col=db.collection('data/users/'+id),[a,b]=await Promise.all([col.doc('plan').get(),col.doc('trips').get()]);cloud=col;
-  const ca=a.exists?a.data():null,cb=b.exists?b.data():null;let lt=0;try{lt=+localStorage.getItem('mifras.trips.t')||0}catch(e){}
-  if(ca&&(ca.t||0)>(pl._t||0)){pl=Object.assign(pl,JSON.parse(ca.v));pl._t=ca.t;pl.hs=pl.hs||[{n:'',a:'',from:''}];pl.int=pl.int||[];pl.hide=pl.hide||{};pl.x=pl.x||{};try{localStorage.setItem('mifras.plan',JSON.stringify(pl))}catch(e){}fillPlanForm();renderHotels();renderPlan()}
-  else if(pl._t||pl.o.d||pl.dest)push('plan',pl);
+  cloudDb=db;const col=db.collection('data/users/'+id),[a,b,pr]=await Promise.all([col.doc('plan').get(),col.doc('trips').get(),col.doc('prefs').get()]);cloud=col;
+  const cb=b.exists?b.data():null;let lt=0;try{lt=+localStorage.getItem('mifras.trips.t')||0}catch(e){}
+  if(pr.exists&&pr.data().share)pl.share=true;
+  const before=pl._t||0;if(a.exists)takePlan(a.data());
+  if(pl.share){const sdoc=await db.collection('shared').doc('plan').get();if(sdoc.exists)takePlan(sdoc.data());watchShared()}
+  if((pl._t||0)===before&&(pl._t||pl.o.d||pl.dest))push('plan',pl);
   if(cb&&((cb.t||0)>lt||!trips.length)){trips=JSON.parse(cb.v)||[];try{localStorage.setItem('mifras.trips',JSON.stringify(trips));localStorage.setItem('mifras.trips.t',cb.t)}catch(e){}render()}
   else if(trips.length)push('trips',trips);
+  renderPlan();
   $('#syncNote').textContent='נשמר בחשבון Claude שלכם, כך שהוא נשאר גם אחרי שיוצאים.';
 }catch(e){}})();
 </script>
