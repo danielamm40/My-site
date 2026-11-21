@@ -3,23 +3,23 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>מפרש טיולים</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Heebo:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@300;400;500;600&family=Syncopate:wght@700&display=swap">
 <style>
-/* Layout: quiet white canvas. One search pill holds the trip settings, a category strip picks the style, results are a borderless photo grid; depth comes from the layered, lit scenes and soft shadows. */
+/* Layout: white canvas, black ink and one lemon accent. Light-weight type, a soft search card, pill categories and a bento grid of photo tiles with frosted name tags. */
 :root{
-  --bg:#ffffff; --soft:#f6f6f6; --line:#e7e7e7; --ink:#1d1d1f; --muted:#6e6e73;
-  --a1:#0e8f86; --a2:#0a5c8a; --on-a:#ffffff; --accent:#0b6f86;
-  --sh1:0 1px 2px rgba(0,0,0,.08),0 4px 14px rgba(0,0,0,.06); --sh2:0 6px 16px rgba(0,0,0,.12),0 18px 44px rgba(0,0,0,.14);
-  --font:"Heebo","Assistant","Arial Hebrew",Arial,sans-serif;
+  --bg:#ffffff; --soft:#f1f1f1; --line:#e6e6e6; --ink:#111111; --muted:#666666;
+  --a1:#111111; --a2:#111111; --on-a:#ffffff; --accent:#ffe14a; --on-accent:#111111;
+  --sh1:0 1px 2px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.08); --sh2:0 6px 16px rgba(0,0,0,.12),0 18px 44px rgba(0,0,0,.16);
+  --font:"IBM Plex Sans Hebrew","Heebo","Arial Hebrew",Arial,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0f1113; --soft:#1b1e22; --line:#2e3338; --ink:#f4f4f5; --muted:#a2a7ad;
-  --a1:#27b3a6; --a2:#2b8fc4; --on-a:#031a1c; --accent:#5cc8d6;
-  --sh1:0 1px 2px rgba(0,0,0,.5),0 4px 14px rgba(0,0,0,.4); --sh2:0 6px 16px rgba(0,0,0,.55),0 18px 44px rgba(0,0,0,.6); color-scheme:dark}}
+  --bg:#0e0e0e; --soft:#1d1d1d; --line:#2e2e2e; --ink:#f5f5f5; --muted:#a6a6a6;
+  --a1:#f5f5f5; --a2:#f5f5f5; --on-a:#0e0e0e; --accent:#ffe14a; --on-accent:#111111;
+  --sh1:0 1px 2px rgba(0,0,0,.5),0 6px 18px rgba(0,0,0,.45); --sh2:0 6px 16px rgba(0,0,0,.55),0 18px 44px rgba(0,0,0,.65); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0f1113; --soft:#1b1e22; --line:#2e3338; --ink:#f4f4f5; --muted:#a2a7ad;
-  --a1:#27b3a6; --a2:#2b8fc4; --on-a:#031a1c; --accent:#5cc8d6;
-  --sh1:0 1px 2px rgba(0,0,0,.5),0 4px 14px rgba(0,0,0,.4); --sh2:0 6px 16px rgba(0,0,0,.55),0 18px 44px rgba(0,0,0,.6); color-scheme:dark}
+  --bg:#0e0e0e; --soft:#1d1d1d; --line:#2e2e2e; --ink:#f5f5f5; --muted:#a6a6a6;
+  --a1:#f5f5f5; --a2:#f5f5f5; --on-a:#0e0e0e; --accent:#ffe14a; --on-accent:#111111;
+  --sh1:0 1px 2px rgba(0,0,0,.5),0 6px 18px rgba(0,0,0,.45); --sh2:0 6px 16px rgba(0,0,0,.55),0 18px 44px rgba(0,0,0,.65); color-scheme:dark}
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -213,6 +213,53 @@ footer{padding-block:40px 110px;color:var(--muted);font-size:.85rem;border-top:1
   .cats{justify-content:flex-start}.filt span{display:none}
   .grid{gap:28px 16px}
 }
+
+/* ---- bento restyle ---- */
+h1,h2,h3{font-weight:300;letter-spacing:-.01em}
+b,strong{font-weight:600}
+.brand{color:var(--ink);gap:8px}.brand .ic{width:30px;height:30px}
+.saved{background:var(--ink);color:var(--bg);border:0}
+.top{justify-items:stretch;text-align:start}
+.top h1{font-size:clamp(2.3rem,5.4vw,3.6rem);font-weight:300;line-height:1.05}
+.top p{margin-top:-10px}
+.search{width:100%;max-width:880px;justify-self:start}
+.pill{border:0;border-radius:24px;box-shadow:0 8px 28px rgba(0,0,0,.12)}
+.segb{border-radius:18px}.segb small{font-weight:600}
+.go{background:var(--ink);color:var(--bg);border-radius:16px}
+.panel{border-radius:24px}.panel .big{font-weight:300}
+.catbar{position:static;margin-top:18px}
+.cats{justify-content:flex-start;gap:8px;padding-block:2px}
+.cat{display:inline-flex;grid-auto-flow:column;align-items:center;gap:6px;background:var(--soft);border:0;border-radius:16px;padding:8px 14px 8px 12px;color:var(--ink);font-size:.92rem;font-weight:500}
+.cat .ic{width:20px;height:20px}
+.cat:hover{transform:translateY(-2px)}.cat:hover .ic{transform:none}
+.cat[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.filt{border:0;background:var(--soft);border-radius:16px}
+.head h2{font-size:1.7rem;font-weight:300}
+.grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.card{display:block;height:250px;border-radius:26px;overflow:hidden;box-shadow:0 10px 26px rgba(0,0,0,.14);transition:transform .3s,box-shadow .3s}
+.card.big{grid-column:span 2}
+.card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,.24)}
+.card .ph{position:absolute;inset:0;height:100%;aspect-ratio:auto;border-radius:0;box-shadow:none}
+.card:hover .ph{transform:none;box-shadow:none}
+.tag{position:absolute;inset:auto 10px 10px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:16px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0}
+.tag>div{min-width:0}
+.tag b{font-weight:400;font-size:1.08rem;display:block;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag small{color:var(--muted);font-size:.8rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag em{font-style:normal;background:var(--ink);color:var(--bg);border-radius:12px;padding:4px 10px;font-size:.82rem;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.heart{top:10px;inset-inline-end:auto;left:10px;width:38px;height:38px;border-radius:50%;background:var(--bg);color:var(--ink)}
+.heart .ic{width:20px;height:20px;fill:none;stroke-width:1.6}
+.heart[aria-pressed="true"] .ic{fill:var(--ink);stroke:var(--ink)}
+.badge{top:12px;inset-inline-start:12px;background:var(--accent);color:var(--on-accent);box-shadow:none;font-weight:600}
+.card.trip{height:auto;display:grid;overflow:visible;box-shadow:none;transform:none}
+.card.trip .ph{position:relative;height:auto;aspect-ratio:20/13;border-radius:24px;overflow:hidden}
+.btn{background:var(--ink);color:var(--bg);border-radius:16px;font-weight:600}
+.btn.ghost{background:none;color:var(--ink)}
+.day .num{background:var(--accent);color:var(--on-accent)}
+.d-body h2{font-weight:300}.d-body h3{font-weight:400}
+.wheel button[aria-pressed="true"],.dlist button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent);box-shadow:none}
+.chipsrow button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.spin b{font-weight:300}
+@media (max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{height:180px}.card.big{height:220px}.tag{inset:auto 8px 8px;padding:7px 10px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 
@@ -229,7 +276,7 @@ footer{padding-block:40px 110px;color:var(--muted);font-size:.85rem;border-top:1
 <main>
 <div id="view-planner">
   <div class="wrap top">
-    <h1>לאן טסים הפעם?</h1>
+    <h1>היי! לאן טסים הפעם?</h1>
     <p>מסלולים לזוג עם נופים שמגיעים אליהם ברכב, חופים ושופינג.</p>
     <div class="search">
       <div class="pill">
@@ -1116,11 +1163,9 @@ const ph=(d,extra='')=>`<div class="ph">${img(d)}${extra}</div>`;
 const heart=d=>`<button class="heart" data-save="${d.id}" aria-pressed="${isSaved(d.id)}" aria-label="שמירת ${d.n} בנסיעות מתוכננות">${ic('heart')}</button>`;
 
 function card(r,i,fit){
-  const d=r.d,top=Object.entries(d.s).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k])=>STYLES[k]).join(' · ');
-  return `<article class="card" data-open="${d.id}" tabindex="0" role="button" aria-label="${d.n}, לפתיחת המסלול">${ph(d,(r.mine?'<span class="badge">היעד שבחרתם</span>':fit&&i<3&&!r.partial?'<span class="badge">הכי מתאים לכם</span>':'')+heart(d))}
-  <div class="info"><div class="r1"><h3>${d.n}, ${d.w}</h3><span class="rate">${ic('star')}${Math.round(r.sc*100)}%</span></div>
-  <div class="muted">${WAYS[way(d)][1]} · ${way(d)==='multi'?'כ־':''}${fmtH(d.h)}</div><div class="muted">${top}</div>
-  <div class="price"><b>${nis(r.total)}</b> לזוג · ${st.days} ימים${fit&&r.over?' <span class="over">(מעט מעל התקציב)</span>':''}${fit&&r.partial&&!r.mine?' <span class="over">(התאמה חלקית לסגנון)</span>':''}</div></div></article>`;
+  const d=r.d,big=i%3===0,note=fit&&r.over?' · מעט מעל התקציב':fit&&r.partial&&!r.mine?' · התאמה חלקית':'';
+  return `<article class="card${big?' big':''}" data-open="${d.id}" tabindex="0" role="button" aria-label="${d.n}, ${d.w}, ${nis(r.total)}, לפתיחת המסלול">${ph(d,(r.mine?'<span class="badge">היעד שבחרתם</span>':fit&&i<3&&!r.partial?'<span class="badge">הכי מתאים לכם</span>':'')+heart(d))}
+  <div class="tag"><div><b>${d.n}</b><small>${big?`${d.w} · ${Math.round(r.sc*100)}% התאמה · ${WAYS[way(d)][1]}${note}`:`${way(d)==='multi'?'כ־':''}${fmtH(d.h)} · ${nis(r.total)}`}</small></div>${big?`<em>${nis(r.total)}</em>`:''}</div></article>`;
 }
 
 function render(){
