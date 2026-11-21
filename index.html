@@ -171,6 +171,12 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 .costs .tot{border-top:1px solid var(--line);padding-top:14px;font-weight:700;font-size:1.1rem}
 .costs .tot span{text-decoration:none}
 .costs b{font-weight:400;font-variant-numeric:tabular-nums}.costs .tot b{font-weight:700}
+.links{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.lk{display:grid;grid-template-columns:auto 1fr auto;gap:0 12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--ink);text-decoration:none;transition:transform .2s,box-shadow .2s,border-color .2s}
+.lk:hover{transform:translateY(-3px);box-shadow:var(--sh2);border-color:var(--ink)}
+.lk .ic{width:26px;height:26px;grid-row:span 2}
+.lk b{font-weight:600}.lk span{grid-column:2;color:var(--muted);font-size:.85rem}
+.lk i{grid-row:1/3;grid-column:3;font-style:normal;color:var(--muted)}
 .tips{margin:0;padding-inline-start:1.2em;display:grid;gap:8px}
 .note{font-size:.88rem;color:var(--muted);margin:10px 0 0}
 .warn{background:var(--soft);border-radius:12px;padding:10px 14px;font-size:.92rem;margin:0}
@@ -283,6 +289,8 @@ Object.assign(IC,{
  star:['','<path class="f" d="M16 3l3.9 8.3 9.1 1.2-6.7 6.3 1.7 9L16 23.4 8 27.8l1.7-9L3 12.5l9.1-1.2z"/>'],
  sliders:['','<path d="M5 10h13M24 10h3M5 22h3M14 22h13"/><circle cx="21" cy="10" r="3"/><circle cx="11" cy="22" r="3"/>'],
  sun:['','<circle cx="16" cy="16" r="5.5"/><path d="M16 4v3M16 25v3M4 16h3M25 16h3M7.5 7.5l2.1 2.1M22.4 22.4l2.1 2.1M7.5 24.5l2.1-2.1M22.4 9.6l2.1-2.1"/>'],
+ home:['','<path d="M5 15L16 5l11 10M8 13v13h16V13M13 26v-8h6v8"/>'],
+ fork:['','<path d="M10 4v8a3 3 0 0 0 6 0V4M13 4v24M22 28V4c-3 2-4 6-4 10s1 4 4 4"/>'],
  bed:['','<path d="M4 25V8M4 20h24v5M28 20v-3.5c0-2.5-2-4.5-4.5-4.5H13v8"/><circle cx="8.5" cy="15" r="2.5"/>']
 });
 const ic=n=>`<svg class="ic" viewBox="0 0 32 32" aria-hidden="true">${IC[n][1]}</svg>`;
@@ -452,67 +460,173 @@ const D=[
  ['סנטרל פוקט','199 Vichitsongkram Rd, Wichit, Phuket 83000, Thailand','קניון ממוזג ענק, טוב לשעות החמות.','shop',1]]}
 ];
 
-/* ---------- scenes: layered, lit landscapes (gradients, haze, glow, reflections) ---------- */
+/* ---------- scenes: one layered, lit landscape per destination, built around its landmark ---------- */
 let gid=0;
 function ridge(y,amp,seed,f=1,base=400){let d=`M-20 ${base}`;for(let x=-20;x<=420;x+=10){const v=(.5+.5*Math.sin(x*.012*f+seed*1.3))*(.55+.45*Math.sin(x*.031*f+seed*2.1))+.1*Math.sin(x*.09*f+seed);d+=`L${x} ${(y-amp*v).toFixed(1)}`}return d+`L420 ${base}z`}
-function scene(t,k=0){
-  const u='s'+(gid++),sx=[110,290,200,315,85][k%5],alt=k%2;
-  const G=(id,st)=>`<linearGradient id="${u}${id}" x1="0" y1="0" x2="0" y2="1">${st.map((c,i)=>`<stop offset="${(i/(st.length-1)).toFixed(2)}" stop-color="${c}"/>`).join('')}</linearGradient>`;
-  const F=id=>`url(#${u}${id})`;
-  let defs=`<filter id="${u}b1" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.8"/></filter><filter id="${u}b" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="6"/></filter><filter id="${u}b2" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="18"/></filter><linearGradient id="${u}vg" x1="0" y1="0" x2="0" y2="1"><stop offset=".55" stop-opacity="0"/><stop offset="1" stop-opacity=".3"/></linearGradient><linearGradient id="${u}sn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/></linearGradient>`+G('sail',['#ffffff','#c9d8ea']);
-  const sky=c=>{defs+=G('sky',c);return `<rect x="-20" y="-20" width="440" height="440" fill="${F('sky')}"/>`};
+function scene(id){
+  const u='s'+(gid++);let rc=0;
+  const G=(n,st)=>`<linearGradient id="${u}${n}" x1="0" y1="0" x2="0" y2="1">${st.map((c,i)=>`<stop offset="${(i/(st.length-1)).toFixed(2)}" stop-color="${c}"/>`).join('')}</linearGradient>`;
+  const F=n=>`url(#${u}${n})`;
+  let defs=`<filter id="${u}b1" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.8"/></filter><filter id="${u}b" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="6"/></filter><filter id="${u}b2" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="18"/></filter><linearGradient id="${u}vg" x1="0" y1="0" x2="0" y2="1"><stop offset=".6" stop-opacity="0"/><stop offset="1" stop-opacity=".28"/></linearGradient><linearGradient id="${u}sn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".42" stop-color="#fff" stop-opacity="0"/></linearGradient>`+G('sail',['#ffffff','#c9d8ea'])+G('tr',['#2f8a64','#0b3a2a'])+G('gr',['#5a9a66','#1c4a35'])+G('sd',['#fff3d6','#e2bf86'])+G('sg',['#f2f5ff','#aab7ea']);
+  const D2=(n,st)=>{defs+=G(n,st);return F(n)};
+  const P=(d,f,o=1)=>`<path d="${d}" fill="${f}" opacity="${o}"/>`;
+  const R=(x,y,w,h,f,o=1)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" opacity="${o}"/>`;
+  const tri=(x,y,w,h,c)=>`<path d="M${x} ${y}l${w/2} ${-h}l${w/2} ${h}z" fill="${c}"/>`;
+  const sky=c=>R(-20,-20,440,440,D2('sky',c));
   const glow=(x,y,r,c)=>`<circle cx="${x}" cy="${y}" r="${r*3.4}" fill="${c}" opacity=".3" filter="${F('b2')}"/><circle cx="${x}" cy="${y}" r="${r*1.7}" fill="${c}" opacity=".55" filter="${F('b')}"/><circle cx="${x}" cy="${y}" r="${r}" fill="#fffaf0"/>`;
   const haze=(y,h,c='#fff',o=.3)=>`<rect x="-40" y="${y}" width="480" height="${h}" fill="${c}" opacity="${o}" filter="${F('b2')}"/>`;
-  const water=(y,c)=>{defs+=G('w',c);return `<rect x="-20" y="${y}" width="440" height="${400-y}" fill="${F('w')}"/>`};
-  const shine=(x,y,c='#fff3cc')=>[0,1,2,3,4,5,6,7].map(i=>`<ellipse cx="${x}" cy="${y+10+i*17}" rx="${9+i*8}" ry="${2.5+i*.25}" fill="${c}" opacity="${.6-i*.055}" filter="${F('b1')}"/>`).join('');
-  const lines=(y,n=7)=>Array.from({length:n},(_,i)=>`<path d="M${(i*137+k*53)%360+10} ${y+12+((i*61)%(380-y-20))}h${24+(i*17)%40}" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity="${.14+(i%3)*.08}"/>`).join('');
+  const water=(y,c)=>R(-20,y,440,400-y,D2('w',c));
+  const shine=(x,y,c='#fff3cc')=>[0,1,2,3,4,5,6].map(i=>`<ellipse cx="${x}" cy="${y+10+i*17}" rx="${9+i*8}" ry="${2.5+i*.25}" fill="${c}" opacity="${.6-i*.06}" filter="${F('b1')}"/>`).join('');
+  const lines=(y,n=6)=>Array.from({length:n},(_,i)=>`<path d="M${(i*137+41)%360+10} ${y+12+((i*61)%(380-y-20))}h${24+(i*17)%40}" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity="${.14+(i%3)*.08}"/>`).join('');
   const boat=(x,y,s)=>{const sh=`<path d="M0-48v44h-23z"/><path d="M4-40v36h17z"/>`;return `<g transform="translate(${x} ${y}) scale(${s})"><g transform="scale(1 -.8) translate(0 -12)" fill="#fff" opacity=".22" filter="${F('b1')}">${sh}</g><path d="M0-48v44h-23z" fill="${F('sail')}"/><path d="M4-40v36h17z" fill="#fff" opacity=".88"/><path d="M-27 0h56l-8 9h-40z" fill="#132c45"/><path d="M1-52v52" stroke="#132c45" stroke-width="1.6"/><path d="M-27 0h56" stroke="#e9eef5" stroke-width="1.4"/></g>`};
+  const yacht=(x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})"><path d="M-30 0h62l-10 9h-44z" fill="#fff"/><path d="M-14 0v-8h30l6 8zM-6-8v-6h16l4 6z" fill="#eef3fa"/><path d="M-10-5h22" stroke="#28507a" stroke-width="2"/></g>`;
   const bokeh=(x,y,cols)=>`<g filter="${F('b')}">${cols.map((c,i)=>`<circle cx="${x+((i*47)%90)-45}" cy="${y-((i*29)%70)}" r="${14+(i*7)%16}" fill="${c}" opacity=".85"/>`).join('')}</g>`;
-  const pine=(x,y,h,c)=>`<path d="M${x} ${y-h}l${h*.2} ${h*.34}h${-h*.08}l${h*.2} ${h*.33}h${-h*.1}l${h*.22} ${h*.33}h${-h*.88}l${h*.22}${-h*.33}h${-h*.1}l${h*.2}${-h*.33}h${-h*.08}z" fill="${c}"/>`;
-  const skyline=(base,lo,hi,seed,fill,lit,op=1)=>{let s='',x=-10,i=0,w='';while(x<410){const bw=22+((i*37+seed*11)%24),h=lo+((i*53+seed*29)%(hi-lo));s+=`<rect x="${x}" y="${base-h}" width="${bw}" height="${h+2}" fill="${fill}"/>`;if(lit)for(let wy=base-h+8;wy<base-9;wy+=13)for(let wx=x+5;wx<x+bw-7;wx+=9)if((wx*7+wy*13+seed*3)%5<2)w+=`<rect x="${wx}" y="${wy}" width="4" height="6.5"/>`;x+=bw+2;i++}return `<g opacity="${op}">${s}</g>`+(lit?`<g fill="#ffc86b" filter="${F('b')}" opacity=".75">${w}</g><g fill="#ffe7b3">${w}</g>`:'')};
-  let o='';
-  if(t==='sea'){const day=!alt,sy=day?86:168;
-    o=sky(day?['#1668bd','#5eb4e8','#cfeefb']:['#27356f','#b9638f','#ffb884','#ffe0a8'])+glow(sx,sy,day?20:24,day?'#ffffff':'#ffc978')
-     +`<path d="${ridge(216,58,k+1,.8)}" fill="${day?'#86b3d6':'#8d6a9f'}" opacity=".75"/>`+haze(190,34,'#fff',day?.35:.25)
-     +`<path d="${ridge(216,34,k+4,1.7)}" fill="${day?'#2f6f86':'#463a6c'}"/>`
-     +water(215,day?['#2aa3c6','#0f6a9c','#083e6c']:['#c4788f','#544f93','#161f4c'])+shine(sx,215,day?'#ffffff':'#ffd9a0')+lines(222)
-     +boat(alt?270:130,286,1.5)+boat(alt?96:306,246,.8)
-     +bokeh(alt?40:362,400,['#ff4f86','#ff86ac','#ffb3c8','#0d3a2c','#ff6a94','#145a3f']);}
-  if(t==='tropic'){
-    o=sky(['#0f8fc4','#6fd6e0','#fff1cf'])+glow(sx,120,22,'#fff6d8')+haze(176,30,'#fff',.4)
-     +`<path d="${ridge(204,26,k+2,1.4)}" fill="#2f8f8a" opacity=".7"/>`
-     +water(202,['#49e0d2','#16a9c2','#0a6f9a'])+shine(sx,202,'#ffffff')+lines(208,6)+boat(120,262,1.1);
-    defs+=G('sd',['#fff3d6','#e6c388']);
-    o+=`<path d="M-20 400v-58q150-58 440 14v44z" fill="#fff" opacity=".7" filter="${F('b1')}"/><path d="M-20 400v-52q150-56 440 16v36z" fill="${F('sd')}"/>`
-     +[[318,150,1.2],[366,196,.8]].map(([px,py,s])=>`<g transform="translate(${px} ${py}) scale(${s})" fill="#0c2f2c"><path d="M-6 220q-16-120 4-218l8 2q-18 100 0 216z"/>${[-150,-115,-75,-40,-5,35,70].map(a=>`<path d="M0 0q46-34 104-8-56-6-104 8z" transform="rotate(${a})"/>`).join('')}</g>`).join('')
-     +bokeh(30,410,['#ff5d8a','#ff9ab5','#0d3a2c','#ffc1d2']);}
-  if(t==='mount'||t==='lake'){const dawn=alt,c=dawn?['#c2a3c4','#8279ad','#4b5592','#222e5c']:['#b9d0ea','#7fa4d0','#47719f','#1e4470'],lake=t==='lake',b=lake?262:400;
-    const M=`<path d="${ridge(lake?250:205,150,k+1,1.3,b)}" fill="${c[0]}"/><path d="${ridge(lake?250:205,150,k+1,1.3,b)}" fill="${F('sn')}"/>`+haze(lake?170:150,50,dawn?'#ffd9c0':'#fff',.32)+`<path d="${ridge(lake?256:240,110,k+3,1.1,b)}" fill="${c[1]}"/>`+haze(lake?210:205,36,dawn?'#ffd9c0':'#fff',.26)+`<path d="${ridge(lake?260:285,80,k+6,.9,b)}" fill="${c[2]}"/>`;
-    o=sky(dawn?['#243a78','#c97f93','#ffc99a','#ffe6bd']:['#1f6fc6','#7fc0ee','#e4f4fd'])+glow(sx,dawn?150:70,dawn?22:18,dawn?'#ffd08a':'#ffffff')+M;
-    if(lake){o+=water(260,dawn?['#b98aa6','#565c9c','#1a2552']:['#6fb9de','#1f6fa2','#0c3e6c'])+`<clipPath id="${u}cl"><rect x="-20" y="260" width="440" height="140"/></clipPath><g clip-path="url(#${u}cl)"><g transform="translate(0 522) scale(1 -1)" opacity=".42" filter="${F('b1')}">${M}</g></g>`+haze(250,18,'#fff',.4)+shine(sx,262,dawn?'#ffdcae':'#ffffff')+lines(270,6)+boat(alt?120:270,322,1.4)+bokeh(alt?370:36,404,['#ff6a94','#0d3a2c','#ffb3c8','#145a3f','#ff86ac']);}
-    else{defs+=G('md',['#4f9160','#1c4a35']);
-      o+=haze(262,40,dawn?'#ffd9c0':'#fff',.22)+`<path d="${ridge(335,56,k+9,.6)}" fill="${c[3]}"/><path d="${ridge(372,44,k+12,.5)}" fill="${F('md')}"/>`
-       +`<path d="M150 400q30-34 90-42t70-34" stroke="#f3ead8" stroke-width="5" fill="none" stroke-linecap="round" opacity=".85"/>`
-       +[[24,392,92],[58,400,70],[352,396,100],[384,402,74],[96,404,50]].map(p=>pine(p[0],p[1],p[2],'#0b241f')).join('')+bokeh(alt?40:360,412,['#ffd36a','#ff86ac','#0d3a2c','#ffe9a8']);}}
-  if(t==='xmas'){
-    defs+=G('sg',['#eef2ff','#a9b6ea'])+G('tr',['#2a7a5a','#0b3a2a']);
-    const dots=[[186,196,'#ffd36a'],[214,222,'#ff6a8a'],[176,246,'#7fd6ff'],[226,262,'#ffd36a'],[196,274,'#ff6a8a'],[160,288,'#ffd36a'],[240,292,'#7fd6ff'],[204,236,'#ffe9a8']];
-    o=sky(['#070d2c','#1d2468','#5c3a80','#b8648c'])+Array.from({length:26},(_,i)=>`<circle cx="${(i*97+k*31)%400}" cy="${(i*53)%170}" r="${.6+(i%3)*.5}" fill="#fff" opacity="${.4+(i%4)*.15}"/>`).join('')
-     +glow(alt?320:84,62,13,'#dfe6ff')+skyline(262,40,96,k+2,'#343a84',0,.75)+haze(214,40,'#b8648c',.3)+skyline(300,60,140,k,'#0c1132',1)
-     +`<ellipse cx="200" cy="330" rx="150" ry="30" fill="#ffc46b" opacity=".5" filter="${F('b2')}"/><path d="M-20 400V306q110-18 220-6t220-8v108z" fill="${F('sg')}"/><ellipse cx="200" cy="322" rx="120" ry="18" fill="#ffd89a" opacity=".55" filter="${F('b')}"/>`
-     +`<rect x="194" y="296" width="12" height="26" fill="#3a2418"/><path d="M200 150l-30 50h13l-34 50h16l-38 52h146l-38-52h16l-34-50h13z" fill="${F('tr')}"/><path d="M200 150l-30 50h13l-34 50h16l-38 52h30q40-70 43-152z" fill="#fff" opacity=".1"/>`
-     +`<g filter="${F('b')}">${dots.map(d=>`<circle cx="${d[0]}" cy="${d[1]}" r="9" fill="${d[2]}" opacity=".9"/>`).join('')}</g>${dots.map(d=>`<circle cx="${d[0]}" cy="${d[1]}" r="3" fill="#fffbe8"/>`).join('')}`
-     +glow(200,146,6,'#ffd36a')
-     +Array.from({length:22},(_,i)=>{const r=1.5+(i*7)%7;return `<circle cx="${(i*83+k*17)%400}" cy="${(i*59+30)%380}" r="${r}" fill="#fff" opacity="${r>5?.35:.8}" ${r>5?`filter="${F('b1')}"`:''}/>`}).join('');}
-  if(t==='city'){
-    o=sky(['#141f58','#7a4a92','#e0708a','#ffb884'])+glow(sx,250,24,'#ffc27a')+skyline(300,60,150,k+3,'#6d62a6',0,.7)+haze(250,50,'#ffb0a0',.32)+skyline(318,70,210,k,'#0f1433',1)
-     +water(318,['#4a4488','#141a44','#0a0e2a'])+`<g filter="${F('b')}" opacity=".7">${Array.from({length:12},(_,i)=>`<rect x="${(i*71+k*23)%390}" y="322" width="5" height="${30+(i*13)%46}" fill="${i%3?'#ffc86b':'#ff8fa8'}"/>`).join('')}</g>`+shine(sx,320,'#ffc890')+lines(326,5)
-     +bokeh(alt?44:356,416,['#ffc86b','#ff8fa8','#ffe7b3','#8f7ad8']);}
-  if(t==='desert'){
-    defs+=G('d1',['#f6b56a','#c56a3a'])+G('d2',['#e08f4c','#8a3f26'])+G('d3',['#a8532e','#451d16']);
-    o=sky(['#2a2670','#a4508c','#f2748a','#ffc27a'])+glow(sx,206,34,'#ffd08a')
-     +`<g fill="#7d4a86" opacity=".8"><rect x="96" y="176" width="20" height="90"/><rect x="122" y="150" width="16" height="116"/><path d="M168 266V96l6-46 6 46v170z"/><rect x="196" y="186" width="24" height="80"/><rect x="232" y="160" width="18" height="106"/><path d="M262 266q0-78 34-90v90z"/></g>`+haze(232,44,'#ffb48a',.45)
-     +`<path d="${ridge(300,58,k+1,.5)}" fill="${F('d1')}"/><path d="${ridge(346,54,k+4,.6)}" fill="${F('d2')}"/><path d="${ridge(392,50,k+7,.7)}" fill="${F('d3')}"/>`;}
+  const pine=(x,y,h,c='#0b241f')=>`<path d="M${x} ${y-h}l${h*.2} ${h*.34}h${-h*.08}l${h*.2} ${h*.33}h${-h*.1}l${h*.22} ${h*.33}h${-h*.88}l${h*.22}${-h*.33}h${-h*.1}l${h*.2}${-h*.33}h${-h*.08}z" fill="${c}"/>`;
+  const cyp=(x,y,h,c='#173f2e')=>`<ellipse cx="${x}" cy="${y-h/2}" rx="${h/7}" ry="${h/2}" fill="${c}"/>`;
+  const palm=(x,y,s,c='#0c2f2c')=>`<g transform="translate(${x} ${y}) scale(${s})" fill="${c}"><path d="M-6 220q-16-120 4-218l8 2q-18 100 0 216z"/>${[-150,-115,-75,-40,-5,35,70].map(a=>`<path d="M0 0q46-34 104-8-56-6-104 8z" transform="rotate(${a})"/>`).join('')}</g>`;
+  const hs=(x,y,w,h,c,r)=>R(x,y,w,h,c)+R(x+w*.62,y,w*.38,h,'#1a2040',.12)+(r?P(`M${x-2} ${y+1}l${w/2+2} ${-w*.3}l${w/2+2} ${w*.3}z`,r):'')+R(x+w*.18,y+h*.32,w*.16,h*.3,'#22305a',.6)+R(x+w*.56,y+h*.32,w*.16,h*.3,'#22305a',.6);
+  const lit=(pts,c='#ffc86b',w=4,h=6)=>{const r=pts.map(p=>`<rect x="${p[0]}" y="${p[1]}" width="${w}" height="${h}"/>`).join('');return `<g fill="${c}" filter="${F('b')}" opacity=".8">${r}</g><g fill="#ffeec2">${r}</g>`};
+  const gp=(x0,y0,nx,ny,dx,dy,skip=0)=>{const a=[];for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)if(!skip||(i*7+j*13+skip)%5<3)a.push([x0+i*dx,y0+j*dy]);return a};
+  const dots=(pts,r=3)=>`<g filter="${F('b')}">${pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="${r*3}" fill="${['#ffd36a','#ff6a8a','#7fd6ff','#ffe9a8'][i%4]}" opacity=".9"/>`).join('')}</g>${pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="${r}" fill="#fffbe8"/>`).join('')}`;
+  const xtree=(x,y,h)=>{const w=h*.66;let s=R(x-h*.04,y-4,h*.08,h*.12,'#3a2418');[0,1,2].forEach(i=>{const tw=w*(.5+i*.25);s+=tri(x-tw/2,y-h*(.58-i*.29),tw,h*.42,F('tr'))});return s+dots([[x-w*.1,y-h*.66],[x+w*.12,y-h*.5],[x-w*.2,y-h*.38],[x+w*.05,y-h*.3],[x+w*.26,y-h*.2],[x-w*.3,y-h*.1],[x,y-h*.12],[x+w*.36,y-h*.04]],h*.016)+glow(x,y-h,h*.03,'#ffd36a')};
+  const snow=(n=22)=>Array.from({length:n},(_,i)=>{const r=1.5+(i*7)%7;return `<circle cx="${(i*83+17)%400}" cy="${(i*59+30)%380}" r="${r}" fill="#fff" opacity="${r>5?.35:.8}" ${r>5?`filter="${F('b1')}"`:''}/>`}).join('');
+  const stars=()=>Array.from({length:26},(_,i)=>`<circle cx="${(i*97+31)%400}" cy="${(i*53)%160}" r="${.6+(i%3)*.5}" fill="#fff" opacity="${.4+(i%4)*.15}"/>`).join('');
+  const reflect=(c,y,op=.4)=>{const n=u+'c'+(rc++);return `<clipPath id="${n}"><rect x="-20" y="${y}" width="440" height="${400-y}"/></clipPath><g clip-path="url(#${n})"><g transform="translate(0 ${2*y}) scale(1 -1)" opacity="${op}" filter="${F('b1')}">${c}</g></g>`};
+  const skyline=(base,lo,hi,seed,fill,lt,op=1)=>{let s='',x=-10,i=0,w=[];while(x<410){const bw=22+((i*37+seed*11)%24),h=lo+((i*53+seed*29)%(hi-lo));s+=R(x,base-h,bw,h+2,fill);if(lt)for(let wy=base-h+8;wy<base-9;wy+=13)for(let wx=x+5;wx<x+bw-7;wx+=9)if((wx*7+wy*13+seed*3)%5<2)w.push([wx,wy]);x+=bw+2;i++}return `<g opacity="${op}">${s}</g>`+(lt?lit(w,'#ffc86b',4,6.5):'')};
+  const cluster=(rows,x0,y0,dx,dy,n0,cols,roofs,w0=30)=>{let H='';for(let r=rows-1;r>=0;r--){const n=n0-r;for(let c=0;c<n;c++){const w=w0-r*1.6;H+=hs(x0+r*dx+c*(w+6)+((r*7+c*13)%8),y0-r*dy,w,w,cols[(r*3+c*5)%cols.length],roofs?roofs[(r+c)%roofs.length]:'')}}return H};
+  const DAY=['#1668bd','#5eb4e8','#cfeefb'],GOLD=['#27356f','#b9638f','#ffb884','#ffe0a8'],DAWN=['#243a78','#c97f93','#ffc99a','#ffe6bd'],NIGHT=['#070d2c','#1d2468','#5c3a80','#b8648c'],DUSK=['#141f58','#7a4a92','#e0708a','#ffb884'];
+  const PINK=['#ff4f86','#ff86ac','#ffb3c8','#0d3a2c','#ff6a94','#145a3f'];
+  const S={
+  dolomites(){const rk=D2('rk',['#ffc6a2','#d68c94','#73609f']),sh='#1a1440';
+    return sky(DAWN)+glow(322,150,20,'#ffd08a')+P(ridge(240,90,2,1.2),'#a394c6',.8)+haze(196,46,'#ffd9c0',.32)
+     +P('M92 268L102 158 114 134 130 126 146 142 154 268z',rk)+P('M150 268L160 116 172 88 190 78 208 92 218 124 226 268z',rk)+P('M224 268L230 154 242 130 260 122 276 140 286 268z',rk)+P('M284 268L292 196 306 184 320 198 326 268z',rk)
+     +P('M130 126L146 142 154 268H126z',sh,.2)+P('M190 78L208 92 218 124 226 268H188z',sh,.2)+P('M260 122L276 140 286 268H256z',sh,.2)
+     +haze(246,34,'#ffd9c0',.34)+P(ridge(300,44,5,.9),'#4b4f8c')+P(ridge(344,48,9,.6),'#2c5a45')+P(ridge(380,40,12,.5),F('gr'))
+     +hs(64,318,46,24,'#7a5038','#2a1c18')+lit([[74,326],[90,326]])+[[22,396,88],[352,392,98],[386,402,72],[130,402,46]].map(p=>pine(...p)).join('')+bokeh(300,414,['#ffd36a','#ff86ac','#0d3a2c','#ffe9a8'])},
+  amalfi(){const cols=['#ffd9b0','#ffb7a0','#fff0d8','#f7c7d0','#ffe6a0','#f4a98a'];
+    return sky(DAY)+glow(80,70,18,'#fff')+P(ridge(250,60,3,.9),'#86b3d6',.7)+haze(224,30)+water(250,['#2aa3c6','#0f6a9c','#083e6c'])+shine(80,250,'#fff')+lines(256)
+     +boat(60,300,1)+yacht(118,272,.5)
+     +P('M104 400L134 344Q196 204 300 120L420 76V400z',D2('cl',['#86ab7c','#35604d']))+P('M300 120L420 76V400H330Q360 240 300 120z','#0f2a2a',.18)
+     +cluster(6,150,320,30,36,7,cols,['#c56a44','','#d98a5a'])
+     +R(226,214,26,22,'#fff3dc')+P('M221 214a18 18 0 0 1 36 0z','#e8c24a')+`<path d="M239 196v18M230 201q4 6 4 13M248 201q-4 6-4 13" stroke="#3f9a7a" stroke-width="2.2" fill="none"/>`+R(236,188,6,9,'#fff3dc')
+     +P('M-20 400V356Q60 332 150 352V400z',F('sd'))+[[18,356,'#ff5d5d'],[52,350,'#ffd24a'],[86,352,'#3f8fe0'],[118,358,'#ff8f3f']].map(p=>P(`M${p[0]} ${p[1]}a12 12 0 0 1 24 0z`,p[2])+R(p[0]+11.4,p[1],1.2,12,'#5a4a3a')).join('')
+     +bokeh(40,70,['#ffe14a','#2f7a3f','#ffd21f','#1c5a34','#fff07a'])},
+  como(){const M=P(ridge(256,150,1.6,1,262),'#b9d0ea')+P(ridge(256,150,1.6,1,262),F('sn'))+haze(170,50)+P(ridge(258,110,3.4,1.1,262),'#7fa4d0')+haze(214,34,'#fff',.26)+P(ridge(260,74,6,.9,262),'#3f6c93');
+    const villa=P('M420 262H236q-14-8 6-20l60-18 118-22z',D2('pr',['#3f7a55','#1c4a35']))+R(292,196,84,40,'#f6e7c8')+R(346,196,30,40,'#1a2040',.1)+P('M286 198l48-18 48 18z','#c56a44')+[300,318,336].map(x=>P(`M${x} 236v-18a7 7 0 0 1 14 0v18z`,'#3a3550',.75)).join('')+R(356,170,16,28,'#f6e7c8')+P('M352 172l12-10 12 10z','#c56a44')+[258,272,388,402].map((x,i)=>cyp(x,246-i%2*6,50+i%2*10)).join('')+cyp(244,252,34);
+    return sky(['#1f6fc6','#7fc0ee','#e4f4fd'])+glow(96,74,18,'#fff')+M+water(260,['#6fb9de','#1f6fa2','#0c3e6c'])+reflect(M+villa,260,.4)+villa+haze(252,14,'#fff',.35)+shine(96,262,'#fff')+lines(270)
+     +`<g transform="translate(130 318)"><path d="M-46 0q46 12 96 0l14-9h-112z" fill="#7a4428"/><path d="M-46-9h112" stroke="#e9d9c0" stroke-width="2"/><path d="M-6-9l8-9h22l6 9z" fill="#dfeaf5" opacity=".9"/></g>`
+     +bokeh(40,404,PINK)},
+  garda(){const st=D2('st',['#f3d3a4','#b78862']),m=(x,w,y)=>Array.from({length:Math.floor(w/9)},(_,i)=>R(x+i*9,y-6,5,7,'#e6c292')).join('');
+    const C=R(108,238,180,46,st)+m(108,180,238)+R(118,198,28,86,st)+m(116,34,198)+R(190,160,34,124,st)+m(187,42,160)+R(260,208,26,76,st)+m(258,32,208)+R(200,140,14,22,st)+m(198,20,140)
+      +R(136,198,10,86,'#1a2040',.14)+R(212,160,12,124,'#1a2040',.14)+P('M160 284v-22a10 10 0 0 1 20 0v22z','#3a2a2a',.8)+[[126,214],[202,180],[204,212],[268,224],[236,252]].map(p=>R(p[0],p[1],5,10,'#3a2a2a',.7)).join('')+P('M288 284V258l40 8v18z',st);
+    return sky(DAY)+glow(318,70,18,'#fff')+P(ridge(270,140,2.2,1,290),'#a9c6e6')+P(ridge(270,140,2.2,1,290),F('sn'))+haze(180,50)+P(ridge(280,90,4,1,290),'#5f8fb6')+haze(240,30)
+     +water(284,['#4fb6d8','#16709c','#0a3f68'])+reflect(C,284,.38)+C+shine(318,286,'#fff')+lines(292,5)+boat(66,330,1.2)+cyp(308,270,30)+cyp(320,272,22)+bokeh(366,404,['#ffe14a','#2f7a3f','#ffd21f','#1c5a34'])},
+  swiss(){const wd='#5a3626',B=P('M-20 300L420 266v10L-20 312z','#3a2218')+P('M-20 286L420 252l0 14L-20 300z',wd)+P('M-20 286L420 252v4L-20 290z','#7a4a34')+Array.from({length:12},(_,i)=>R(i*38-8,300-i*2.9,3,54,'#2a1810')).join('')+Array.from({length:30},(_,i)=>`<circle cx="${i*15-10}" cy="${312-i*1.16}" r="2.6" fill="${i%3?'#ff4d5e':'#ff8fa8'}"/>`).join('');
+    const T=R(240,186,46,110,D2('tw',['#efe0c8','#a39078']))+R(268,186,18,110,'#1a2040',.14)+P('M232 188L263 132 294 188z','#7d3b2a')+P('M263 132L294 188H270z','#1a0d0d',.2)+R(256,216,7,12,'#3a2a2a',.7)+R(256,250,7,12,'#3a2a2a',.7);
+    return sky(DAY)+glow(84,70,18,'#fff')+P(ridge(250,170,1.2,1.2),'#c3d6ee')+P(ridge(250,170,1.2,1.2),F('sn'))+haze(170,50)+P(ridge(262,110,3.2,1),'#7fa3cf')+haze(226,30)+P(ridge(272,40,7,1.4),'#3f6f5f')
+     +skyline(276,18,40,4,'#e9dcc6',0,.95)+water(274,['#58b4d6','#1c74a0','#0c416c'])+reflect(T,300,.35)+T+B+shine(84,280,'#fff')+lines(320,4)
+     +[[96,346],[124,352]].map(p=>`<g transform="translate(${p[0]} ${p[1]})"><ellipse cx="0" cy="0" rx="11" ry="5" fill="#fff"/><path d="M8-2q6-12 2-16" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></g>`).join('')+bokeh(366,410,['#ff4d5e','#ff8fa8','#145a3f','#ff6a7a'])},
+  salzburg(){const V=[0,1,2,3,4,5,6].map(i=>hs(26+i*34,256-(i%3)*8,30,34+(i%3)*8,['#e9d9c0','#d9b08a','#c9d6e6','#f0c8a0'][i%4],'#fff')).join('')+R(150,196,16,70,'#f3ead8')+P('M146 198L158 118 170 198z','#2b2f58')+R(92,214,12,40,'#f3ead8')+P('M89 215q9-22 18 0z','#2b2f58');
+    return sky(['#0d1644','#333a86','#a2628e','#ffb08a'])+stars()+P(ridge(250,190,1.4,1.1),'#56609c')+P(ridge(250,190,1.4,1.1),F('sn'))+haze(180,50,'#c9a0c0',.28)+P(ridge(270,120,3.6,1),'#2f3870')+P(ridge(270,120,3.6,1),F('sn'),.5)
+     +water(290,['#3f447f','#161b48','#0a0e2c'])+reflect(V,290,.35)+V+lit([[34,270],[48,270],[70,262],[104,268],[118,268],[138,276],[176,264],[206,270],[220,270],[242,262]])+R(-20,286,280,6,'#eef2ff')
+     +`<g filter="${F('b')}" opacity=".75">${[40,74,110,158,210,240].map((x,i)=>R(x,294,5,40+(i*11)%30,i%2?'#ffc86b':'#ffe0a0')).join('')}</g>`+xtree(330,300,90)+P('M270 400V298q70-10 150-4v106z',F('sg'))+snow()},
+  alsace(){const cols=['#f2c14e','#e8798a','#7fb7d9','#f29a5a','#a8d08d'],tb='#4a2c20';let H='',Wd=[];
+    [0,1,2,3,4].forEach(i=>{const x=6+i*78,w=74,y=150+(i%2)*16,h=150-(i%2)*16;H+=R(x,y,w,h,cols[i])+P(`M${x-4} ${y+2}l${w/2+4}-56l${w/2+4} 56z`,i%2?'#7a3a2a':'#5a3226')+R(x+w*.6,y,w*.4,h,'#1a2040',.1)
+      +`<path d="M${x} ${y+2}h${w}M${x} ${y+h*.36}h${w}M${x} ${y+h*.7}h${w}M${x+2} ${y}v${h}M${x+w-2} ${y}v${h}M${x+w/2} ${y}v${h}M${x+2} ${y+h*.36}l${w/2-2} ${h*.34}M${x+w-2} ${y+h*.36}l${-w/2+2} ${h*.34}M${x+w/2-10} ${y-34}h20" stroke="${tb}" stroke-width="2.6" fill="none"/>`
+      +Array.from({length:8},(_,j)=>`<circle cx="${x+10+j*8}" cy="${y+h*.36-3}" r="3" fill="${j%2?'#ff5d8a':'#ffb3c8'}"/>`).join('');
+      Wd.push([x+12,y+12],[x+w-24,y+12],[x+12,y+h*.36+12],[x+w-24,y+h*.36+12],[x+w/2-5,y-28])});
+    return sky(['#16205a','#5a4a92','#e58aa0','#ffc9a0'])+stars()+skyline(200,30,90,3,'#3a3f7a',0,.8)+water(300,['#4a4a8a','#161b48','#0a0e2c'])+reflect(H,300,.4)+H+lit(Wd,'#ffc86b',11,15)+R(-20,296,440,6,'#3a2a2a')
+     +`<path d="M-10 96q105 40 210 0t210 0" stroke="#2a2a4a" fill="none"/>`+dots([10,50,90,130,170,230,270,310,350,390].map((x,i)=>[x,116-Math.abs(i%5-2)*5-(i>4?0:0)]),2.6)+snow(16)},
+  vienna(){const fl=D2('fl',['#ffe0a0','#c9803f']),sp=(x,y,w,h)=>R(x,y,w,400-y,fl)+P(`M${x-2} ${y}L${x+w/2} ${y-h} ${x+w+2} ${y}z`,'#5a4a6a');
+    const stall=(x,c)=>R(x,318,44,26,'#5a3a2a')+P(`M${x-5} 320l27-16 27 16z`,c)+lit([[x+8,326],[x+22,326],[x+34,326]],'#ffc86b',5,8);
+    return sky(NIGHT)+stars()+glow(60,60,12,'#dfe6ff')
+     +sp(92,196,14,44)+sp(140,180,14,50)+sp(246,180,14,50)+sp(294,196,14,44)+R(52,228,296,90,fl)+sp(184,120,32,76)+R(196,138,8,14,'#3a2a3a',.7)
+     +Array.from({length:14},(_,i)=>P(`M${62+i*20} 318v-22a6 6 0 0 1 12 0v22z`,'#3a2440',.8)).join('')+Array.from({length:14},(_,i)=>R(64+i*20,246,8,16,'#3a2440',.6)).join('')
+     +`<rect x="40" y="110" width="320" height="210" fill="#ffc86b" opacity=".18" filter="${F('b2')}"/>`
+     +P('M-20 400V330q210-12 440 0v70z',F('sg'))+`<ellipse cx="200" cy="344" rx="190" ry="20" fill="#ffc46b" opacity=".45" filter="${F('b')}"/>`
+     +stall(120,'#c8323f')+stall(176,'#f3ead8')+stall(232,'#c8323f')+stall(288,'#f3ead8')+xtree(64,350,150)+snow()},
+  budapest(){const g=D2('gd',['#ffe2a0','#c98a40']),rd='#7d3038',sp=(x,y,h,w=8)=>P(`M${x} ${y}l${w/2}-${h}l${w/2} ${h}z`,rd);
+    const B=R(40,246,320,46,g)+R(40,226,44,66,g)+R(316,226,44,66,g)+R(150,222,100,70,g)+R(178,196,44,30,g)+P('M172 198Q200 124 228 198z',rd)+P('M200 136L198 96h4z',rd)
+     +sp(160,222,40,10)+sp(230,222,40,10)+[52,68,324,340].map(x=>sp(x,226,30)).join('')+Array.from({length:8},(_,i)=>sp(92+i*7.5+(i>3?120:0),246,22,6)).join('')
+     +Array.from({length:30},(_,i)=>P(`M${48+i*10.4} 292v-14a3 3 0 0 1 6 0v14z`,'#5a3020',.7)).join('')+Array.from({length:30},(_,i)=>R(49+i*10.4,254,4,9,'#5a3020',.6)).join('');
+    return sky(['#081036','#232c78','#74488c'])+stars()+P(ridge(250,50,2,.8),'#2a2f6a',.9)+`<rect x="30" y="150" width="340" height="150" fill="#ffc86b" opacity=".22" filter="${F('b2')}"/>`
+     +water(292,['#3a3a7c','#141a48','#080c28'])+reflect(B,292,.6)+B+R(-20,290,440,4,'#2a2440')+lines(300,5)
+     +`<g transform="translate(86 340)"><path d="M-40 0h84l-8 10h-68z" fill="#101432"/><rect x="-28" y="-10" width="56" height="10" fill="#1c2250"/></g>`+lit(gp(60,332,7,1,8,0),'#ffc86b',4,5)+bokeh(366,414,['#ffc86b','#ff8fa8','#ffe7b3','#8f7ad8'])},
+  prague(){const stn=D2('br',['#9a8088','#4a3f5c']);let br='M-20 268H420V352';for(let x=420;x>-20;x-=110)br+=`H${x-14}A41 50 0 0 0 ${x-96} 352`;br+='H-20z';
+    const cas=R(110,176,270,24,'#3b3f74')+P('M110 176h270l-10-10H120z','#2a2c58')+R(228,150,44,50,'#34386c')+tri(228,152,14,56,'#23254e')+tri(246,152,14,56,'#23254e')+R(276,130,18,70,'#34386c')+P('M272 132q13-40 26 0z','#23254e')+P('M284 96l-2 18h4z','#23254e');
+    return sky(['#1a2460','#6a5aa0','#f0a0a0','#ffd9b0'])+glow(330,214,18,'#ffd08a')+P(ridge(216,40,4,.7),'#4a4f8e')+cas+lit(gp(120,184,24,1,11,0,3),'#ffc86b',4,6)+haze(206,40,'#ffc0b0',.34)
+     +skyline(270,26,60,6,'#2a2c5c',1)+water(300,['#5a4f8c','#1d2254','#0a0e2c'])+shine(330,304,'#ffd0a0')
+     +R(8,170,44,100,stn)+P('M4 172L30 108 56 172z','#23254e')+P('M18 268v-26a12 12 0 0 1 24 0v26z','#1a1a38',.8)
+     +P(br,stn)+P('M-20 262H420v8H-20z','#b89a98')+[96,206,316].map(x=>R(x-3,238,6,26,'#1e2048')+`<circle cx="${x}" cy="234" r="4.5" fill="#1e2048"/>`).join('')+[150,260,370].map(x=>R(x-1,244,2,20,'#1e2048')+glow(x,242,2.4,'#ffc86b')).join('')+snow()},
+  slovenia(){const M=P(ridge(250,170,1.9,1.1,256),'#b9d0ea')+P(ridge(250,170,1.9,1.1,256),F('sn'))+haze(160,50)+P(ridge(254,100,3.8,1,256),'#5f8fb6')+P(ridge(256,56,6.4,1.2,256),'#2f5f58');
+    const cliff=P('M318 256L330 160 352 138 402 130 420 136V256z',D2('cf',['#b9b2a8','#5f6068']))+R(350,112,54,22,'#f6efe2')+P('M346 114l30-14 32 14z','#c0563f')+R(338,104,14,32,'#f6efe2')+P('M335 106l10-14 10 14z','#c0563f');
+    const isl=`<ellipse cx="160" cy="254" rx="76" ry="16" fill="#1f4a35"/>`+[100,120,206,224,188].map((x,i)=>`<circle cx="${x}" cy="${238-i%2*6}" r="${15+i%2*4}" fill="${i%2?'#2a6044':'#1f4a35'}"/>`).join('')+R(132,214,40,26,'#fbf6ea')+P('M128 216l24-14 24 14z','#a8452f')+R(172,186,13,54,'#fbf6ea')+P('M169 188q8-8 4-22l4.5-12 4.5 12q-4 14 4 22z','#3a3a4a')+`<path d="M144 240l-8 14" stroke="#fbf6ea" stroke-width="4"/>`;
+    return sky(DAY)+glow(70,70,18,'#fff')+M+cliff+water(256,['#5cc0c8','#1f7fa0','#0c456c'])+reflect(M+cliff+isl,256,.42)+isl+haze(250,12,'#fff',.3)+shine(70,260,'#fff')+lines(268,5)
+     +`<g transform="translate(286 322)"><path d="M-40 0q40 10 84 0l10-8h-104z" fill="#8a5a34"/><path d="M-22-8v-18h44v18" stroke="#5a3a24" stroke-width="2" fill="none"/><path d="M-26-26h52l-4-8h-44z" fill="#e8455a"/><path d="M-12-34v8M2-34v8M16-34v8" stroke="#fff" stroke-width="5"/></g>`+bokeh(40,408,PINK)},
+  montenegro(){const mt=D2('mt',['#8fa3b4','#34525f']);
+    return sky(DAY)+glow(200,60,18,'#fff')+P(ridge(250,120,2,1),'#a9c0d8',.8)+haze(170,60)
+     +P('M-20 262V70L50 44 122 118 186 204 236 262z',mt)+P('M420 262V34L344 66 292 150 240 218 196 262z',mt)+P('M50 44L122 118 186 204 236 262H120z','#0d2030',.22)+P('M-20 262V190q60 10 120 40l60 32z','#2f5a48',.8)+P('M420 262V180q-70 14-130 50l-50 32z','#2f5a48',.8)+haze(236,30,'#fff',.3)
+     +cluster(3,286,244,-14,13,7,['#f6efe2','#efe2cc','#fbf6ea'],['#c0563f','#b04a36'],15)+R(330,196,7,26,'#f6efe2')+R(344,196,7,26,'#f6efe2')+tri(329,197,9,10,'#b04a36')+tri(343,197,9,10,'#b04a36')
+     +water(260,['#3fb0b8','#12708c','#083c5c'])+shine(200,262,'#fff')+lines(268)
+     +`<ellipse cx="128" cy="306" rx="58" ry="8" fill="#b9ad98"/>`+R(98,278,40,26,'#f6efe2')+R(124,278,14,26,'#1a2040',.1)+P('M110 280a10 10 0 0 1 20 0z','#3f8fd0')+R(142,264,11,40,'#f6efe2')+tri(140,266,15,14,'#b04a36')+cyp(84,304,34)+cyp(166,304,26)+boat(292,330,1.1)},
+  riviera(){const bl=['#ffe9c8','#ffd0b0','#fff4dc','#f7c7b8'];
+    return sky(DAY)+glow(70,66,18,'#fff')+P(ridge(210,70,2.4,.8),'#86b3d6',.7)+haze(180,34)+water(214,['#2fb0d8','#1272b0','#083e78'])+shine(70,216,'#fff')+lines(222)
+     +P('M420 120L300 150Q226 176 196 214H420z',D2('hl',['#6fa07a','#2f5f4a']))+cluster(3,300,196,22,20,5,bl,['#c56a44','#d98a5a'],18)
+     +P('M420 400H40Q150 330 196 262Q214 232 240 214H420z',F('sd'))+P('M420 400H110Q200 330 238 268Q256 236 280 216H420z','#d9d2c8')
+     +[0,1,2,3].map(i=>hs(290+i*34,186-i*3,32,44+i*3,bl[i],'')).join('')+R(262,176,30,56,'#fff4dc')+P('M258 178a19 22 0 0 1 38 0z','#e8798a')+R(275,148,4,12,'#e8798a')
+     +yacht(120,250,.8)+yacht(56,232,.5)+boat(150,300,1)
+     +[[250,372,'#ff5d5d'],[204,388,'#3f8fe0'],[296,352,'#ffd24a']].map(p=>P(`M${p[0]} ${p[1]}a16 16 0 0 1 32 0z`,p[2])+R(p[0]+15.2,p[1],1.6,16,'#5a4a3a')).join('')
+     +palm(330,170,1.05)+palm(384,220,.8)+palm(286,236,.55)},
+  crete(){const st=D2('lh',['#f6dfb0','#b98f62']);
+    return sky(GOLD)+glow(96,170,24,'#ffc978')+P(ridge(226,70,1.2,.8),'#8d6a9f',.8)+P(ridge(226,70,1.2,.8),F('sn'),.5)+haze(196,36,'#ffd0b0',.3)
+     +water(226,['#c4788f','#544f93','#161f4c'])+shine(96,226,'#ffd9a0')+lines(232)
+     +[0,1,2,3].map(i=>hs(292+i*32,186-(i%2)*8,30,44+(i%2)*8,['#ffd9b0','#f4a98a','#fff0d8','#f7c7d0'][i],'#c56a44')).join('')+lit([[300,200],[330,196],[364,202],[396,194]])
+     +P('M146 250H420v-18H150z','#c9a67f')+P('M146 250H420v6H146z','#1a2040',.25)+R(150,232,270,3,'#e9cfa0')
+     +P('M158 236h44l-4-22h-36z',st)+P('M166 214L172 132h16l6 82z',st)+P('M182 132h6l6 82h-10z','#1a2040',.14)+R(166,128,28,5,'#8a6a4a')+R(173,112,14,16,'#2a2a3a')+P('M170 113l10-12 10 12z','#8a6a4a')+glow(180,120,4,'#ffe9a8')
+     +`<g transform="translate(286 322)"><path d="M-44-8q44 20 92 0l-6 14q-40 10-80 0z" fill="#2f6fd0"/><path d="M-44-8q44 20 92 0" stroke="#fff" stroke-width="3" fill="none"/><rect x="-10" y="-22" width="22" height="16" fill="#fbf6ea"/><path d="M2-22v-30" stroke="#5a3a24" stroke-width="2"/></g>`+bokeh(40,406,PINK)},
+  rhodes(){const rk=D2('ac',['#e9cb98','#a47a55']);
+    return sky(DAY)+glow(80,66,18,'#fff')+P(ridge(250,50,3.2,.8),'#86b3d6',.7)+haze(220,30)
+     +P('M120 258L176 168 226 126 334 120 380 164 420 210V258z',rk)+P('M334 120L380 164 420 210V258H330z','#1a2040',.16)
+     +R(224,106,114,18,'#cfa878')+Array.from({length:12},(_,i)=>R(226+i*9.6,100,5,7,'#cfa878')).join('')+[248,262,276,290,304].map(x=>R(x,70,5,36,'#fbf3e2')).join('')+R(244,66,69,5,'#fbf3e2')
+     +cluster(3,150,238,18,15,11,['#ffffff','#f6f3ec','#fbf6ea'],null,16)
+     +water(258,['#49dcd6','#16a0c2','#0a5f96'])+shine(80,260,'#fff')+lines(266)+P('M420 400V300Q300 268 150 300Q60 318 -20 372V400z',F('sd'))+P('M-20 372Q60 318 150 300Q300 268 420 300v-6Q300 262 150 294Q60 312-20 366z','#fff',.7)
+     +[[250,322,'#3f8fe0'],[310,330,'#ff5d5d'],[196,340,'#ffd24a']].map(p=>P(`M${p[0]} ${p[1]}a15 15 0 0 1 30 0z`,p[2])+R(p[0]+14.2,p[1],1.6,15,'#5a4a3a')).join('')+boat(70,300,1)+bokeh(372,410,PINK)},
+  cyprus(){const rk=D2('ap',['#d79a70','#3a2630']),foam=(x,w)=>`<ellipse cx="${x}" cy="304" rx="${w}" ry="5" fill="#fff" opacity=".75" filter="${F('b1')}"/>`;
+    return sky(['#2a3a8a','#e0708a','#ffb070','#ffe0a0'])+glow(110,206,26,'#ffd08a')+haze(204,34,'#ffc090',.4)
+     +P('M420 130L352 176 322 232 300 262H420z',D2('cs',['#a88a6a','#4a3a44']))+water(236,['#e0907a','#6a5a9a','#1a2458'])+shine(110,238,'#ffe0a8')+lines(244)
+     +P('M196 304L214 204 244 166 290 158 326 186 342 244 352 304z',rk)+P('M290 158L326 186 342 244 352 304H296z','#140a1a',.28)+P('M110 304L124 266 150 254 168 280 174 304z',rk)+P('M350 304l10-32 24-8 14 22 6 18z',rk)
+     +foam(274,90)+foam(142,40)+foam(380,34)
+     +P('M-20 400V352Q120 318 420 346V400z',D2('pb',['#f0d6b4','#b08a6a']))+P('M-20 352Q120 318 420 346v-6Q120 312-20 346z','#fff',.75)+bokeh(40,414,['#ffe9a8','#b08a6a','#fff0d0'])},
+  santorini(){const wh=['#ffffff','#f1f4fb','#fbf6ee'],dome=(x,y,r)=>R(x-r,y,r*2,r*.9,'#fff')+P(`M${x-r} ${y}a${r} ${r} 0 0 1 ${r*2} 0z`,'#2a6fd0')+P(`M${x} ${y-r}a${r} ${r} 0 0 1 ${r} ${r}h${-r*.4}z`,'#12408a',.35)+R(x-.8,y-r-7,1.6,7,'#fff');
+    return sky(['#27307a','#c9608f','#ffab7a','#ffe2a8'])+glow(96,196,26,'#ffd08a')+P(ridge(232,40,4.4,.7),'#7a5a8f',.8)+haze(206,34,'#ffc0a0',.36)
+     +water(232,['#d98a8a','#5a5296','#161f4c'])+shine(96,234,'#ffe0a8')+lines(240)+boat(60,300,1)
+     +P('M420 400H104L140 336 196 296 228 236 300 196 420 170z',D2('cd',['#8f6f80','#33283f']))
+     +cluster(5,160,330,30,36,7,wh,null,30)+lit([[178,342],[214,340],[254,344],[300,306],[238,306],[280,270],[330,272],[372,236]],'#ffb85a',5,8)
+     +dome(214,300,15)+dome(318,262,17)+dome(266,228,11)
+     +R(352,176,22,30,'#fff')+P('M348 178l15-16 15 16z','#8a6a4a')+`<g stroke="#f3ead8" stroke-width="1.6">${[0,45,90,135].map(a=>`<path d="M342 170h42" transform="rotate(${a} 363 170)"/>`).join('')}</g>`
+     +bokeh(40,410,PINK)},
+  dubai(){const tw='#7d4a86';
+    return sky(['#2a2670','#a4508c','#f2748a','#ffc27a'])+glow(92,212,32,'#ffd08a')+skyline(270,30,96,5,'#8a5a92',0,.6)
+     +P('M186 272L188 196h4L193 148h3L197 104h2L200 40l1 64h2L204 148h3L208 196h4L214 272z',tw)+P('M200 40l1 64h2L204 148h3L208 196h4L214 272H200z','#1a1040',.25)
+     +R(120,176,22,96,tw,.9)+R(148,150,18,122,tw,.9)+P('M236 272V168l22-12v116z',tw,.9)+R(326,190,24,82,tw,.9)
+     +P('M284 272V150Q340 196 330 272z','#f2dfe8')+P('M284 272V150Q316 200 306 272z','#fff',.5)+R(282,140,3,132,'#f2dfe8')
+     +haze(240,44,'#ffb48a',.45)+water(270,['#f0907a','#8a5a9a','#3a2a6a'])+shine(92,272,'#ffe0a8')
+     +P(ridge(318,40,1,.5),D2('d1',['#f6b56a','#c56a3a']))+P(ridge(356,46,4,.6),D2('d2',['#e08f4c','#8a3f26']))+P(ridge(396,46,7,.7),D2('d3',['#a8532e','#451d16']))+palm(360,210,.9,'#2a1420')+palm(34,250,.7,'#2a1420')},
+  nyc(){const b='#0f1433',esb=R(180,170,40,160,b)+R(187,136,26,36,b)+R(194,112,12,26,b)+R(199,62,2,52,b),chr=R(264,168,28,162,b)+P('M264 170Q278 126 278 92Q278 126 292 170z',b)+R(277,70,2,26,b);
+    return sky(NIGHT)+stars()+skyline(300,60,150,3,'#3a3f86',0,.8)+haze(240,50,'#b8648c',.3)+skyline(330,70,170,7,b,1)+esb+chr
+     +lit(gp(184,180,4,11,9,13,2).concat(gp(190,142,3,2,8,13),gp(268,180,3,11,8,13,4)),'#ffc86b',4,6.5)+glow(200,110,5,'#ff5a6a')+glow(278,124,4,'#dfe6ff')+P('M270 168q8-22 8-40q0 18 8 40z','#ffe7b3',.8)
+     +`<ellipse cx="110" cy="348" rx="150" ry="26" fill="#ffc46b" opacity=".5" filter="${F('b2')}"/>`+P('M-20 400V332q210-14 440 0v68z',F('sg'))+xtree(104,352,190)
+     +`<g transform="translate(300 340)"><path d="M-34 0h70l-6 16h-58z" fill="#ffd21f"/><rect x="-22" y="-10" width="46" height="12" rx="3" fill="#ffd21f"/><rect x="-16" y="-8" width="14" height="8" fill="#22305a"/><rect x="4" y="-8" width="14" height="8" fill="#22305a"/><circle cx="-18" cy="16" r="6" fill="#111"/><circle cx="22" cy="16" r="6" fill="#111"/></g>`+snow()},
+  phuket(){const k=D2('ks',['#4f9a62','#8a968a','#56686c']),ka=(d,o=1)=>P(d,k,o);
+    return sky(['#0f8fc4','#6fd6e0','#fff1cf'])+glow(300,96,20,'#fff6d8')
+     +ka('M-20 216V150Q10 120 40 150Q52 180 54 216z',.6)+ka('M330 216Q326 160 350 140Q380 132 396 160Q410 190 412 216z',.6)+haze(190,30,'#fff',.4)
+     +ka('M70 216Q62 128 88 104Q116 92 130 126Q140 176 138 216z')+P('M88 104Q116 92 130 126Q140 176 138 216H108Q116 150 88 104z','#0d2a2a',.2)
+     +ka('M236 216Q232 190 226 156Q222 118 246 112Q270 114 266 154Q260 190 256 216z')+ka('M164 216Q160 180 178 168Q200 164 208 190L212 216z')
+     +water(214,['#49e0d2','#16a9c2','#0a6f9a'])+shine(300,216,'#fff')+lines(222)
+     +`<g transform="translate(150 312)"><path d="M-110-4Q-30 22 80 6L134-34 104 0Q-20 14-104-16z" fill="#7a4428"/><path d="M-104-12Q-20 12 104-4" stroke="#f3d24a" stroke-width="3" fill="none"/><path d="M-50-8v-22h70v24" stroke="#5a3a24" stroke-width="2.4" fill="none"/><path d="M-58-30h86l-6-8h-74z" fill="#2f8fd0"/><path d="M126-28q-8 22-2 40" stroke="#e8455a" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M130-30q-2 24 6 38" stroke="#ffd24a" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M122-26q-12 18-10 34" stroke="#3fb86a" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M-104-14l-46-26" stroke="#3a2a22" stroke-width="2.4"/></g>`
+     +P('M-20 400v-40q150-40 440 12v28z','#fff',.7)+P('M-20 400v-34q150-38 440 14v20z',F('sd'))+`<g transform="translate(420 -6) rotate(160)" fill="#0c2f2c" filter="${F('b1')}">${[-30,0,30,60].map(a=>`<path d="M0 0q70-50 160-12-86-8-160 12z" transform="rotate(${a})"/>`).join('')}</g>`}
+  };
+  const o=(S[id]||S.riviera)();
   return `<svg viewBox="0 0 400 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>${defs}</defs>${o}<rect x="-20" y="-20" width="440" height="440" fill="${F('vg')}"/></svg>`;
 }
 
@@ -541,7 +655,7 @@ function ranked(){
 }
 const isSaved=id=>trips.some(t=>t.id===id);
 const fmtH=h=>{const m=Math.round(h*60),hh=Math.floor(m/60),mm=m%60;return mm?`${hh}:${String(mm).padStart(2,'0')} שע׳`:`${hh} שע׳`};
-const ph=(d,extra='')=>`<div class="ph">${scene(d.sc,D.indexOf(d))}${extra}</div>`;
+const ph=(d,extra='')=>`<div class="ph">${scene(d.id)}${extra}</div>`;
 const heart=d=>`<button class="heart" data-save="${d.id}" aria-pressed="${isSaved(d.id)}" aria-label="שמירת ${d.n} בנסיעות מתוכננות">${ic('heart')}</button>`;
 
 function card(r,i,fit){
@@ -585,6 +699,20 @@ function plan(d,days,styles,walk){
   return out;
 }
 const FILL={beach:['יום בטן־גב','בריכה, חוף ומסעדה טובה בערב. בלי שעון.'],shop:['יום שופינג חופשי','חזרה לחנויות שסימנתם, וקפה ארוך באמצע.'],xmas:['ערב שווקים','סיבוב נוסף בשוק החג אחרי החשכה, כשהאורות דולקים.'],views:['נסיעת נוף רגועה','בוקר איטי במלון ונסיעה בלי יעד מוגדר, עוצרים איפה שיפה.']};
+const AIR={dolomites:'VCE',amalfi:'NAP',como:'MXP',garda:'VRN',swiss:'ZRH',salzburg:'SZG',alsace:'BSL',vienna:'VIE',budapest:'BUD',prague:'PRG',slovenia:'LJU',montenegro:'TIV',riviera:'NCE',crete:'CHQ',rhodes:'RHO',cyprus:'PFO',santorini:'JTR',dubai:'DXB',nyc:'NYC',phuket:'HKT'};
+const PLACE={dolomites:'Ortisei, Italy',amalfi:'Sorrento, Italy',como:'Bellagio, Italy',garda:'Bardolino, Italy',swiss:'Lucerne, Switzerland',salzburg:'Salzburg, Austria',alsace:'Colmar, France',vienna:'Vienna, Austria',budapest:'Budapest, Hungary',prague:'Prague, Czechia',slovenia:'Bled, Slovenia',montenegro:'Kotor, Montenegro',riviera:'Nice, France',crete:'Chania, Greece',rhodes:'Rhodes, Greece',cyprus:'Paphos, Cyprus',santorini:'Santorini, Greece',dubai:'Dubai',nyc:'New York',phuket:'Phuket, Thailand'};
+function booking(d,c){
+  const now=new Date(),a=c.month?new Date(now.getFullYear()+(c.month-1<=now.getMonth()?1:0),c.month-1,10):new Date(now.getTime()+42*864e5),b=new Date(a.getTime()+(c.days-1)*864e5);
+  const iso=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`,ymd=x=>iso(x).slice(2).replace(/-/g,''),he=x=>x.toLocaleDateString('he-IL',{day:'numeric',month:'long',year:'numeric'});
+  const pl=PLACE[d.id],q=encodeURIComponent(pl),ap=AIR[d.id],xm=c.styles.has('xmas')&&d.s.xmas>=2;
+  const L=[['plane','טיסות ב-Google Flights','מחירים עדכניים לשני נוסעים',`https://www.google.com/travel/flights?q=${encodeURIComponent(`Flights from TLV to ${ap} on ${iso(a)} through ${iso(b)} for 2 adults`)}`],
+   ['plane','טיסות ב-Skyscanner','השוואה בין חברות תעופה',`https://www.skyscanner.co.il/transport/flights/tlv/${ap.toLowerCase()}/${ymd(a)}/${ymd(b)}/?adultsv2=2`],
+   ['bed','מלונות ב-Booking',pl,`https://www.booking.com/searchresults.html?ss=${q}&checkin=${iso(a)}&checkout=${iso(b)}&group_adults=2&no_rooms=1`],
+   ['home','דירות ב-Airbnb',pl,`https://www.airbnb.com/s/${encodeURIComponent(pl.replace(/, /g,'--'))}/homes?checkin=${iso(a)}&checkout=${iso(b)}&adults=2`],
+   ['fork','מסעדות מומלצות','דירוגים וביקורות במפות Google',`https://www.google.com/maps/search/${encodeURIComponent('best restaurants in '+pl)}`],
+   ['shop',xm?'שווקי חג המולד':'שווקים מיוחדים','שווקים מקומיים במפות Google',`https://www.google.com/maps/search/${encodeURIComponent((xm?'Christmas markets in ':'local markets in ')+pl)}`]];
+  return `<div><h3>מחירים אמיתיים והזמנה</h3><p class="muted" style="margin:-8px 0 16px">החיפוש נפתח לתאריכים ${he(a)} עד ${he(b)}, לשני מבוגרים. אפשר לשנות אותם באתר שנפתח.</p><div class="links">${L.map(l=>`<a class="lk" href="${l[3]}" target="_blank" rel="noopener">${ic(l[0])}<b>${l[1]}</b><span>${l[2]}</span><i>↗</i></a>`).join('')}</div></div>`;
+}
 let cur=null;
 function openDest(id,o={}){
   cur={id,days:o.days??st.days,tier:o.tier??st.tier,month:o.month??st.month,styles:new Set(o.styles??st.styles),walk:o.walk??st.walk};
@@ -595,7 +723,7 @@ function drawDlg(){
   const fillKey=['beach','shop','xmas','views'].find(k=>cur.styles.has(k)&&d.s[k]>=2)||'views';
   const xm=cur.styles.has('xmas')&&d.s.xmas>=2&&cur.month&&cur.month<11?'<p class="warn">שווקי חג המולד פועלים רק מסוף נובמבר ועד סוף דצמבר.</p>':'';
   const seas=cur.month&&!d.m.includes(cur.month)?`<p class="warn">${MONTHS[cur.month]} אינו העונה המומלצת ליעד הזה.</p>`:'';
-  g.innerHTML=`<div class="d-pic">${scene(d.sc,D.indexOf(d))}<button class="round d-close" data-close aria-label="סגירה">${ic('close')}</button></div>
+  g.innerHTML=`<div class="d-pic">${scene(d.id)}<button class="round d-close" data-close aria-label="סגירה">${ic('close')}</button></div>
   <div class="d-body">
    <div><h2 id="dTitle">${d.n}</h2><div class="muted">${d.w} · ${Object.entries(d.s).filter(e=>e[1]>=2).map(e=>STYLES[e[0]]).join(' · ')}</div></div>
    <div class="hl">
@@ -604,6 +732,7 @@ function drawDlg(){
      <div>${ic('bed')}<b>איפה לישון</b><span>${d.stay}</span></div>
      <div>${ic(d.walk>1?'steps':'door')}<b>${d.walk>1?'הליכה קלה ברוב המקומות':'כמעט בלי הליכה'}</b><span>${d.tips[1]}</span></div>
    </div>
+   ${booking(d,cur)}
    <div><h3>המסלול שלכם</h3><div class="opts" style="margin-bottom:20px">
      <span class="stepper"><button data-step="-1" aria-label="יום פחות">−</button><span>${cur.days} ימים</span><button data-step="1" aria-label="יום נוסף">+</button></span>
      <span class="seg">${TIERS.map((t,i)=>`<button data-dtier="${i}" aria-pressed="${i===cur.tier}">${t[0]}</button>`).join('')}</span></div>${seas}${xm}
