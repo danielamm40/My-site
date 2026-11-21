@@ -101,9 +101,9 @@ main section{padding-block:26px 8px}
 .grid{display:grid;gap:36px 24px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 .card{position:relative;display:grid;gap:10px;cursor:pointer;border-radius:20px}
 .ph{position:relative;aspect-ratio:20/19;max-width:100%;border-radius:20px;overflow:hidden;background:var(--soft);box-shadow:var(--sh1);transition:box-shadow .3s,transform .3s}
-.ph svg{display:block;width:100%;height:100%;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.ph svg,.ph img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
 .card:hover .ph{box-shadow:var(--sh2);transform:translateY(-4px)}
-.card:hover .ph svg{transform:scale(1.07)}
+.card:hover .ph svg,.card:hover .ph img{transform:scale(1.07)}
 .badge{position:absolute;top:12px;inset-inline-start:12px;background:var(--bg);color:var(--ink);border-radius:999px;padding:4px 12px;font-size:.8rem;font-weight:700;box-shadow:var(--sh1)}
 .heart{position:absolute;top:8px;inset-inline-end:8px;width:44px;height:44px;display:grid;place-items:center;color:#fff;transition:transform .2s}
 .heart .ic{width:26px;height:26px;stroke-width:2;fill:rgba(0,0,0,.4)}
@@ -133,7 +133,9 @@ main section{padding-block:26px 8px}
 dialog{border:0;padding:0;border-radius:24px;width:min(820px,calc(100vw - 16px));max-height:calc(100dvh - 20px);background:var(--bg);color:var(--ink);box-shadow:var(--sh2)}
 dialog::backdrop{background:rgba(0,0,0,.55)}
 .d-pic{position:relative;height:clamp(200px,38vh,330px);margin:14px 14px 0;border-radius:18px;overflow:hidden}
-.d-pic svg{width:100%;height:100%;display:block}
+.d-pic svg,.d-pic img{width:100%;height:100%;display:block;object-fit:cover}
+.credit{font-size:.78rem;color:var(--muted);margin:8px 0 0}.credit a{color:inherit}
+.credits{margin-top:14px;font-size:.78rem}.credits a{color:inherit}
 .round{position:absolute;top:12px;width:40px;height:40px;border-radius:50%;background:var(--bg);color:var(--ink);display:grid;place-items:center;box-shadow:var(--sh1);transition:transform .2s}
 .round:hover{transform:scale(1.1)}
 .round .ic{width:20px;height:20px}
@@ -247,7 +249,7 @@ footer{padding-block:40px 110px;color:var(--muted);font-size:.85rem;border-top:1
 </section></div></div>
 </main>
 
-<footer><div class="wrap">המחירים וזמני הטיסה הם הערכה לתכנון בלבד (שקלים, לזוג) ומשתנים לפי עונה וחברת תעופה. כדאי לוודא שעות פתיחה ומועדי שווקים לפני הנסיעה.</div></footer>
+<footer><div class="wrap">המחירים וזמני הטיסה הם הערכה לתכנון בלבד (שקלים, לזוג) ומשתנים לפי עונה וחברת תעופה. כדאי לוודא שעות פתיחה ומועדי שווקים לפני הנסיעה.<div class="credits" id="credits"></div></div></footer>
 
 <button class="fab" id="fabSpin"><span data-ic="compass"></span>הפתיעו אותנו</button>
 <dialog id="dlg" aria-labelledby="dTitle"></dialog>
@@ -655,7 +657,11 @@ function ranked(){
 }
 const isSaved=id=>trips.some(t=>t.id===id);
 const fmtH=h=>{const m=Math.round(h*60),hh=Math.floor(m/60),mm=m%60;return mm?`${hh}:${String(mm).padStart(2,'0')} שע׳`:`${hh} שע׳`};
-const ph=(d,extra='')=>`<div class="ph">${scene(d.id)}${extra}</div>`;
+const PHOTO={/*PHOTO*/};
+const img=d=>PHOTO[d.id]?`<img src="img/${d.id}.jpg" alt="${d.n}, ${d.w}" data-id="${d.id}" loading="lazy">`:scene(d.id);
+const credit=d=>{const p=PHOTO[d.id];return p?`<p class="credit">צילום: <a href="${p[2]}" target="_blank" rel="noopener">${p[0]}</a> · ${p[1]} · Wikimedia Commons</p>`:''};
+document.addEventListener('error',e=>{const t=e.target;if(t.matches&&t.matches('img[data-id]'))t.outerHTML=scene(t.dataset.id)},true);
+const ph=(d,extra='')=>`<div class="ph">${img(d)}${extra}</div>`;
 const heart=d=>`<button class="heart" data-save="${d.id}" aria-pressed="${isSaved(d.id)}" aria-label="שמירת ${d.n} בנסיעות מתוכננות">${ic('heart')}</button>`;
 
 function card(r,i,fit){
@@ -723,9 +729,9 @@ function drawDlg(){
   const fillKey=['beach','shop','xmas','views'].find(k=>cur.styles.has(k)&&d.s[k]>=2)||'views';
   const xm=cur.styles.has('xmas')&&d.s.xmas>=2&&cur.month&&cur.month<11?'<p class="warn">שווקי חג המולד פועלים רק מסוף נובמבר ועד סוף דצמבר.</p>':'';
   const seas=cur.month&&!d.m.includes(cur.month)?`<p class="warn">${MONTHS[cur.month]} אינו העונה המומלצת ליעד הזה.</p>`:'';
-  g.innerHTML=`<div class="d-pic">${scene(d.id)}<button class="round d-close" data-close aria-label="סגירה">${ic('close')}</button></div>
+  g.innerHTML=`<div class="d-pic">${img(d).replace(' loading="lazy"','')}<button class="round d-close" data-close aria-label="סגירה">${ic('close')}</button></div>
   <div class="d-body">
-   <div><h2 id="dTitle">${d.n}</h2><div class="muted">${d.w} · ${Object.entries(d.s).filter(e=>e[1]>=2).map(e=>STYLES[e[0]]).join(' · ')}</div></div>
+   <div><h2 id="dTitle">${d.n}</h2><div class="muted">${d.w} · ${Object.entries(d.s).filter(e=>e[1]>=2).map(e=>STYLES[e[0]]).join(' · ')}</div>${credit(d)}</div>
    <div class="hl">
      <div>${ic('plane')}<b>טיסה של ${fmtH(d.h)} מתל אביב</b><span>${d.tips[0]}</span></div>
      <div>${ic('sun')}<b>עונה מומלצת</b><span>${d.m.map(m=>MONTHS[m]).join(', ')}</span></div>
@@ -797,6 +803,7 @@ function spin(){
   let i=0;const b=o.querySelector('b'),t=setInterval(()=>{b.textContent=D[(i++*7)%D.length].n},90);
   setTimeout(()=>{clearInterval(t);b.textContent=pick.n;o.querySelector('span').textContent='נוסעים ל…';setTimeout(()=>{o.remove();openDest(pick.id)},900)},1700);
 }
+$('#credits').innerHTML='תמונות מתוך Wikimedia Commons: '+D.filter(d=>PHOTO[d.id]).map(d=>`<a href="${PHOTO[d.id][2]}" target="_blank" rel="noopener">${d.n}</a> (${PHOTO[d.id][0]}, ${PHOTO[d.id][1]})`).join(' · ');
 show(location.hash.slice(1));render();
 </script>
 </html>
