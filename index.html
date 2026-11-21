@@ -207,7 +207,7 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 .toast{position:fixed;z-index:30;bottom:calc(84px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 22px;border-radius:12px;font-weight:600;box-shadow:var(--sh2);white-space:nowrap}
 footer{padding-block:40px 110px;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);margin-top:50px}
 @media (max-width:700px){
-  .tabs{display:none}.saved{margin-inline-start:auto}
+  .saved{margin-inline-start:auto}
   .pill{border-radius:26px;flex-wrap:wrap}.segb.where{flex-basis:100%;padding-inline-end:70px}.segb{flex:1 1 40%;padding:8px 14px}.segb::before{display:none}
   .go{position:absolute;inset-inline-end:10px;top:50%;margin-top:-25px}
   .cats{justify-content:flex-start}.filt span{display:none}
@@ -228,6 +228,7 @@ b,strong{font-weight:600}
 .go{background:var(--ink);color:var(--bg);border-radius:16px}
 .panel{border-radius:24px}.panel .big{font-weight:300}
 .catbar{position:static;margin-top:18px}
+.brand{margin-inline:0;margin-left:auto}.tabs{margin-inline:0 12px}
 .cats{justify-content:flex-start;gap:8px;padding-block:2px}
 .cat{display:inline-flex;grid-auto-flow:column;align-items:center;gap:6px;background:var(--soft);border:0;border-radius:16px;padding:8px 14px 8px 12px;color:var(--ink);font-size:.92rem;font-weight:500}
 .cat .ic{width:20px;height:20px}
@@ -260,6 +261,32 @@ b,strong{font-weight:600}
 .chipsrow button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .spin b{font-weight:300}
 @media (max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{height:180px}.card.big{height:220px}.tag{inset:auto 8px 8px;padding:7px 10px}}
+
+/* ---- my trip schedule ---- */
+.pform{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:26px}
+.pform fieldset{border:0;margin:0;padding:18px;background:var(--soft);border-radius:22px;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(136px,1fr));align-content:start;min-width:0}
+.pform legend{font-weight:600;padding:0;margin-bottom:2px;float:right;grid-column:1/-1}
+.pform label{display:grid;gap:4px;font-size:.82rem;color:var(--muted);min-width:0}
+.pform label.wide{grid-column:1/-1}
+.pform input,.pform select,.addrow input{width:100%;min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--bg);padding:10px 12px;font-size:1rem;color:var(--ink)}
+.pform input:focus,.pform select:focus,.addrow input:focus{border-color:var(--ink);outline:0}
+.psum{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.psum span{background:var(--soft);border-radius:999px;padding:6px 14px;font-size:.9rem}
+.psum span.y{background:var(--accent);color:var(--on-accent);font-weight:600}
+.pday{margin-bottom:26px}
+.pday h3{font-size:1.35rem;font-weight:400;margin-bottom:12px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.pday h3 small{color:var(--muted);font-size:.9rem;font-weight:400}
+.tl{display:grid;gap:8px}
+.ti{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:start;background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:10px 14px}
+.ti.fx{background:var(--soft);border-color:transparent}
+.ti time{font-variant-numeric:tabular-nums;font-weight:600;background:var(--accent);color:var(--on-accent);border-radius:10px;padding:2px 0;text-align:center}
+.ti.sg time{background:var(--soft);color:var(--ink)}
+.ti b{font-weight:500;display:block}.ti small{color:var(--muted);display:block;font-size:.85rem}
+.ti a{color:var(--ink);font-size:.85rem;font-weight:600;text-underline-offset:3px}
+.ti .x{width:30px;height:30px;border-radius:50%;background:var(--soft);font-size:1rem;line-height:1}
+.addrow{display:grid;grid-template-columns:110px 1fr auto;gap:8px;margin-top:8px}
+.addrow .btn{padding:8px 16px}
+@media (max-width:700px){.nav .wrap{flex-wrap:wrap;padding-block:10px 6px}.brand{margin-left:auto}.tabs{display:flex;order:3;width:100%;justify-content:center;margin:0;gap:0}.tab{padding:6px 10px;font-size:.92rem}.addrow{grid-template-columns:96px 1fr}.addrow .btn{grid-column:1/-1}.ti{grid-template-columns:58px 1fr auto;padding:10px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 
@@ -269,6 +296,7 @@ b,strong{font-weight:600}
   <nav class="tabs" role="tablist" aria-label="ניווט ראשי">
     <button class="tab" role="tab" data-tab="planner" id="tab-planner">יעדים</button>
     <button class="tab" role="tab" data-tab="trips" id="tab-trips">נסיעות מתוכננות</button>
+    <button class="tab" role="tab" data-tab="plan" id="tab-plan">הטיול שלי</button>
   </nav>
   <button class="saved" data-tab="trips" aria-label="נסיעות מתוכננות"><span data-ic="heart"></span><span class="count" id="tripCount">0</span></button>
 </div></header>
@@ -306,6 +334,30 @@ b,strong{font-weight:600}
 <div id="view-trips" hidden><div class="wrap"><section>
   <div class="head" style="padding-top:20px"><h2 style="font-size:2rem;font-weight:800">נסיעות מתוכננות</h2><p>המסלולים ששמרתם נשמרים בדפדפן הזה.</p></div>
   <div class="grid" id="tripGrid"></div>
+</section></div></div>
+<div id="view-plan" hidden><div class="wrap"><section>
+  <div class="head" style="padding-top:20px"><h2 style="font-size:2rem">הטיול שלי</h2><p>מלאו את פרטי הטיסות והמלון, והלוח ייבנה סביבם. הכול נשמר בדפדפן הזה.</p></div>
+  <form class="pform" id="pform" autocomplete="off">
+    <fieldset><legend>לאן</legend>
+      <label>יעד<select id="p-dest" data-pl="dest"></select></label>
+      <label id="p-name-l" hidden>שם היעד<input id="p-name" data-pl="name" placeholder="למשל: טוקיו"></label>
+    </fieldset>
+    <fieldset><legend>טיסה הלוך</legend>
+      <label>תאריך<input type="date" id="p-od" data-pl="o.d"></label>
+      <label>המראה מישראל<input type="time" id="p-o1" data-pl="o.t1"></label>
+      <label>נחיתה ביעד<input type="time" id="p-o2" data-pl="o.t2"></label>
+    </fieldset>
+    <fieldset><legend>טיסה חזור</legend>
+      <label>תאריך<input type="date" id="p-bd" data-pl="b.d"></label>
+      <label>המראה מהיעד<input type="time" id="p-b1" data-pl="b.t1"></label>
+      <label>נחיתה בישראל<input type="time" id="p-b2" data-pl="b.t2"></label>
+    </fieldset>
+    <fieldset><legend>המלון שלנו</legend>
+      <label>שם המלון<input id="p-hn" data-pl="h.n" placeholder="שם המלון או הדירה"></label>
+      <label class="wide">כתובת<input id="p-ha" data-pl="h.a" placeholder="רחוב, עיר" dir="auto"></label>
+    </fieldset>
+  </form>
+  <div id="planDays"></div>
 </section></div></div>
 </main>
 
@@ -1251,7 +1303,7 @@ function drawDlg(){
      <div class="stops">${list.length?list.map(s=>`<div class="stop"><b>${s[0]}</b><address>${s[1]}</address><p>${s[2]}</p><div class="row"><span>${ic(WALKLBL[s[4]][0])}${WALKLBL[s[4]][1]}</span>${s[3].split(',').slice(0,2).map(t=>`<span>${ic(t)}${STYLES[t]}</span>`).join('')}<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s[1])}" target="_blank" rel="noopener">פתיחה במפות</a></div></div>`).join(''):`<div class="stop"><p>${i===days.length-1?'אריזה רגועה, קפה אחרון ונסיעה לשדה.':FILL[fillKey][1]}</p></div>`}</div></div>`).join('')}</div>
    <div><h3>כמה זה יעלה</h3><div class="costs">${Object.entries(c).filter(e=>e[0]!=='total').map(([k,v])=>`<div><span>${k}</span><b>${nis(v)}</b></div>`).join('')}<div class="tot"><span>סה״כ לזוג</span><b>${nis(c.total)}</b></div></div><p class="note">הערכה לפי מחירים ממוצעים. לא כולל קניות.</p></div>
   </div>
-  <div class="d-foot"><div><b>${nis(c.total)}</b> <span class="muted">לזוג · ${cur.days} ימים</span></div><button class="btn" data-savecur>${ic('heart')}${isSaved(d.id)?'עדכון המסלול השמור':'שמירת המסלול'}</button></div>`;
+  <div class="d-foot"><div><b>${nis(c.total)}</b> <span class="muted">לזוג · ${cur.days} ימים</span></div><button class="btn ghost" data-toplan>ללוח הזמנים</button><button class="btn" data-savecur>${ic('heart')}${isSaved(d.id)?'עדכון המסלול השמור':'שמירת המסלול'}</button></div>`;
   g.scrollTop=y;
 }
 function saveTrip(id,o){
@@ -1272,8 +1324,8 @@ const press=(sel,v,attr)=>document.querySelectorAll(sel).forEach(b=>b.setAttribu
 function pop(name){document.querySelectorAll('[data-panel]').forEach(p=>{p.hidden=p.dataset.panel!==name||!p.hidden&&true});document.querySelectorAll('[data-pop]').forEach(b=>b.setAttribute('aria-expanded',b.dataset.pop===name&&!$(`[data-panel="${name}"]`).hidden))}
 
 function show(tab){
-  if(!['planner','trips'].includes(tab))tab='planner';
-  ['planner','trips'].forEach(t=>{$('#view-'+t).hidden=t!==tab;$('#tab-'+t).setAttribute('aria-selected',t===tab)});
+  if(!['planner','trips','plan'].includes(tab))tab='planner';
+  ['planner','trips','plan'].forEach(t=>{$('#view-'+t).hidden=t!==tab;$('#tab-'+t).setAttribute('aria-selected',t===tab)});
   $('#fabSpin').hidden=tab!=='planner';
 }
 addEventListener('hashchange',()=>{show(location.hash.slice(1));scrollTo(0,0)});
@@ -1294,12 +1346,17 @@ document.addEventListener('click',e=>{
   else if(ds.trip){const t=trips.find(x=>x.id===ds.trip);openDest(t.id,t)}
   else if(ds.del){if(ds.sure){trips=trips.filter(t=>t.id!==ds.del);persist();render()}else{b.dataset.sure=1;b.textContent='למחוק? לחצו שוב'}}
   else if('close' in ds)$('#dlg').close();
+  else if(ds.xadd){const i=ds.xadd,x=$('#xx-'+i).value.trim();if(x){(pl.x[i]=pl.x[i]||[]).push({t:$('#xt-'+i).value||'12:00',x});savePl();renderPlan()}}
+  else if(ds.xdel){const[i,j]=ds.xdel.split(':');pl.x[i].splice(+j,1);savePl();renderPlan()}
+  else if('toplan' in ds){pl.dest=cur.id;savePl();fillPlanForm();renderPlan();$('#dlg').close();location.hash='plan';show('plan');scrollTo(0,0)}
   else if(ds.step){cur.days=Math.max(3,Math.min(14,cur.days+ +ds.step));drawDlg()}
   else if(ds.dtier){cur.tier=+ds.dtier;drawDlg()}
   else if('savecur' in ds){saveTrip(cur.id,cur);drawDlg();render()}
   else if(b.id==='fabSpin'||b.id==='goSpin')spin();
 });
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.card[data-open]'))openDest(e.target.dataset.open)});
+document.addEventListener('click',e=>{const a=e.target.closest('[data-openid]');if(a){e.preventDefault();openDest(a.dataset.openid)}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id&&e.target.id.startsWith('xx-')){e.preventDefault();$(`[data-xadd="${e.target.id.slice(3)}"]`).click()}
+  if(e.key==='Enter'&&e.target.matches('.card[data-open]'))openDest(e.target.dataset.open)});
 $('#dlg').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.close()});
 $('#destQ').addEventListener('input',destList);
 document.addEventListener('input',e=>{const id=e.target.dataset.note;if(id){trips.find(t=>t.id===id).note=e.target.value;persist()}});
@@ -1315,6 +1372,56 @@ function spin(){
   setTimeout(()=>{clearInterval(t);b.textContent=pick.n;o.querySelector('span').textContent='נוסעים ל…';setTimeout(()=>{o.remove();openDest(pick.id)},900)},1700);
 }
 $('#credits').innerHTML='תמונות מתוך Unsplash: '+D.filter(d=>PHOTO[d.id]).map(d=>`<a href="${PHOTO[d.id][2]}" target="_blank" rel="noopener">${d.n}</a> (${PHOTO[d.id][0]}, ${PHOTO[d.id][1]})`).join(' · ');
+
+/* ---------- my trip schedule ---------- */
+let pl={dest:'',name:'',o:{d:'',t1:'',t2:''},b:{d:'',t1:'',t2:''},h:{n:'',a:''},x:{}};
+try{pl=Object.assign(pl,JSON.parse(localStorage.getItem('mifras.plan'))||{})}catch(e){}
+const savePl=()=>{try{localStorage.setItem('mifras.plan',JSON.stringify(pl))}catch(e){}};
+const toMin=t=>t?+t.slice(0,2)*60+ +t.slice(3,5):null,fm=m=>{m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};
+const pdate=v=>{const[a,b,c]=v.split('-').map(Number);return new Date(a,b-1,c)};
+const esc=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const mapL=a=>`<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a)}" target="_blank" rel="noopener">מפה</a>`;
+function fillPlanForm(){
+  $('#p-dest').innerHTML='<option value="">בחרו יעד</option>'+[...D].sort((a,b)=>a.n.localeCompare(b.n,'he')).map(d=>`<option value="${d.id}">${d.n}, ${d.w}</option>`).join('')+'<option value="other">יעד אחר</option>';
+  document.querySelectorAll('[data-pl]').forEach(e=>{const[k,j]=e.dataset.pl.split('.');e.value=(j?pl[k][j]:pl[k])||''});
+  $('#p-name-l').hidden=pl.dest!=='other';
+}
+function renderPlan(){
+  const el=$('#planDays'),d=D.find(x=>x.id===pl.dest),name=d?d.n:(pl.name||'היעד');
+  if(!pl.o.d||!pl.b.d){el.innerHTML='<div class="empty">הכניסו את תאריכי הטיסה הלוך וחזור, והלוח היומי יופיע כאן. שעות ההמראה והנחיתה והמלון ישובצו בו אוטומטית.</div>';return}
+  const d0=pdate(pl.o.d),n=Math.round((pdate(pl.b.d)-d0)/864e5)+1;
+  if(n<1||n>30){el.innerHTML='<div class="empty">תאריך החזרה צריך להיות אחרי תאריך היציאה, ועד 30 ימים ממנו.</div>';return}
+  const stops=d&&n>1?plan(d,Math.min(Math.max(n,2),14),st.styles,st.walk):[],car=d&&d.c[3]>0,hotel=pl.h.n||'המלון';
+  const S=(m,x,fx)=>({m,t:x[0],s:x[2],a:x[1],sg:!fx}),arr=toMin(pl.o.t2),dep=toMin(pl.b.t1);
+  let html=`<div class="psum"><span class="y">${name}</span><span>${n} ימים · ${n-1} לילות</span>${pl.h.n?`<span>${esc(pl.h.n)}</span>`:''}${pl.h.a?`<span>${mapL(pl.h.a)} למלון</span>`:''}${d?`<span><a href="#planner" data-openid="${d.id}" style="color:inherit">ההמלצות ליעד</a></span>`:''}</div>`;
+  for(let i=0;i<n;i++){
+    const it=[],day=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i),ds=(stops[Math.min(i,stops.length-1)]||[]).slice(),first=i===0,last=i===n-1&&n>1;
+    if(first){
+      if(pl.o.t1)it.push({m:toMin(pl.o.t1),t:'המראה מישראל',s:'להגיע לנתב״ג שלוש שעות לפני'});
+      if(arr!=null){it.push({m:arr,t:'נחיתה ב'+name},{m:arr+60,t:'יציאה משדה התעופה',s:car?'איסוף הרכב השכור':'מונית או הסעה למלון'},{m:arr+120,t:'הגעה ל'+esc(hotel),s:arr+120<900?'אם החדר עוד לא מוכן, משאירים מזוודות וממשיכים':'צ׳ק־אין והתארגנות',a:pl.h.a});
+        if(ds[0]&&arr+180<=960)it.push(S(arr+180,ds[0]));
+        if(arr+150<1200)it.push({m:1200,t:'ארוחת ערב ראשונה',s:'ליד המלון, בלי תוכניות',sg:1})}
+      else if(ds[0])it.push(S(900,ds[0]));
+    }
+    if(last){
+      const co=dep!=null?Math.min(660,dep-240):660;it.push({m:co,t:'צ׳ק־אאוט מ'+esc(hotel),s:'אפשר לבקש לשמור מזוודות בקבלה',a:pl.h.a});
+      if(dep!=null){if(ds[0]&&dep-180-co>=210)it.push(S(co+30,ds[0]));it.push({m:dep-180,t:'הגעה לשדה התעופה',s:'שלוש שעות לפני ההמראה'+(car?', כולל החזרת הרכב':'')},{m:dep,t:'המראה חזרה לישראל'})}
+      if(pl.b.t2)it.push({m:toMin(pl.b.t2)+(dep!=null&&toMin(pl.b.t2)<dep?1440:0),t:'נחיתה בישראל'});
+    }
+    if(!first&&!last||n===1&&!first){
+      if(ds[0])it.push(S(570,ds[0]));else it.push({m:600,t:'בוקר פתוח',s:d?'יום חופשי: חוף, קניות או נסיעת נוף':'הוסיפו כאן את התוכניות שלכם',sg:1});
+      it.push({m:780,t:'ארוחת צהריים',sg:1});if(ds[1])it.push(S(900,ds[1]));it.push({m:1200,t:'ארוחת ערב',sg:1});
+    }
+    (pl.x[i]||[]).forEach((c,j)=>it.push({m:toMin(c.t)??0,t:esc(c.x),cu:j}));
+    it.sort((a,b)=>a.m-b.m);
+    html+=`<div class="pday"><h3>יום ${i+1}<small>${day.toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'})}</small></h3><div class="tl">${it.map(x=>`<div class="ti${x.sg?' sg':x.cu!=null?'':' fx'}"><time>${fm(x.m)}</time><div><b>${x.t}</b>${x.s?`<small>${x.s}</small>`:''}${x.a?`<small dir="auto">${esc(x.a)} · ${mapL(x.a)}</small>`:''}</div>${x.cu!=null?`<button type="button" class="x" data-xdel="${i}:${x.cu}" aria-label="מחיקה">×</button>`:'<span></span>'}</div>`).join('')}</div>
+    <div class="addrow"><input type="time" id="xt-${i}" aria-label="שעה" value="12:00"><input id="xx-${i}" aria-label="מה מתוכנן" placeholder="להוסיף משהו ליום הזה, למשל: הזמנה למסעדה"><button type="button" class="btn" data-xadd="${i}">הוספה</button></div></div>`;
+  }
+  el.innerHTML=html+'<p class="note">שעות צהובות הן קבועות (טיסות, מלון ומה שהוספתם). שעות אפורות הן הצעות לפי היעד, ואפשר להתעלם מהן.</p>';
+}
+$('#pform').addEventListener('input',e=>{const k=e.target.dataset.pl;if(!k)return;const[a,b]=k.split('.');if(b)pl[a][b]=e.target.value;else pl[a]=e.target.value;$('#p-name-l').hidden=pl.dest!=='other';savePl();renderPlan()});
+$('#pform').addEventListener('submit',e=>e.preventDefault());
+fillPlanForm();renderPlan();
 show(location.hash.slice(1));render();
 </script>
 </html>
