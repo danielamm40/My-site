@@ -333,6 +333,19 @@ b,strong{font-weight:600}
 
 
 
+
+/* ---- trip list ---- */
+.tlist{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));max-width:900px}
+.tcard{height:190px;cursor:pointer}
+.tcard .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 35%,rgba(0,0,0,.72))}
+.tover{position:absolute;inset:auto 16px 14px;color:#fff;display:grid;gap:1px}
+.tover b{font-size:1.35rem;font-weight:500}.tover small{color:#eee;font-size:.88rem}
+.badge.pale{background:#fff;color:#111}
+.newtrip{border:1.5px dashed var(--muted);border-radius:26px;min-height:90px;color:var(--ink);font-weight:500;font-size:1.05rem;transition:.2s}
+.newtrip:hover{background:var(--soft);border-color:var(--ink)}
+.back{font-size:1rem;font-weight:500}
+.link.danger{color:#c0392b}
+@media (max-width:900px){.tlist{grid-template-columns:minmax(0,1fr)}.tcard{height:170px}}
 /* ---- trip extras ---- */
 .pi{grid-template-columns:58px 1fr auto}
 .acts{display:flex;gap:4px}
@@ -504,7 +517,8 @@ dialog{overflow-x:hidden}
   <div class="grid" id="tripGrid"></div>
 </section></div></div>
 <div id="view-plan" hidden><div class="wrap"><section>
-  <div class="head" style="padding-top:20px"><h2 style="font-size:2rem">הטיול שלי</h2><p>מלאו את פרטי הטיסות והלינה, והלוח ייבנה סביבם. <span id="syncNote">נשמר בדפדפן הזה.</span></p></div>
+  <div class="head" style="padding-top:20px"><h2 style="font-size:2rem" id="planH">הטיולים שלי</h2><p><span id="planSub"></span> <span id="syncNote">נשמר בדפדפן הזה.</span></p></div>
+  <div id="planList" class="grid tlist"></div>
   <form class="pform" id="pform" autocomplete="off">
     <fieldset><legend>לאן</legend>
       <label>יעד<select id="p-dest" data-pl="dest"></select></label>
@@ -535,7 +549,7 @@ dialog{overflow-x:hidden}
 <nav class="dock" role="tablist" aria-label="ניווט ראשי"><div>
   <button class="tab" role="tab" data-tab="planner" id="tab-planner"><span data-ic="home"></span><span class="lb">יעדים</span></button>
   <button class="tab" role="tab" data-tab="trips" id="tab-trips"><span data-ic="heart"></span><span class="lb">נסיעות מתוכננות</span><span class="count" id="tripCount">0</span></button>
-  <button class="tab" role="tab" data-tab="plan" id="tab-plan"><span data-ic="cal"></span><span class="lb">הטיול שלי</span></button>
+  <button class="tab" role="tab" data-tab="plan" id="tab-plan"><span data-ic="cal"></span><span class="lb">הטיולים שלי</span></button>
 </div></nav>
 <dialog id="dlg" aria-labelledby="dTitle"></dialog>
 </div>
@@ -1359,11 +1373,17 @@ function scene(id){
 const st={go:new Set(['direct','land','ferry','multi']),dest:'',budget:14000,days:6,flight:5,month:0,tier:1,walk:0,styles:new Set(['views','drive','shop'])};
 let trips=[];try{trips=JSON.parse(localStorage.getItem('mifras.trips'))||[]}catch(e){}
 let cloud=null,cloudDb=null,unsub=null;const cloudT={};
-const planRef=()=>pl.share&&cloudDb?cloudDb.collection('shared').doc('plan'):cloud.doc('plan');
-function push(k,val){if(!cloud)return;clearTimeout(cloudT[k]);cloudT[k]=setTimeout(()=>{(k==='plan'?planRef():cloud.doc(k)).set({v:JSON.stringify(val),t:val._t||Date.now()}).catch(()=>{});if(k==='plan')cloud.doc('prefs').set({share:!!pl.share}).catch(()=>{})},700)}
-function takePlan(c){if(!c||!c.v||(c.t||0)<=(pl._t||0))return;const sh=pl.share;pl=Object.assign(pl,JSON.parse(c.v));pl._t=c.t;pl.share=sh;pl.hs=pl.hs||[{n:'',a:'',from:''}];pl.int=pl.int||[];pl.hide=pl.hide||{};pl.x=pl.x||{};pl.pack=pl.pack||{};pl.packX=pl.packX||[];pl.bud=pl.bud||{total:'',items:[]};try{localStorage.setItem('mifras.plan',JSON.stringify(pl))}catch(e){}if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#view-plan input,#view-plan select'))return;fillPlanForm();renderHotels();renderPlan()}
-function watchShared(){if(unsub){unsub();unsub=null}if(pl.share&&cloudDb)unsub=cloudDb.collection('shared').doc('plan').onSnapshot(s=>{if(s.exists)takePlan(s.data())},()=>{})}
-function setShare(on){if(on&&!cloudDb){toast('שיתוף זמין רק כשהדף פתוח ב-Claude');renderPlan();return}pl.share=on;pl.ui='share';savePl();watchShared();renderPlan();toast(on?'הטיול משותף עכשיו':'הטיול חזר להיות פרטי')}
+function push(k,val){if(!cloud)return;clearTimeout(cloudT[k]);cloudT[k]=setTimeout(()=>{cloud.doc(k).set({v:JSON.stringify(val),t:Date.now()}).catch(()=>{})},700)}
+function pushPlans(){if(!cloud)return;clearTimeout(cloudT.plans);cloudT.plans=setTimeout(()=>{
+  cloud.doc('plans').set({v:JSON.stringify({list:plans.filter(p=>!p.share),gone}),t:Date.now()}).catch(()=>{});
+  if(cloudDb)plans.filter(p=>p.share&&p._dirty).forEach(p=>{delete p._dirty;cloudDb.collection('shared').doc(p.id).set({v:JSON.stringify(p),t:p._t||Date.now()}).catch(()=>{})})},700)}
+function mergePlans(list,shared){let ch=false;(list||[]).forEach(c=>{if(!c||!c.id||gone.includes(c.id))return;c=fixT(c);if(shared)c.share=true;const i=plans.findIndex(p=>p.id===c.id);
+  if(i<0){plans.push(c);ch=true}else if((c._t||0)>(plans[i]._t||0)){const act=plans[i]===pl;plans[i]=c;if(act)pl=c;ch=true}});return ch}
+function afterMerge(){try{localStorage.setItem('mifras.plans',JSON.stringify({list:plans,gone}))}catch(e){}if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#view-plan input,#view-plan select,#view-plan textarea'))return;fillPlanForm();renderHotels();renderPlan()}
+function watchShared(){if(unsub){unsub();unsub=null}if(pl.share&&cloudDb&&plOpen){const id=pl.id;unsub=cloudDb.collection('shared').doc(id).onSnapshot(s=>{if(s.exists){try{if(mergePlans([JSON.parse(s.data().v)],true))afterMerge()}catch(e){}}},()=>{})}}
+function setShare(on){if(on&&!cloudDb){toast('שיתוף זמין רק כשהדף פתוח ב-Claude');renderPlan();return}
+  if(!on&&cloudDb)cloudDb.collection('shared').doc(pl.id).delete().catch(()=>{});
+  pl.share=on;pl.ui='share';savePl();watchShared();renderPlan();toast(on?'הטיול משותף עכשיו':'הטיול חזר להיות פרטי')}
 const persist=()=>{try{localStorage.setItem('mifras.trips',JSON.stringify(trips));localStorage.setItem('mifras.trips.t',Date.now())}catch(e){}push('trips',trips)};
 
 const seas=(d,m)=>!m?1:m===7||m===8?1.3:m===12?(d.s.xmas>=2||d.m.includes(12)?1.25:.9):m===6||m===9?1.1:[1,2,11].includes(m)?(d.m.includes(m)?1.15:.85):1;
@@ -1492,7 +1512,8 @@ ${d.st.map(x=>`- ${x[0]} | ${x[1]} | ${x[2]}`).join('\n')}
   cur.aiBusy=false;if($('#dlg').open&&cur)drawDlg();
 }
 function aiAccept(){
-  pl.dest=cur.id;pl.x={};pl.hide={};pl.ai=true;cur.ai.days.forEach((y,i)=>pl.x[i]=y.items.map(i=>({t:i.t,x:i.x,a:i.a})));
+  let p=plans.find(x=>x.dest===cur.id);if(!p){p=blank();p.dest=cur.id;plans.unshift(p)}pl=p;plOpen=true;chat=[];
+  pl.x={};pl.hide={};pl.ai=true;cur.ai.days.forEach((y,i)=>pl.x[i]=y.items.map(i=>({t:i.t,x:i.x,a:i.a})));
   pEdit=!pl.o.d;pDay=0;savePl();fillPlanForm();renderHotels();renderPlan();$('#dlg').close();location.hash='plan';show('plan');scrollTo(0,0);
   toast(pl.o.d?'הלו״ז עבר לטיול שלי':'הלו״ז עבר. הוסיפו תאריכי טיסה כדי לראות אותו');
 }
@@ -1501,7 +1522,7 @@ const aiBox=()=>`<div class="aibox"><h3>ספרו לעוזר מה בא לכם</h3
   <button type="button" class="btn" data-aibuild ${cur.aiBusy?'disabled':''}>${cur.aiBusy?'העוזר בונה לו״ז…':cur.ai?'לבנות מחדש':'בנו לנו לו״ז'}</button>
   ${cur.aiMsg?`<p class="warn">${cur.aiMsg}</p>`:''}
   ${cur.ai&&!cur.aiBusy?`<div class="aires">${cur.ai.days.map((y,i)=>`<div class="aiday"><b>יום ${i+1}${y.title?' · '+esc(y.title):''}</b>${y.items.map(i=>`<div><time>${i.t}</time><span>${esc(i.x)}${i.a?`<small dir="auto">${esc(i.a)}</small>`:''}</span></div>`).join('')}</div>`).join('')}${cur.ai.note?`<p class="note">${esc(cur.ai.note)}</p>`:''}
-    <button type="button" class="btn" data-aiok>מאשרים, להעביר לטיול שלי</button><p class="note">הלו״ז יחליף את מה שיש עכשיו בטיול שלי. את הטיסות ומקומות הלינה מוסיפים שם. כדאי לבדוק כתובות ושעות פתיחה, העוזר יכול לטעות.</p></div>`:''}</div>`;
+    <button type="button" class="btn" data-aiok>מאשרים, להעביר לטיול שלי</button><p class="note">הלו״ז ייכנס לטיול של היעד הזה ב״הטיולים שלי״, ויחליף את מה שהיה בו. את הטיסות ומקומות הלינה מוסיפים שם. כדאי לבדוק כתובות ושעות פתיחה, העוזר יכול לטעות.</p></div>`:''}</div>`;
 let chat=[],chatBusy=false;
 function tripContext(){
   const d=D.find(x=>x.id===pl.dest),name=d?d.n+', '+d.w:(pl.name||'לא נבחר יעד');let t=`יעד: ${name}.`;
@@ -1625,14 +1646,18 @@ document.addEventListener('click',e=>{
   else if('pedit' in ds){pEdit=!pEdit;renderPlan();if(pEdit)$('#pform').scrollIntoView({block:'start'})}
   else if(ds.padd){const k=pDay+':'+ds.padd;pAdd=pAdd===k?'':k;renderPlan()}
   else if(ds.xdel){const[i,j]=ds.xdel.split(':');pl.x[i].splice(+j,1);savePl();renderPlan()}
-  else if('toplan' in ds){pEdit=true;pl.dest=cur.id;savePl();fillPlanForm();renderHotels();renderPlan();$('#dlg').close();location.hash='plan';show('plan');scrollTo(0,0)}
+  else if('toplan' in ds){let p=plans.find(x=>x.dest===cur.id);if(!p){p=blank();p.dest=cur.id;plans.unshift(p);pl=p;savePl()}$('#dlg').close();location.hash='plan';show('plan');openTrip(p,!p.o.d)}
+  else if('pback' in ds){plOpen=false;watchShared();renderPlan();scrollTo(0,0)}
+  else if('pnew' in ds){const p=blank();openTrip(p,true)}
+  else if('pdel' in ds){if(ds.sure){gone.push(pl.id);if(pl.share&&cloudDb)cloudDb.collection('shared').doc(pl.id).delete().catch(()=>{});plans=plans.filter(p=>p!==pl);pl=plans[0]||blank();plOpen=false;try{localStorage.setItem('mifras.plans',JSON.stringify({list:plans,gone}))}catch(e){}pushPlans();renderPlan();toast('הטיול נמחק')}else{b.dataset.sure=1;b.textContent='למחוק את הטיול? לחצו שוב'}}
   else if(ds.step){cur.days=Math.max(3,Math.min(14,cur.days+ +ds.step));drawDlg()}
   else if(ds.dtier){cur.tier=+ds.dtier;drawDlg()}
   else if(ds.smonth!=null){cur.month=+ds.smonth;drawDlg()}
   else if('savecur' in ds){saveTrip(cur.id,cur);drawDlg();render()}
   else if(b.id==='fabSpin'||b.id==='goSpin')spin();
 });
-document.addEventListener('click',e=>{const a=e.target.closest('[data-openid]');if(a){e.preventDefault();openDest(a.dataset.openid)}});
+document.addEventListener('click',e=>{const tc=e.target.closest('[data-ptrip]');if(tc){const p=plans.find(x=>x.id===tc.dataset.ptrip);if(p)openTrip(p,false);return}
+  const a=e.target.closest('[data-openid]');if(a){e.preventDefault();openDest(a.dataset.openid)}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id&&e.target.id.startsWith('xx-')){e.preventDefault();$(`[data-xadd="${e.target.id.slice(3)}"]`).click()}
   if(e.key==='Enter'&&e.target.matches('.card[data-open]'))openDest(e.target.dataset.open)});
 $('#dlg').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.close()});
@@ -1653,9 +1678,13 @@ function spin(){
 $('#credits').innerHTML=D.filter(d=>PHOTO[d.id]).map(d=>`<a href="${PHOTO[d.id][2]}" target="_blank" rel="noopener">${d.n}</a> (${PHOTO[d.id][0]}, ${PHOTO[d.id][1]})`).join(' · ');
 
 /* ---------- my trip schedule ---------- */
-let pl={dest:'',name:'',o:{d:'',t1:'',t2:''},b:{d:'',t1:'',t2:''},h:{n:'',a:''},x:{}};
-try{pl=Object.assign(pl,JSON.parse(localStorage.getItem('mifras.plan'))||{})}catch(e){}
-const savePl=()=>{pl._t=Date.now();try{localStorage.setItem('mifras.plan',JSON.stringify(pl))}catch(e){}push('plan',pl)};
+const blank=()=>({id:'t'+Date.now().toString(36)+Math.floor(Math.random()*900+100),dest:'',name:'',o:{d:'',t1:'',t2:''},b:{d:'',t1:'',t2:''},hs:[{n:'',a:'',from:''}],x:{},int:[],hide:{},pack:{},packX:[],bud:{total:'',items:[]}});
+const fixT=p=>{const b=blank();if(p.h&&!p.hs)p.hs=[{n:p.h.n||'',a:p.h.a||'',from:''}];return Object.assign(b,p,{id:p.id||b.id,o:Object.assign(b.o,p.o),b:Object.assign(b.b,p.b)})};
+let plans=[],gone=[],plOpen=false;
+try{const sv=JSON.parse(localStorage.getItem('mifras.plans'));if(sv&&Array.isArray(sv.list)){plans=sv.list.map(fixT);gone=sv.gone||[]}else{const old=JSON.parse(localStorage.getItem('mifras.plan'));if(old&&(old.dest||old.name||(old.o&&old.o.d)))plans=[fixT(old)]}}catch(e){}
+let pl=plans[0]||blank();
+const hasContent=p=>p.dest||p.name||p.o.d||p.b.d||p.hs.some(h=>h.n||h.a)||Object.keys(p.x).length;
+const savePl=()=>{pl._t=Date.now();if(pl.share)pl._dirty=1;if(!plans.includes(pl)&&hasContent(pl))plans.unshift(pl);try{localStorage.setItem('mifras.plans',JSON.stringify({list:plans,gone}))}catch(e){}pushPlans()};
 const toMin=t=>t?+t.slice(0,2)*60+ +t.slice(3,5):null,fm=m=>{m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};
 const pdate=v=>{const[a,b,c]=v.split('-').map(Number);return new Date(a,b-1,c)};
 const esc=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1666,8 +1695,7 @@ function fillPlanForm(){
   $('#p-name-l').hidden=pl.dest!=='other';
 }
 let pDay=0,pEdit=false,pAdd='';
-if(!pl.hs)pl.hs=[{n:(pl.h&&pl.h.n)||'',a:(pl.h&&pl.h.a)||'',from:''}];
-pl.int=pl.int||[];pl.hide=pl.hide||{};pl.pack=pl.pack||{};pl.packX=pl.packX||[];pl.bud=pl.bud||{total:'',items:[]};
+
 let pEditItem=null,lastIt=[];
 const INT={shop:['שופינג','shopping street','16:00'],market:['שווקים','local market','10:00'],food:['מסעדות','best restaurants','20:30'],park:['פארקים','park garden','17:00'],vintage:['וינטג׳','vintage second hand shop','11:30'],cafe:['בתי קפה','specialty coffee cafe','16:30'],view:['תצפיות','viewpoint','18:00'],museum:['מוזיאונים','museum','11:00']};
 const iso=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
@@ -1733,6 +1761,7 @@ function planExtras(d,n,d0,it){
     <div class="addrow bud"><input id="budT" aria-label="על מה" placeholder="על מה? למשל: טיסות"><input type="number" id="budA" inputmode="numeric" min="0" aria-label="סכום בשקלים" placeholder="₪"><button type="button" class="btn" data-budadd>הוספה</button></div></details>
   <details class="xbox"${pl.ui==='share'?' open':''} data-ui="share"><summary><span>שמירה ושיתוף</span><small>${pl.share?'משותף':''}</small></summary>
     <button type="button" class="btn" data-export style="justify-self:start">שמירת הלוח כקובץ</button><p class="note">קובץ אחד עם כל הימים, שאפשר לפתוח בטלפון גם בלי אינטרנט או להדפיס.</p>
+    <button type="button" class="link danger" data-pdel style="justify-self:start">מחיקת הטיול הזה</button>
     <label class="chk"><input type="checkbox" id="shareOn"${pl.share?' checked':''}><span>טיול משותף: כל מי שהדף משותף איתו רואה ועורך את אותו לוח</span></label><p class="note">כדי שבן הזוג יראה את הטיול, שתפו איתו את הדף מתפריט השיתוף של Claude, ואז סמנו כאן. בלי הסימון הטיול נשאר פרטי.</p></details>`;
 }
 function exportHtml(){
@@ -1746,8 +1775,24 @@ async function doExport(){
   try{const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;if(dl){await dl.save({filename:fn,data:blob});toast('הקובץ נשמר');return}}catch(e){if(e&&e.code==='declined')return}
   try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.append(a);a.click();a.remove();toast('הקובץ ירד למכשיר')}catch(e){toast('לא ניתן לשמור קובץ בתצוגה הזו')}
 }
+const tripName=p=>{const d=D.find(x=>x.id===p.dest);return d?d.n:(p.name||'טיול חדש')};
+function tripMeta(p){
+  if(!p.o.d)return ['בלי תאריך','טיוטה'];
+  const a=pdate(p.o.d),now=new Date(),t0=new Date(now.getFullYear(),now.getMonth(),now.getDate()),dd=Math.round((a-t0)/864e5),n=p.b.d?Math.round((pdate(p.b.d)-a)/864e5)+1:0;
+  const end=p.b.d?pdate(p.b.d):a,f=x=>x.toLocaleDateString('he-IL',{day:'numeric',month:'long'});
+  const cd=dd>60?`בעוד ${Math.round(dd/30)} חודשים`:dd>1?`בעוד ${dd} ימים`:dd===1?'מחר':dd===0?'היום':end>=t0?'בעיצומו':'היה';
+  return [cd,(p.b.d?`${f(a)} עד ${f(end)}`:f(a))+(n>0?` · ${n} ימים`:'')];
+}
+function renderList(){
+  $('#planH').textContent='הטיולים שלי';$('#planSub').textContent=plans.length?'לחצו על טיול כדי לפתוח את הלוח שלו.':'עוד אין טיולים. התחילו טיול חדש, או בחרו יעד ולחצו "ללוח הזמנים".';
+  $('#planList').innerHTML=[...plans].sort((x,y)=>(x.o.d||'9999')<(y.o.d||'9999')?-1:1).map(p=>{const d=D.find(x=>x.id===p.dest),m=tripMeta(p);return `<article class="card tcard" data-ptrip="${p.id}" tabindex="0" role="button" aria-label="${esc(tripName(p))}, ${m[1]}"><div class="ph">${d?img(d):scene('city')}<span class="badge${m[0]==='בלי תאריך'||m[0]==='היה'?' pale':''}">${m[0]}</span></div><div class="tover"><b>${esc(tripName(p))}</b><small>${m[1]}${p.share?' · משותף':''}</small></div></article>`}).join('')+'<button type="button" class="newtrip" data-pnew>+ טיול חדש</button>';
+}
+function openTrip(p,edit){pl=p;plOpen=true;pDay=0;pAdd='';pEditItem=null;pEdit=!!edit;chat=[];fillPlanForm();renderHotels();renderPlan();drawChat();watchShared();scrollTo(0,0)}
 function renderPlan(){
-  const el=$('#planDays'),d=D.find(x=>x.id===pl.dest),name=d?d.n:(pl.name||'הטיול שלנו'),ok=pl.o.d&&pl.b.d;
+  $('#planList').hidden=plOpen;$('#chatBox').hidden=!plOpen;
+  if(!plOpen){$('#pform').hidden=true;$('#planDays').innerHTML='';renderList();return}
+  $('#planH').innerHTML='<button type="button" class="link back" data-pback>‹ כל הטיולים</button>';$('#planSub').textContent='מלאו את פרטי הטיסות והלינה, והלוח ייבנה סביבם.';
+  const el=$('#planDays'),d=D.find(x=>x.id===pl.dest),name=d?d.n:(pl.name||'טיול חדש'),ok=pl.o.d&&pl.b.d;
   const d0=ok?pdate(pl.o.d):null,n=ok?Math.round((pdate(pl.b.d)-d0)/864e5)+1:0,bad=ok&&(n<1||n>30);
   $('#pform').hidden=ok&&!bad&&!pEdit;
   if(!ok){el.innerHTML='<div class="empty">הכניסו את תאריכי הטיסה הלוך וחזור, והלוח היומי יופיע כאן. שעות ההמראה והנחיתה ומקומות הלינה ישובצו בו אוטומטית.</div>';return}
@@ -1788,22 +1833,24 @@ $('#planDays').addEventListener('change',e=>{const t=e.target;
   else if(t.id==='shareOn'){setShare(t.checked)}});
 $('#planDays').addEventListener('toggle',e=>{const t=e.target;if(t.dataset&&t.dataset.ui&&t.open)pl.ui=t.dataset.ui;else if(t.dataset&&pl.ui===t.dataset.ui)pl.ui=''},true);
 fillPlanForm();renderHotels();renderPlan();drawChat();
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('[data-ptrip]'))e.target.click()});
 $('#chatIn').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();chatSend()}});
 show(location.hash.slice(1));render();
-/* keep the trip and saved list in the viewer's own Claude storage when the page runs as an artifact */
+/* keep trips and the saved list in the viewer's own Claude storage when the page runs as an artifact */
 (async()=>{try{
   if(!window.claude||!window.claude.use)return;
   const[db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);if(!db||!user)return;
   const id=await user.id();if(!id)return;
-  cloudDb=db;const col=db.collection('data/users/'+id),[a,b,pr]=await Promise.all([col.doc('plan').get(),col.doc('trips').get(),col.doc('prefs').get()]);cloud=col;
+  cloudDb=db;const col=db.collection('data/users/'+id),[a,old,b]=await Promise.all([col.doc('plans').get(),col.doc('plan').get(),col.doc('trips').get()]);cloud=col;
+  let ch=false;
+  if(a.exists){const c=JSON.parse(a.data().v||'{}');(c.gone||[]).forEach(g=>{if(!gone.includes(g))gone.push(g)});plans=plans.filter(p=>!gone.includes(p.id));ch=mergePlans(c.list)}
+  else if(old.exists&&!plans.length){try{const o=JSON.parse(old.data().v);if(o&&(o.dest||o.name||(o.o&&o.o.d)))ch=mergePlans([fixT(o)])}catch(e){}}
+  try{const sh=await db.collection('shared').get();if(mergePlans(sh.docs.map(x=>{try{return JSON.parse(x.data().v)}catch(e){return null}}),true))ch=true}catch(e){}
+  if(!plans.includes(pl))pl=plans[0]||pl;
+  if(ch)afterMerge();pushPlans();
   const cb=b.exists?b.data():null;let lt=0;try{lt=+localStorage.getItem('mifras.trips.t')||0}catch(e){}
-  if(pr.exists&&pr.data().share)pl.share=true;
-  const before=pl._t||0;if(a.exists)takePlan(a.data());
-  if(pl.share){const sdoc=await db.collection('shared').doc('plan').get();if(sdoc.exists)takePlan(sdoc.data());watchShared()}
-  if((pl._t||0)===before&&(pl._t||pl.o.d||pl.dest))push('plan',pl);
   if(cb&&((cb.t||0)>lt||!trips.length)){trips=JSON.parse(cb.v)||[];try{localStorage.setItem('mifras.trips',JSON.stringify(trips));localStorage.setItem('mifras.trips.t',cb.t)}catch(e){}render()}
   else if(trips.length)push('trips',trips);
-  renderPlan();
   $('#syncNote').textContent='נשמר בחשבון Claude שלכם, כך שהוא נשאר גם אחרי שיוצאים.';
 }catch(e){}})();
 </script>
